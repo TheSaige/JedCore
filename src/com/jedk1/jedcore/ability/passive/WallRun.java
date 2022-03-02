@@ -164,7 +164,7 @@ public class WallRun extends ChiAbility implements AddonAbility {
 	
 	@Override
 	public boolean isHiddenAbility() {
-		return true;
+		return false;
 	}
 
 	@Override
@@ -189,7 +189,7 @@ public class WallRun extends ChiAbility implements AddonAbility {
 
 	@Override
 	public String getDescription() {
-	   return "To use wallrun, sprint towards a wall, jump, then rapidly click to activate.";
+	   return "To use WallRun, sprint towards a wall, jump, then rapidly click to activate. You don't have to bind this ability to use it. It is a passive.";
 	}
 	
 	@Override
