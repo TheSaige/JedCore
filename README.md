@@ -5,6 +5,9 @@ Join our [Discord](https://discord.gg/gh9MfDmwZm) to discuss the plugin, suggest
 
 ## Changelog
 
+### 2.9.6.2
+- Started using jitpack for ProjectKorra dependency
+
 ### 2.9.6.1
 - Fixed bug where many combo abilities did not display in /b display
 
