@@ -70,17 +70,17 @@ public class FirePunch extends FireAbility implements AddonAbility {
 				.add(0, 1.2, 0)
 				.add(player.getLocation().getDirection().multiply(0.8));
 		playFirebendingParticles(location, 3, 0, 0, 0);
-		ParticleEffect.SMOKE_LARGE.display(location, 3);
+		ParticleEffect.SMOKE_NORMAL.display(location, 1);
 	}
 
 	public void punch(LivingEntity target) {
+		remove();
 		DamageHandler.damageEntity(target, damage, this);
 		FireTick.set(target, fireTicks / 50);
 		if (cooldown > fireTicks) {
 			new FireDamageTimer(target, player);
 		}
 		bPlayer.addCooldown(this);
-		remove();
 	}
 
 	@Override
