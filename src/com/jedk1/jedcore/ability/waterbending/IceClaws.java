@@ -34,7 +34,6 @@ public class IceClaws extends IceAbility implements AddonAbility {
 	private Location head;
 	private Location origin;
 	private boolean launched;
-	private long time;
 
 	public IceClaws(Player player) {
 		super(player);
@@ -43,7 +42,7 @@ public class IceClaws extends IceAbility implements AddonAbility {
 		}
 
 		if (hasAbility(player, IceClaws.class)) {
-			IceClaws ic = ((IceClaws) getAbility(player, IceClaws.class));
+			IceClaws ic = getAbility(player, IceClaws.class);
 			if (!ic.throwable) {
 				ic.remove();
 			}
@@ -51,7 +50,6 @@ public class IceClaws extends IceAbility implements AddonAbility {
 		}
 
 		setFields();
-		time = System.currentTimeMillis();
 		start();
 	}
 	
@@ -84,22 +82,19 @@ public class IceClaws extends IceAbility implements AddonAbility {
 			remove();
 			return;
 		}
-		if (System.currentTimeMillis() > time + chargeUp) {
+		if (System.currentTimeMillis() > getStartTime() + chargeUp) {
 			if (!launched && throwable) {
 				displayClaws();
 			} else {
 				if (!shoot()) {
 					remove();
-					return;
 				}
 			}
 		} else if (player.isSneaking()) {
 			displayChargeUp();
 		} else {
 			remove();
-			return;
 		}
-		return;
 	}
 
 	public boolean shoot() {
@@ -123,7 +118,7 @@ public class IceClaws extends IceAbility implements AddonAbility {
 
 	public static void throwClaws(Player player) {
 		if (hasAbility(player, IceClaws.class)) {
-			IceClaws ic = ((IceClaws) getAbility(player, IceClaws.class));
+			IceClaws ic = getAbility(player, IceClaws.class);
 			if (!ic.launched && player.isSneaking()) {
 				ic.launched = true;
 				ic.origin = ic.player.getEyeLocation();
@@ -132,11 +127,11 @@ public class IceClaws extends IceAbility implements AddonAbility {
 		}
 	}
 
-	public Location getRightHandPos(){
+	public Location getRightHandPos() {
 		return GeneralMethods.getRightSide(player.getLocation(), .55).add(0, 1.2, 0);
 	}
 
-	private void displayClaws(){
+	private void displayClaws() {
 		Location location = getRightHandPos().toVector().add(player.getEyeLocation().getDirection().clone().multiply(.75D)).toLocation(player.getWorld());
 		GeneralMethods.displayColoredParticle("66FFFF", location);
 		GeneralMethods.displayColoredParticle("CCFFFF", location);
@@ -149,7 +144,7 @@ public class IceClaws extends IceAbility implements AddonAbility {
 
 	public static boolean freezeEntity(Player player, LivingEntity entity) {
 		if (hasAbility(player, IceClaws.class)) {
-			((IceClaws) getAbility(player, IceClaws.class)).freezeEntity(entity);
+			getAbility(player, IceClaws.class).freezeEntity(entity);
 			return true;
 		}
 		return false;
@@ -158,14 +153,11 @@ public class IceClaws extends IceAbility implements AddonAbility {
 	private void freezeEntity(LivingEntity entity) {
 		if (entity.hasPotionEffect(PotionEffectType.SPEED)) {
 			entity.removePotionEffect(PotionEffectType.SPEED);
-			entity.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, slowDur, 3));
-		} else {
-			entity.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, slowDur, 3));
 		}
+		entity.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, slowDur, 3));
 		bPlayer.addCooldown(this);
 		remove();
 		DamageHandler.damageEntity(entity, damage, this);
-		return;
 	}
 	
 	@Override
@@ -175,7 +167,7 @@ public class IceClaws extends IceAbility implements AddonAbility {
 
 	@Override
 	public Location getLocation() {
-		return null;
+		return head;
 	}
 
 	@Override
@@ -209,15 +201,79 @@ public class IceClaws extends IceAbility implements AddonAbility {
 		return "* JedCore Addon *\n" + config.getString("Abilities.Water.IceClaws.Description");
 	}
 
-	@Override
-	public void load() {
-		return;
+	public void setCooldown(long cooldown) {
+		this.cooldown = cooldown;
+	}
+
+	public long getChargeUp() {
+		return chargeUp;
+	}
+
+	public void setChargeUp(long chargeUp) {
+		this.chargeUp = chargeUp;
+	}
+
+	public int getSlowDuration() {
+		return slowDur;
+	}
+
+	public void setSlowDuration(int slowDuration) {
+		this.slowDur = slowDuration;
+	}
+
+	public double getDamage() {
+		return damage;
+	}
+
+	public void setDamage(double damage) {
+		this.damage = damage;
+	}
+
+	public double getRange() {
+		return range;
+	}
+
+	public void setRange(double range) {
+		this.range = range;
+	}
+
+	public boolean isThrowable() {
+		return throwable;
+	}
+
+	public void setThrowable(boolean throwable) {
+		this.throwable = throwable;
+	}
+
+	public Location getHead() {
+		return head;
+	}
+
+	public void setHead(Location head) {
+		this.head = head;
+	}
+
+	public Location getOrigin() {
+		return origin;
+	}
+
+	public void setOrigin(Location origin) {
+		this.origin = origin;
+	}
+
+	public boolean isLaunched() {
+		return launched;
+	}
+
+	public void setLaunched(boolean launched) {
+		this.launched = launched;
 	}
 
 	@Override
-	public void stop() {
-		return;
-	}
+	public void load() {}
+
+	@Override
+	public void stop() {}
 	
 	@Override
 	public boolean isEnabled() {

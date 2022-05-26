@@ -32,7 +32,8 @@ import java.util.List;
 import java.util.Random;
 
 public class Drain extends WaterAbility implements AddonAbility {
-	private List<Location> locations = new ArrayList<>();
+
+	private final List<Location> locations = new ArrayList<>();
 	private static final Biome[] INVALID_BIOMES = {
 			Biome.DESERT,
 			Biome.BASALT_DELTAS,
@@ -72,13 +73,13 @@ public class Drain extends WaterAbility implements AddonAbility {
 
 	private boolean drainTemps;
 
-	private long time;
+	private long endTime;
 	private int absorbed = 0;
 	private int charge = 7;
 	private boolean noFill;
 	private int blasts;
 	private boolean hasCharge;
-	private Material[] fillables = { Material.GLASS_BOTTLE, Material.BUCKET };
+	private final Material[] fillables = { Material.GLASS_BOTTLE, Material.BUCKET };
 
 	Random rand = new Random();
 
@@ -89,7 +90,7 @@ public class Drain extends WaterAbility implements AddonAbility {
 		}
 		setFields();
 		this.usePlants = bPlayer.canPlantbend();
-		time = System.currentTimeMillis() + duration;
+		endTime = System.currentTimeMillis() + duration;
 		if (!canFill()) {
 			if (!blastsEnabled)
 				return;
@@ -155,7 +156,7 @@ public class Drain extends WaterAbility implements AddonAbility {
 				remove();
 				return;
 			}
-			if (System.currentTimeMillis() > time) {
+			if (System.currentTimeMillis() > endTime) {
 				bPlayer.addCooldown(this);
 				remove();
 				return;
@@ -192,12 +193,11 @@ public class Drain extends WaterAbility implements AddonAbility {
 			}
 		}
 		dragWater();
-		return;
 	}
 
 	public static void fireBlast(Player player) {
 		if (hasAbility(player, Drain.class)) {
-			((Drain) getAbility(player, Drain.class)).fireBlast();
+			getAbility(player, Drain.class).fireBlast();
 		}
 	}
 
@@ -214,9 +214,7 @@ public class Drain extends WaterAbility implements AddonAbility {
 		Location location = player.getEyeLocation().add(player.getLocation().getDirection().multiply(holdRange));
 		if (!GeneralMethods.isSolid(location.getBlock()) || isTransparent(location.getBlock())) {
 			Block block = location.getBlock();
-			//revert.put(block, 0l);
-			//new TempBlock(block, Material.STATIONARY_WATER, (byte) charge);
-			new RegenTempBlock(block, Material.WATER, Material.WATER.createBlockData(bd -> ((Levelled)bd).setLevel(charge)), 100l);
+			new RegenTempBlock(block, Material.WATER, Material.WATER.createBlockData(bd -> ((Levelled)bd).setLevel(charge)), 100L);
 		}
 	}
 
@@ -267,7 +265,7 @@ public class Drain extends WaterAbility implements AddonAbility {
 		List<Location> locs = GeneralMethods.getCircle(player.getLocation(), radius, radius, false, true, 0);
 		for (int i = 0; i < locs.size(); i++) {
 			Block block = locs.get(rand.nextInt(locs.size()-1)).getBlock();
-			if (block != null && block.getY() > 2 && block.getY() < 255) {
+			if (block.getY() > block.getWorld().getMinHeight() && block.getY() < block.getWorld().getMaxHeight()) {
 				if (rand.nextInt(chance) == 0) {
 					Biome biome = player.getLocation().getBlock().getBiome();
 					if (useRain && player.getWorld().hasStorm() && isValidBiome(biome)) {
@@ -306,8 +304,6 @@ public class Drain extends WaterAbility implements AddonAbility {
 
 		for (double i = 1; i <= max; i++) {
 			loc = location1.clone().add(direction.clone().multiply(i));
-			//Material type = loc.getBlock().getType();
-			//if (type != Material.AIR && !Arrays.asList(plantIds).contains(type.getId()) && !isWater(loc.getBlock()))
 			if (!isTransparent(loc.getBlock()))
 				return true;
 		}
@@ -320,17 +316,13 @@ public class Drain extends WaterAbility implements AddonAbility {
 			if (JCMethods.isSmallPlant(block.getRelative(BlockFace.DOWN))) {
 				if (JCMethods.isDoublePlant(block.getType())) {
 					block = block.getRelative(BlockFace.DOWN);
-					//revert.put(block, System.currentTimeMillis() + regenDelay);
 					locations.add(block.getLocation().clone().add(.5, .5, .5));
-					//new TempBlock(block, Material.DEAD_BUSH, (byte) 0);
 					new RegenTempBlock(block, Material.DEAD_BUSH, Material.DEAD_BUSH.createBlockData(), regenDelay);
 					return;
 				}
 				block = block.getRelative(BlockFace.DOWN);
 			}
-			//revert.put(block, System.currentTimeMillis() + regenDelay);
 			locations.add(block.getLocation().clone().add(.5, .5, .5));
-			//new TempBlock(block, Material.DEAD_BUSH, (byte) 0);
 			new RegenTempBlock(block, Material.DEAD_BUSH, Material.DEAD_BUSH.createBlockData(), regenDelay);
 		}
 	}
@@ -347,7 +339,7 @@ public class Drain extends WaterAbility implements AddonAbility {
 	}
 
 	private void dragWater() {
-		List<Integer> toRemove = new ArrayList<Integer>();
+		List<Integer> toRemove = new ArrayList<>();
 		if (!locations.isEmpty()) {
 			for (Location l : locations) {
 				Location playerLoc = player.getLocation().add(0, 1, 0);
@@ -414,14 +406,199 @@ public class Drain extends WaterAbility implements AddonAbility {
 	}
 
 	@Override
-	public void load() {
-		return;
+	public List<Location> getLocations() {
+		return locations;
+	}
+
+	public long getRegenDelay() {
+		return regenDelay;
+	}
+
+	public void setRegenDelay(long regenDelay) {
+		this.regenDelay = regenDelay;
+	}
+
+	public long getDuration() {
+		return duration;
+	}
+
+	public void setDuration(long duration) {
+		this.duration = duration;
+	}
+
+	public void setCooldown(long cooldown) {
+		this.cooldown = cooldown;
+	}
+
+	public double getAbsorbSpeed() {
+		return absorbSpeed;
+	}
+
+	public void setAbsorbSpeed(double absorbSpeed) {
+		this.absorbSpeed = absorbSpeed;
+	}
+
+	public int getRadius() {
+		return radius;
+	}
+
+	public void setRadius(int radius) {
+		this.radius = radius;
+	}
+
+	public int getChance() {
+		return chance;
+	}
+
+	public void setChance(int chance) {
+		this.chance = chance;
+	}
+
+	public int getAbsorbRate() {
+		return absorbRate;
+	}
+
+	public void setAbsorbRate(int absorbRate) {
+		this.absorbRate = absorbRate;
+	}
+
+	public int getHoldRange() {
+		return holdRange;
+	}
+
+	public void setHoldRange(int holdRange) {
+		this.holdRange = holdRange;
+	}
+
+	public boolean isBlastsEnabled() {
+		return blastsEnabled;
+	}
+
+	public void setBlastsEnabled(boolean blastsEnabled) {
+		this.blastsEnabled = blastsEnabled;
+	}
+
+	public int getMaxBlasts() {
+		return maxBlasts;
+	}
+
+	public void setMaxBlasts(int maxBlasts) {
+		this.maxBlasts = maxBlasts;
+	}
+
+	public boolean isKeepSrc() {
+		return keepSrc;
+	}
+
+	public void setKeepSrc(boolean keepSrc) {
+		this.keepSrc = keepSrc;
+	}
+
+	public boolean isUseRain() {
+		return useRain;
+	}
+
+	public void setUseRain(boolean useRain) {
+		this.useRain = useRain;
+	}
+
+	public boolean isUsePlants() {
+		return usePlants;
+	}
+
+	public void setUsePlants(boolean usePlants) {
+		this.usePlants = usePlants;
+	}
+
+	public double getBlastRange() {
+		return blastRange;
+	}
+
+	public void setBlastRange(double blastRange) {
+		this.blastRange = blastRange;
+	}
+
+	public double getBlastDamage() {
+		return blastDamage;
+	}
+
+	public void setBlastDamage(double blastDamage) {
+		this.blastDamage = blastDamage;
+	}
+
+	public double getBlastSpeed() {
+		return blastSpeed;
+	}
+
+	public void setBlastSpeed(double blastSpeed) {
+		this.blastSpeed = blastSpeed;
+	}
+
+	public boolean isDrainTemps() {
+		return drainTemps;
+	}
+
+	public void setDrainTemps(boolean drainTemps) {
+		this.drainTemps = drainTemps;
+	}
+
+	public long getEndTime() {
+		return endTime;
+	}
+
+	public void setEndTime(long endTime) {
+		this.endTime = endTime;
+	}
+
+	public int getAbsorbed() {
+		return absorbed;
+	}
+
+	public void setAbsorbed(int absorbed) {
+		this.absorbed = absorbed;
+	}
+
+	public int getCharge() {
+		return charge;
+	}
+
+	public void setCharge(int charge) {
+		this.charge = charge;
+	}
+
+	public boolean isNoFill() {
+		return noFill;
+	}
+
+	public void setNoFill(boolean noFill) {
+		this.noFill = noFill;
+	}
+
+	public int getBlasts() {
+		return blasts;
+	}
+
+	public void setBlasts(int blasts) {
+		this.blasts = blasts;
+	}
+
+	public boolean isHasCharge() {
+		return hasCharge;
+	}
+
+	public void setHasCharge(boolean hasCharge) {
+		this.hasCharge = hasCharge;
+	}
+
+	public Material[] getFillables() {
+		return fillables;
 	}
 
 	@Override
-	public void stop() {
-		return;
-	}
+	public void load() {}
+
+	@Override
+	public void stop() {}
 
 	@Override
 	public boolean isEnabled() {

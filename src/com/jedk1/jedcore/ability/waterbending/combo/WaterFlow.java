@@ -37,28 +37,28 @@ import java.util.concurrent.ConcurrentHashMap;
 public class WaterFlow extends WaterAbility implements AddonAbility, ComboAbility {
 
 	@Attribute(Attribute.SELECT_RANGE)
-	private int sourcerange; //10
+	private int sourceRange; //10
 	@Attribute(Attribute.RANGE)
-	private int maxrange; //40
-	private int minrange; //8
+	private int maxRange; //40
+	private int minRange; //8
 	@Attribute(Attribute.DURATION)
 	private long duration; //10000
 	@Attribute(Attribute.COOLDOWN)
 	private long cooldown; //15000
-	private long meltdelay; //5000
+	private long meltDelay; //5000
 	@Attribute("Length")
 	private long trail; //80
 	private boolean avatar; //true
-	private boolean stayatsource; //true
-	private int stayrange; //100
-	private boolean fullmoonEnabled;
-	private int fullmoonCooldown;
-	private int fullmoonDuration;
+	private boolean stayAtSource; //true
+	private int stayRange; //100
+	private boolean fullMoonEnabled;
+	private int fullMoonCooldown;
+	private int fullMoonDuration;
 	private boolean playerRideOwnFlow;
 	private int size; //1;
 	private int avatarSize; //3;
-	private int fullmoonSizeSmall; //2;
-	private int fullmoonSizeLarge; //3;
+	private int fullMoonSizeSmall; //2;
+	private int fullMoonSizeLarge; //3;
 	private long avatarDuration; //60000;
 	private boolean canUseBottle;
 	private boolean canUsePlants;
@@ -68,16 +68,14 @@ public class WaterFlow extends WaterAbility implements AddonAbility, ComboAbilit
 	private Location origin;
 	private Location head;
 	private int range;
-	private Vector direction;
-	private Block sourceblock;
+	private Block sourceBlock;
 	private boolean frozen;
 	private double prevHealth;
-	private int headsize;
+	private int headSize;
 	private boolean usingBottle;
-	private ConcurrentHashMap<Block, Location> directions = new ConcurrentHashMap<Block, Location>();
-	private List<Block> blocks = new ArrayList<Block>();
-	private List<Block> sources = new ArrayList<Block>();
-	
+	private final ConcurrentHashMap<Block, Location> directions = new ConcurrentHashMap<>();
+	private final List<Block> blocks = new ArrayList<>();
+
 	Random rand = new Random();
 
 	public WaterFlow(Player player) {
@@ -89,7 +87,7 @@ public class WaterFlow extends WaterAbility implements AddonAbility, ComboAbilit
 			return;
 		}
 		if (hasAbility(player, WaterFlow.class)) {
-			((WaterFlow) getAbility(player, WaterFlow.class)).remove();
+			getAbility(player, WaterFlow.class).remove();
 			return;
 		}
 		setFields();
@@ -97,31 +95,29 @@ public class WaterFlow extends WaterAbility implements AddonAbility, ComboAbilit
 		usingBottle = false;
 
 		if (prepare()) {
-			headsize = size;
+			headSize = size;
 			trail = trail * size;
-			range = maxrange;
+			range = maxRange;
 			prevHealth = player.getHealth();
 			time = System.currentTimeMillis();
 
 			int augment = (int) Math.round(getNightFactor(player.getWorld()));
-			if (isFullMoon(player.getWorld()) && fullmoonEnabled && sourceblock != null) {
-				sources = getNearbySources(sourceblock, 3);
-				if (sources != null) {
-					if (sources.size() > 9) {
-						headsize = fullmoonSizeSmall;
-					}
-					if (sources.size() > 36) {
-						headsize = fullmoonSizeLarge;
-					}
-					trail = trail * augment;
-					range = range - (range / 3);
-					maxrange = range;
-					duration = duration * fullmoonDuration;
-					cooldown = cooldown * fullmoonCooldown;
+			if (isFullMoon(player.getWorld()) && fullMoonEnabled && sourceBlock != null) {
+				List<Block> sources = getNearbySources(sourceBlock, 3);
+				if (sources.size() > 9) {
+					headSize = fullMoonSizeSmall;
 				}
+				if (sources.size() > 36) {
+					headSize = fullMoonSizeLarge;
+				}
+				trail = trail * augment;
+				range = range - (range / 3);
+				maxRange = range;
+				duration = duration * fullMoonDuration;
+				cooldown = cooldown * fullMoonCooldown;
 			}
 			if (bPlayer.isAvatarState()) {
-				headsize = avatarSize;
+				headSize = avatarSize;
 				if (avatar) {
 					duration = 0;
 				} else {
@@ -130,7 +126,7 @@ public class WaterFlow extends WaterAbility implements AddonAbility, ComboAbilit
 			}
 			start();
 			if (hasAbility(player, WaterManipulation.class)) {
-				WaterManipulation manip = (WaterManipulation) getAbility(player, WaterManipulation.class);
+				WaterManipulation manip = getAbility(player, WaterManipulation.class);
 				manip.remove();
 			}
 		}
@@ -139,51 +135,51 @@ public class WaterFlow extends WaterAbility implements AddonAbility, ComboAbilit
 	public void setFields() {
 		ConfigurationSection config = JedCoreConfig.getConfig(this.player);
 
-		sourcerange = config.getInt("Abilities.Water.WaterCombo.WaterFlow.SourceRange");
-		maxrange = config.getInt("Abilities.Water.WaterCombo.WaterFlow.MaxRange");
-		minrange = config.getInt("Abilities.Water.WaterCombo.WaterFlow.MinRange");
+		sourceRange = config.getInt("Abilities.Water.WaterCombo.WaterFlow.SourceRange");
+		maxRange = config.getInt("Abilities.Water.WaterCombo.WaterFlow.MaxRange");
+		minRange = config.getInt("Abilities.Water.WaterCombo.WaterFlow.MinRange");
 		duration = config.getLong("Abilities.Water.WaterCombo.WaterFlow.Duration");
 		cooldown = config.getInt("Abilities.Water.WaterCombo.WaterFlow.Cooldown");
-		meltdelay = config.getInt("Abilities.Water.WaterCombo.WaterFlow.MeltDelay");
+		meltDelay = config.getInt("Abilities.Water.WaterCombo.WaterFlow.MeltDelay");
 		trail = config.getInt("Abilities.Water.WaterCombo.WaterFlow.Trail");
 		avatar = config.getBoolean("Abilities.Water.WaterCombo.WaterFlow.IsAvatarStateToggle");
 		avatarDuration = config.getLong("Abilities.Water.WaterCombo.WaterFlow.AvatarStateDuration");
-		stayatsource = config.getBoolean("Abilities.Water.WaterCombo.WaterFlow.PlayerStayNearSource");
-		stayrange = config.getInt("Abilities.Water.WaterCombo.WaterFlow.MaxDistanceFromSource");
+		stayAtSource = config.getBoolean("Abilities.Water.WaterCombo.WaterFlow.PlayerStayNearSource");
+		stayRange = config.getInt("Abilities.Water.WaterCombo.WaterFlow.MaxDistanceFromSource");
 		canUseBottle = config.getBoolean("Abilities.Water.WaterCombo.WaterFlow.BottleSource");
 		canUsePlants = config.getBoolean("Abilities.Water.WaterCombo.WaterFlow.PlantSource");
 		removeOnAnyDamage = config.getBoolean("Abilities.Water.WaterCombo.WaterFlow.RemoveOnAnyDamage");
-		fullmoonCooldown = config.getInt("Abilities.Water.WaterCombo.WaterFlow.FullMoon.Modifier.Cooldown");
-		fullmoonDuration = config.getInt("Abilities.Water.WaterCombo.WaterFlow.FullMoon.Modifier.Duration");
-		fullmoonEnabled = config.getBoolean("Abilities.Water.WaterCombo.WaterFlow.FullMoon.Enabled");
+		fullMoonCooldown = config.getInt("Abilities.Water.WaterCombo.WaterFlow.FullMoon.Modifier.Cooldown");
+		fullMoonDuration = config.getInt("Abilities.Water.WaterCombo.WaterFlow.FullMoon.Modifier.Duration");
+		fullMoonEnabled = config.getBoolean("Abilities.Water.WaterCombo.WaterFlow.FullMoon.Enabled");
 		playerRideOwnFlow = config.getBoolean("Abilities.Water.WaterCombo.WaterFlow.PlayerRideOwnFlow");
 		size = config.getInt("Abilities.Water.WaterCombo.WaterFlow.Size.Normal");
 		avatarSize = config.getInt("Abilities.Water.WaterCombo.WaterFlow.Size.AvatarState");
-		fullmoonSizeSmall = config.getInt("Abilities.Water.WaterCombo.WaterFlow.Size.FullmoonSmall");
-		fullmoonSizeLarge = config.getInt("Abilities.Water.WaterCombo.WaterFlow.Size.FullmoonLarge");
+		fullMoonSizeSmall = config.getInt("Abilities.Water.WaterCombo.WaterFlow.Size.FullmoonSmall");
+		fullMoonSizeLarge = config.getInt("Abilities.Water.WaterCombo.WaterFlow.Size.FullmoonLarge");
 		
 		applyModifiers();
 	}
 
 	private void applyModifiers() {
 		if (isNight(player.getWorld())) {
-			maxrange = (int) getNightFactor(maxrange);
+			maxRange = (int) getNightFactor(maxRange);
 			cooldown -= ((long) getNightFactor(cooldown) - cooldown);
 		}
 	}
 	
-	public static List<Block> getNearbySources(Block block, int searchrange) {
-		List<Block> sources = new ArrayList<Block>();
-		for (Location l : GeneralMethods.getCircle(block.getLocation(), searchrange, 2, false, false, -1)) {
-			Block blocki = l.getBlock();
+	public static List<Block> getNearbySources(Block block, int searchRange) {
+		List<Block> sources = new ArrayList<>();
+		for (Location l : GeneralMethods.getCircle(block.getLocation(), searchRange, 2, false, false, -1)) {
+			Block blockI = l.getBlock();
 			if (isWater(block)) {
-				if (blocki.getType() == Material.WATER && JCMethods.isLiquidSource(blocki) && WaterManipulation.canPhysicsChange(blocki)) {
-					sources.add(blocki);
+				if (blockI.getType() == Material.WATER && JCMethods.isLiquidSource(blockI) && WaterManipulation.canPhysicsChange(blockI)) {
+					sources.add(blockI);
 				}
 			}
 			if (isLava(block)) {
-				if (blocki.getType() == Material.LAVA && JCMethods.isLiquidSource(blocki) && WaterManipulation.canPhysicsChange(blocki)) {
-					sources.add(blocki);
+				if (blockI.getType() == Material.LAVA && JCMethods.isLiquidSource(blockI) && WaterManipulation.canPhysicsChange(blockI)) {
+					sources.add(blockI);
 				}
 			}
 		}
@@ -191,17 +187,17 @@ public class WaterFlow extends WaterAbility implements AddonAbility, ComboAbilit
 	}
 
 	private boolean prepare() {
-		sourceblock = BlockSource.getWaterSourceBlock(player, sourcerange, ClickType.SHIFT_DOWN, true, bPlayer.canIcebend(), canUsePlants);
-		if (sourceblock != null) {
-			boolean isGoodSource = GeneralMethods.isAdjacentToThreeOrMoreSources(sourceblock, false) || (TempBlock.isTempBlock(sourceblock) && WaterAbility.isBendableWaterTempBlock(sourceblock));
+		sourceBlock = BlockSource.getWaterSourceBlock(player, sourceRange, ClickType.SHIFT_DOWN, true, bPlayer.canIcebend(), canUsePlants);
+		if (sourceBlock != null) {
+			boolean isGoodSource = GeneralMethods.isAdjacentToThreeOrMoreSources(sourceBlock, false) || (TempBlock.isTempBlock(sourceBlock) && WaterAbility.isBendableWaterTempBlock(sourceBlock));
 
 			// canUsePlants needs to be checked here due to a bug with PK dynamic source caching.
 			// getWaterSourceBlock can return a plant even if canUsePlants is passed as false.
-			if (isGoodSource || (canUsePlants && isPlant(sourceblock))) {
-				head = sourceblock.getLocation().clone();
-				origin = sourceblock.getLocation().clone();
-				if (isPlant(sourceblock)) {
-					new PlantRegrowth(player, sourceblock);
+			if (isGoodSource || (canUsePlants && isPlant(sourceBlock))) {
+				head = sourceBlock.getLocation().clone();
+				origin = sourceBlock.getLocation().clone();
+				if (isPlant(sourceBlock)) {
+					new PlantRegrowth(player, sourceBlock);
 				}
 				return true;
 			}
@@ -237,7 +233,7 @@ public class WaterFlow extends WaterAbility implements AddonAbility, ComboAbilit
 			remove();
 			return;
 		}
-		if ((stayatsource && player.getLocation().distance(origin) >= stayrange) || head.getY() > 255 || head.getY() < 1) {
+		if ((stayAtSource && player.getLocation().distance(origin) >= stayRange) || head.getY() > head.getWorld().getMaxHeight() || head.getY() < head.getWorld().getMinHeight()) {
 			remove();
 			return;
 		}
@@ -261,12 +257,12 @@ public class WaterFlow extends WaterAbility implements AddonAbility, ComboAbilit
 
 		if (!frozen) {
 			if (player.isSneaking()) {
-				if (range >= minrange) {
+				if (range >= minRange) {
 					range -= 2;
 				}
-				//BlockSource.update(player, sourcerange, ClickType.RIGHT_CLICK);
+				//BlockSource.update(player, sourceRange, ClickType.RIGHT_CLICK);
 			} else {
-				if (range < maxrange) {
+				if (range < maxRange) {
 					range += 2;
 				}
 			}
@@ -279,26 +275,29 @@ public class WaterFlow extends WaterAbility implements AddonAbility, ComboAbilit
 	private void manageLength() {
 		int pos = 0;
 		int ids = 0;
-		List<Block> templist = new ArrayList<Block>(blocks);
-		for (Block block : templist) {
+		List<Block> tempList = new ArrayList<>(blocks);
+		for (Block block : tempList) {
 
 			for (Entity entity : GeneralMethods.getEntitiesAroundPoint(block.getLocation(), 2.8)) {
 				if (entity.getEntityId() == player.getEntityId() && !playerRideOwnFlow) {
 					continue;
 				}
-				if (getPlayers(AirSpout.class).contains(entity)) {
-					continue;
-				} else if (getPlayers(WaterSpout.class).contains(entity)) {
-					continue;
-				} else if (getPlayers(Catapult.class).contains(entity)) {
-					continue;
+				boolean isPlayer = entity instanceof Player;
+				if (isPlayer) {
+					if (getPlayers(AirSpout.class).contains(entity)) {
+						continue;
+					} else if (getPlayers(WaterSpout.class).contains(entity)) {
+						continue;
+					} else if (getPlayers(Catapult.class).contains(entity)) {
+						continue;
+					}
 				}
-				if(GeneralMethods.isRegionProtectedFromBuild(this, entity.getLocation()) || ((entity instanceof Player) && Commands.invincible.contains(((Player) entity).getName()))){
+				if (GeneralMethods.isRegionProtectedFromBuild(this, entity.getLocation()) || (isPlayer && Commands.invincible.contains(entity.getName()))) {
 					continue;
 				}
 				Location temp = directions.get(block);
 				Vector dir = GeneralMethods.getDirection(entity.getLocation(), directions.get(block).add(temp.getDirection().multiply(1.5)));
-				entity.setVelocity(dir.clone().normalize().multiply(1));
+				GeneralMethods.setVelocity(this, entity, dir.clone().normalize().multiply(1));
 				entity.setFallDistance(0f);
 			}
 
@@ -310,7 +309,7 @@ public class WaterFlow extends WaterAbility implements AddonAbility, ComboAbilit
 				}
 			} else {
 				if (!isWater(block)) {
-					new TempBlock(block, Material.WATER, Material.WATER.createBlockData(bd -> ((Levelled)bd).setLevel(0)));
+					new TempBlock(block, Material.WATER, Material.WATER.createBlockData(bd -> ((Levelled) bd).setLevel(0)));
 				}
 			}
 			pos++;
@@ -329,18 +328,18 @@ public class WaterFlow extends WaterAbility implements AddonAbility, ComboAbilit
 				TempBlock.revertBlock(block, Material.AIR);
 			}
 		}
-		templist.clear();
+		tempList.clear();
 	}
 
 	private void moveWater() {
 		if (!MaterialUtil.isTransparent(head.getBlock()) || GeneralMethods.isRegionProtectedFromBuild(player, "Torrent", head)) {
 			range -= 2;
 		}
-		direction = GeneralMethods.getDirection(head, GeneralMethods.getTargetedLocation(player, range, Material.WATER)).normalize();
+		Vector direction = GeneralMethods.getDirection(head, GeneralMethods.getTargetedLocation(player, range, Material.WATER)).normalize();
 		head = head.add(direction.clone().multiply(1));
 		head.setDirection(direction);
 		playWaterbendingSound(head);
-		for (Block block : GeneralMethods.getBlocksAroundPoint(head, headsize)) {
+		for (Block block : GeneralMethods.getBlocksAroundPoint(head, headSize)) {
 			if (directions.containsKey(block)) {
 				directions.replace(block, head.clone());
 			} else {
@@ -360,7 +359,7 @@ public class WaterFlow extends WaterAbility implements AddonAbility, ComboAbilit
 
 	public static void freeze(Player player) {
 		if (hasAbility(player, WaterFlow.class)) {
-			WaterFlow wf = (WaterFlow) getAbility(player, WaterFlow.class);
+			WaterFlow wf = getAbility(player, WaterFlow.class);
 			if (!wf.bPlayer.canIcebend()) return;
 			if (!wf.frozen) {
 				wf.bPlayer.addCooldown(wf);
@@ -376,7 +375,7 @@ public class WaterFlow extends WaterAbility implements AddonAbility, ComboAbilit
 				if (rand.nextInt(5) == 0) {
 					playIcebendingSound(block.getLocation());
 				}
-				new RegenTempBlock(block, Material.ICE, Material.ICE.createBlockData(), randInt((int) meltdelay - 250, (int) meltdelay + 250));
+				new RegenTempBlock(block, Material.ICE, Material.ICE.createBlockData(), randInt((int) meltDelay - 250, (int) meltDelay + 250));
 			}
 		}
 	}
@@ -468,13 +467,263 @@ public class WaterFlow extends WaterAbility implements AddonAbility, ComboAbilit
 		return JedCore.version;
 	}
 
-	@Override
-	public void load() {
+	public int getSourceRange() {
+		return sourceRange;
+	}
+
+	public void setSourceRange(int sourceRange) {
+		this.sourceRange = sourceRange;
+	}
+
+	public int getMaxRange() {
+		return maxRange;
+	}
+
+	public void setMaxRange(int maxRange) {
+		this.maxRange = maxRange;
+	}
+
+	public int getMinRange() {
+		return minRange;
+	}
+
+	public void setMinRange(int minRange) {
+		this.minRange = minRange;
+	}
+
+	public long getDuration() {
+		return duration;
+	}
+
+	public void setDuration(long duration) {
+		this.duration = duration;
+	}
+
+	public void setCooldown(long cooldown) {
+		this.cooldown = cooldown;
+	}
+
+	public long getMeltDelay() {
+		return meltDelay;
+	}
+
+	public void setMeltDelay(long meltDelay) {
+		this.meltDelay = meltDelay;
+	}
+
+	public long getTrail() {
+		return trail;
+	}
+
+	public void setTrail(long trail) {
+		this.trail = trail;
+	}
+
+	public boolean isAvatar() {
+		return avatar;
+	}
+
+	public void setAvatar(boolean avatar) {
+		this.avatar = avatar;
+	}
+
+	public boolean isStayAtSource() {
+		return stayAtSource;
+	}
+
+	public void setStayAtSource(boolean stayAtSource) {
+		this.stayAtSource = stayAtSource;
+	}
+
+	public int getStayRange() {
+		return stayRange;
+	}
+
+	public void setStayRange(int stayRange) {
+		this.stayRange = stayRange;
+	}
+
+	public boolean isFullMoonEnabled() {
+		return fullMoonEnabled;
+	}
+
+	public void setFullMoonEnabled(boolean fullMoonEnabled) {
+		this.fullMoonEnabled = fullMoonEnabled;
+	}
+
+	public int getFullMoonCooldown() {
+		return fullMoonCooldown;
+	}
+
+	public void setFullMoonCooldown(int fullMoonCooldown) {
+		this.fullMoonCooldown = fullMoonCooldown;
+	}
+
+	public int getFullMoonDuration() {
+		return fullMoonDuration;
+	}
+
+	public void setFullMoonDuration(int fullMoonDuration) {
+		this.fullMoonDuration = fullMoonDuration;
+	}
+
+	public boolean isPlayerRideOwnFlow() {
+		return playerRideOwnFlow;
+	}
+
+	public void setPlayerRideOwnFlow(boolean playerRideOwnFlow) {
+		this.playerRideOwnFlow = playerRideOwnFlow;
+	}
+
+	public int getSize() {
+		return size;
+	}
+
+	public void setSize(int size) {
+		this.size = size;
+	}
+
+	public int getAvatarSize() {
+		return avatarSize;
+	}
+
+	public void setAvatarSize(int avatarSize) {
+		this.avatarSize = avatarSize;
+	}
+
+	public int getFullMoonSizeSmall() {
+		return fullMoonSizeSmall;
+	}
+
+	public void setFullMoonSizeSmall(int fullMoonSizeSmall) {
+		this.fullMoonSizeSmall = fullMoonSizeSmall;
+	}
+
+	public int getFullMoonSizeLarge() {
+		return fullMoonSizeLarge;
+	}
+
+	public void setFullMoonSizeLarge(int fullMoonSizeLarge) {
+		this.fullMoonSizeLarge = fullMoonSizeLarge;
+	}
+
+	public long getAvatarDuration() {
+		return avatarDuration;
+	}
+
+	public void setAvatarDuration(long avatarDuration) {
+		this.avatarDuration = avatarDuration;
+	}
+
+	public boolean isCanUseBottle() {
+		return canUseBottle;
+	}
+
+	public void setCanUseBottle(boolean canUseBottle) {
+		this.canUseBottle = canUseBottle;
+	}
+
+	public boolean isCanUsePlants() {
+		return canUsePlants;
+	}
+
+	public void setCanUsePlants(boolean canUsePlants) {
+		this.canUsePlants = canUsePlants;
+	}
+
+	public boolean isRemoveOnAnyDamage() {
+		return removeOnAnyDamage;
+	}
+
+	public void setRemoveOnAnyDamage(boolean removeOnAnyDamage) {
+		this.removeOnAnyDamage = removeOnAnyDamage;
+	}
+
+	public long getTime() {
+		return time;
+	}
+
+	public void setTime(long time) {
+		this.time = time;
+	}
+
+	public Location getOrigin() {
+		return origin;
+	}
+
+	public void setOrigin(Location origin) {
+		this.origin = origin;
+	}
+
+	public Location getHead() {
+		return head;
+	}
+
+	public void setHead(Location head) {
+		this.head = head;
+	}
+
+	public int getRange() {
+		return range;
+	}
+
+	public void setRange(int range) {
+		this.range = range;
+	}
+
+	public Block getSourceBlock() {
+		return sourceBlock;
+	}
+
+	public void setSourceBlock(Block sourceBlock) {
+		this.sourceBlock = sourceBlock;
+	}
+
+	public boolean isFrozen() {
+		return frozen;
+	}
+
+	public void setFrozen(boolean frozen) {
+		this.frozen = frozen;
+	}
+
+	public double getPrevHealth() {
+		return prevHealth;
+	}
+
+	public void setPrevHealth(double prevHealth) {
+		this.prevHealth = prevHealth;
+	}
+
+	public int getHeadSize() {
+		return headSize;
+	}
+
+	public void setHeadSize(int headSize) {
+		this.headSize = headSize;
+	}
+
+	public boolean isUsingBottle() {
+		return usingBottle;
+	}
+
+	public void setUsingBottle(boolean usingBottle) {
+		this.usingBottle = usingBottle;
+	}
+
+	public ConcurrentHashMap<Block, Location> getDirections() {
+		return directions;
+	}
+
+	public List<Block> getBlocks() {
+		return blocks;
 	}
 
 	@Override
-	public void stop() {
-	}
+	public void load() {}
+
+	@Override
+	public void stop() {}
 	
 	@Override
 	public boolean isEnabled() {

@@ -31,9 +31,6 @@ public class EarthSurf extends EarthAbility implements AddonAbility {
 	private Location location;
 	private double prevHealth;
 
-	//Player Positioning
-	private double distOffset = 2.5;
-
 	@Attribute(Attribute.COOLDOWN)
 	private long cooldown;
 	private long minimumCooldown;
@@ -45,7 +42,7 @@ public class EarthSurf extends EarthAbility implements AddonAbility {
 	@Attribute(Attribute.SPEED)
 	private double speed;
 	private double springStiffness;
-	private Set<Block> ridingBlocks = new HashSet<>();
+	private final Set<Block> ridingBlocks = new HashSet<>();
 	private CollisionDetector collisionDetector = new DefaultCollisionDetector();
 	private DoubleSmoother heightSmoother;
 
@@ -200,6 +197,8 @@ public class EarthSurf extends EarthAbility implements AddonAbility {
 			if (i < 2)
 				loc.add(getSideDirection(i));
 
+			//Player Positioning
+			double distOffset = 2.5;
 			Location bL = loc.clone().add(0, -2.9, 0).toVector().add(location.clone().getDirection().multiply(distOffset)).toLocation(player.getWorld());
 			while (!ElementalAbility.isAir(loc.clone().add(0, -2.9, 0).toVector().add(location.clone().getDirection().multiply(distOffset)).toLocation(player.getWorld()).getBlock().getType())) {
 				loc.add(0, 0.1, 0);
@@ -232,7 +231,7 @@ public class EarthSurf extends EarthAbility implements AddonAbility {
 
 				if (GeneralMethods.isSolid(block)) {
 					ridingBlocks.add(block);
-					new RegenTempBlock(block, Material.AIR, Material.AIR.createBlockData(), 1000L, true, b -> ridingBlocks.remove(b));
+					new RegenTempBlock(block, Material.AIR, Material.AIR.createBlockData(), 1000L, true, ridingBlocks::remove);
 				} else {
 					new RegenTempBlock(block, Material.AIR, Material.AIR.createBlockData(), 1000L);
 				}
@@ -318,19 +317,110 @@ public class EarthSurf extends EarthAbility implements AddonAbility {
 	@Override
 	public String getDescription() {
 		ConfigurationSection config = JedCoreConfig.getConfig(this.player);
-
 		return "* JedCore Addon *\n" + config.getString("Abilities.Earth.EarthSurf.Description");
 	}
 
-	@Override
-	public void load() {
-		return;
+	public static double getTargetHeight() {
+		return TARGET_HEIGHT;
+	}
+
+	public void setLocation(Location location) {
+		this.location = location;
+	}
+
+	public double getPrevHealth() {
+		return prevHealth;
+	}
+
+	public void setPrevHealth(double prevHealth) {
+		this.prevHealth = prevHealth;
+	}
+
+	public void setCooldown(long cooldown) {
+		this.cooldown = cooldown;
+	}
+
+	public long getMinimumCooldown() {
+		return minimumCooldown;
+	}
+
+	public void setMinimumCooldown(long minimumCooldown) {
+		this.minimumCooldown = minimumCooldown;
+	}
+
+	public long getDuration() {
+		return duration;
+	}
+
+	public void setDuration(long duration) {
+		this.duration = duration;
+	}
+
+	public boolean isCooldownEnabled() {
+		return cooldownEnabled;
+	}
+
+	public void setCooldownEnabled(boolean cooldownEnabled) {
+		this.cooldownEnabled = cooldownEnabled;
+	}
+
+	public boolean isDurationEnabled() {
+		return durationEnabled;
+	}
+
+	public void setDurationEnabled(boolean durationEnabled) {
+		this.durationEnabled = durationEnabled;
+	}
+
+	public boolean isRemoveOnAnyDamage() {
+		return removeOnAnyDamage;
+	}
+
+	public void setRemoveOnAnyDamage(boolean removeOnAnyDamage) {
+		this.removeOnAnyDamage = removeOnAnyDamage;
+	}
+
+	public double getSpeed() {
+		return speed;
+	}
+
+	public void setSpeed(double speed) {
+		this.speed = speed;
+	}
+
+	public double getSpringStiffness() {
+		return springStiffness;
+	}
+
+	public void setSpringStiffness(double springStiffness) {
+		this.springStiffness = springStiffness;
+	}
+
+	public Set<Block> getRidingBlocks() {
+		return ridingBlocks;
+	}
+
+	public CollisionDetector getCollisionDetector() {
+		return collisionDetector;
+	}
+
+	public void setCollisionDetector(CollisionDetector collisionDetector) {
+		this.collisionDetector = collisionDetector;
+	}
+
+	public DoubleSmoother getHeightSmoother() {
+		return heightSmoother;
+	}
+
+	public void setHeightSmoother(DoubleSmoother heightSmoother) {
+		this.heightSmoother = heightSmoother;
 	}
 
 	@Override
-	public void stop() {
-		return;
-	}
+	public void load() {}
+
+	@Override
+	public void stop() {}
 
 	@Override
 	public boolean isEnabled() {
@@ -343,7 +433,7 @@ public class EarthSurf extends EarthAbility implements AddonAbility {
 		boolean isColliding(Player player);
 	}
 
-	private abstract class AbstractCollisionDetector implements CollisionDetector {
+	private abstract static class AbstractCollisionDetector implements CollisionDetector {
 		protected boolean isCollision(Location location) {
 			Block block = location.getBlock();
 			return !MaterialUtil.isTransparent(block) || block.isLiquid() || block.getType().isSolid();
@@ -390,8 +480,8 @@ public class EarthSurf extends EarthAbility implements AddonAbility {
 	}
 
 	private static class DoubleSmoother {
-		private double[] values;
-		private int size;
+		private final double[] values;
+		private final int size;
 		private int index;
 
 		public DoubleSmoother(int size) {

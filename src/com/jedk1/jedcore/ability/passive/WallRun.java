@@ -4,6 +4,7 @@ import com.jedk1.jedcore.JCMethods;
 import com.jedk1.jedcore.JedCore;
 import com.jedk1.jedcore.configuration.JedCoreConfig;
 import com.projectkorra.projectkorra.Element;
+import com.projectkorra.projectkorra.GeneralMethods;
 import com.projectkorra.projectkorra.ability.AddonAbility;
 import com.projectkorra.projectkorra.ability.AirAbility;
 import com.projectkorra.projectkorra.ability.ChiAbility;
@@ -19,7 +20,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
 import java.util.List;
-import java.util.Random;
 
 public class WallRun extends ChiAbility implements AddonAbility {
 
@@ -39,10 +39,6 @@ public class WallRun extends ChiAbility implements AddonAbility {
 
 	private List<String> invalid;
 
-	private long time;
-
-	Random rand = new Random();
-
 	public WallRun(Player player) {
 		super(player);
 
@@ -52,15 +48,13 @@ public class WallRun extends ChiAbility implements AddonAbility {
 		if (bPlayer.isOnCooldown("WallRun")) return;
 		
 		if (hasAbility(player, WallRun.class)) {
-			((WallRun) getAbility(player, WallRun.class)).remove();
+			getAbility(player, WallRun.class).remove();
 			return;
 		}
 
 		if (player.getGameMode().equals(GameMode.SPECTATOR)) {
 			return;
 		}
-
-		time = System.currentTimeMillis();
 
 		if (isEligible() && !JCMethods.isDisabledWorld(player.getWorld())) {
 			start();
@@ -98,11 +92,7 @@ public class WallRun extends ChiAbility implements AddonAbility {
 			return true;
 		} else if (bPlayer.getElements().contains(Element.FIRE) && fire) {
 			return true;
-		} else if (bPlayer.getElements().contains(Element.CHI) && chi) {
-			return true;
-		}
-
-		return false;
+		} else return bPlayer.getElements().contains(Element.CHI) && chi;
 	}
 
 	private boolean isAgainstWall() {
@@ -113,10 +103,7 @@ public class WallRun extends ChiAbility implements AddonAbility {
 			return true;
 		} else if (location.getBlock().getRelative(BlockFace.WEST).getType().isSolid() && !invalid.contains(location.getBlock().getRelative(BlockFace.WEST).getType().name())) {
 			return true;
-		} else if (location.getBlock().getRelative(BlockFace.EAST).getType().isSolid() && !invalid.contains(location.getBlock().getRelative(BlockFace.EAST).getType().name())) {
-			return true;
-		}
-		return false;
+		} else return location.getBlock().getRelative(BlockFace.EAST).getType().isSolid() && !invalid.contains(location.getBlock().getRelative(BlockFace.EAST).getType().name());
 	}
 
 	@Override
@@ -129,12 +116,12 @@ public class WallRun extends ChiAbility implements AddonAbility {
 			remove();
 			return;
 		}
-		if (System.currentTimeMillis() > time + duration) {
+		if (System.currentTimeMillis() > getStartTime() + duration) {
 			remove();
 			return;
 		}
 
-		if (System.currentTimeMillis() - time > 50L) {
+		if (System.currentTimeMillis() - getStartTime() > 50L) {
 			bPlayer.addCooldown("WallRun", getCooldown());
 		}
 
@@ -146,7 +133,7 @@ public class WallRun extends ChiAbility implements AddonAbility {
 
 		Vector dir = player.getLocation().getDirection();
 		dir.multiply(1.15);
-		player.setVelocity(dir);
+		GeneralMethods.setVelocity(this, player, dir);
 	}
 	
 	public long getCooldown() {
@@ -191,16 +178,84 @@ public class WallRun extends ChiAbility implements AddonAbility {
 	public String getDescription() {
 	   return "To use WallRun, sprint towards a wall, jump, then rapidly click to activate. You don't have to bind this ability to use it. It is a passive.";
 	}
-	
-	@Override
-	public void load() {
-		return;
+
+	public void setCooldown(long cooldown) {
+		this.cooldown = cooldown;
+	}
+
+	public long getDuration() {
+		return duration;
+	}
+
+	public void setDuration(long duration) {
+		this.duration = duration;
+	}
+
+	public void setEnabled(boolean enabled) {
+		this.enabled = enabled;
+	}
+
+	public boolean hasParticles() {
+		return particles;
+	}
+
+	public void setHasParticles(boolean particles) {
+		this.particles = particles;
+	}
+
+	public boolean allowsAir() {
+		return air;
+	}
+
+	public void setAllowsAir(boolean air) {
+		this.air = air;
+	}
+
+	public boolean allowsEarth() {
+		return earth;
+	}
+
+	public void setAllowsEarth(boolean earth) {
+		this.earth = earth;
+	}
+
+	public boolean allowsWater() {
+		return water;
+	}
+
+	public void setAllowsWater(boolean water) {
+		this.water = water;
+	}
+
+	public boolean allowsFire() {
+		return fire;
+	}
+
+	public void setAllowsFire(boolean fire) {
+		this.fire = fire;
+	}
+
+	public boolean allowsChi() {
+		return chi;
+	}
+
+	public void setAllowsChi(boolean chi) {
+		this.chi = chi;
+	}
+
+	public List<String> getInvalid() {
+		return invalid;
+	}
+
+	public void setInvalid(List<String> invalid) {
+		this.invalid = invalid;
 	}
 
 	@Override
-	public void stop() {
-		return;
-	}
+	public void load() {}
+
+	@Override
+	public void stop() {}
 	
 	@Override
 	public boolean isEnabled() {

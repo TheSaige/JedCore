@@ -24,7 +24,6 @@ import org.bukkit.util.Vector;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
 
@@ -42,7 +41,7 @@ public class Fissure extends LavaAbility implements AddonAbility {
 
 	private Location location;
 	private Vector direction;
-	private Vector blockdirection;
+	private Vector blockDirection;
 	private long time;
 	private long step;
 	private int slap;
@@ -51,8 +50,8 @@ public class Fissure extends LavaAbility implements AddonAbility {
 	
 	static Random rand = new Random();
 
-	private List<Location> centerSlap = new ArrayList<Location>();
-	private List<Block> blocks = new ArrayList<Block>();
+	private final List<Location> centerSlap = new ArrayList<>();
+	private final List<Block> blocks = new ArrayList<>();
 
 	public Fissure(Player player) {
 		super(player);
@@ -67,11 +66,13 @@ public class Fissure extends LavaAbility implements AddonAbility {
 		location = player.getLocation().clone();
 		location.setPitch(0);
 		direction = location.getDirection();
-		blockdirection = this.direction.clone().setX(Math.round(this.direction.getX()));
-		blockdirection = blockdirection.setZ(Math.round(direction.getZ()));
+		blockDirection = this.direction.clone().setX(Math.round(this.direction.getX()));
+		blockDirection = blockDirection.setZ(Math.round(direction.getZ()));
 		if (prepareLine()) {
 			start();
-			bPlayer.addCooldown(this);
+			if (!isRemoved()) {
+				bPlayer.addCooldown(this);
+			}
 		}
 	}
 	
@@ -99,22 +100,21 @@ public class Fissure extends LavaAbility implements AddonAbility {
 		}
 		if (System.currentTimeMillis() > time + duration) {
 			remove();
-			return;
 		}
 	}
 
 	private boolean prepareLine() {
 		direction = player.getEyeLocation().getDirection().setY(0).normalize();
-		blockdirection = this.direction.clone().setX(Math.round(this.direction.getX()));
-		blockdirection = blockdirection.setZ(Math.round(direction.getZ()));
-		Location origin = player.getLocation().add(0, -1, 0).add(blockdirection.multiply(2));
+		blockDirection = this.direction.clone().setX(Math.round(this.direction.getX()));
+		blockDirection = blockDirection.setZ(Math.round(direction.getZ()));
+		Location origin = player.getLocation().add(0, -1, 0).add(blockDirection.multiply(2));
 		if (isEarthbendable(player, origin.getBlock())) {
 			BlockIterator bi = new BlockIterator(player.getWorld(), origin.toVector(), direction, 0, slapRange);
 
 			while (bi.hasNext()) {
 				Block b = bi.next();
 
-				if (b != null && b.getY() > 1 && b.getY() < 255 && !GeneralMethods.isRegionProtectedFromBuild(this, b.getLocation())) {
+				if (b.getY() > 1 && b.getY() < 255 && !GeneralMethods.isRegionProtectedFromBuild(this, b.getLocation())) {
 					if (EarthAbility.getMovedEarth().containsKey(b)){
 						Information info = EarthAbility.getMovedEarth().get(b);
 						if(!info.getBlock().equals(b)) {
@@ -124,7 +124,7 @@ public class Fissure extends LavaAbility implements AddonAbility {
 
 					while (!isEarthbendable(player, b)) {
 						b = b.getRelative(BlockFace.DOWN);
-						if (b == null || b.getY() < 1 || b.getY() > 255) {
+						if (b.getY() < b.getWorld().getMinHeight() || b.getY() > b.getWorld().getMaxHeight()) {
 							break;
 						}
 						if (isEarthbendable(player, b)) {
@@ -134,7 +134,7 @@ public class Fissure extends LavaAbility implements AddonAbility {
 
 					while (!isTransparent(b.getRelative(BlockFace.UP))) {
 						b = b.getRelative(BlockFace.UP);
-						if (b == null || b.getY() < 1 || b.getY() > 255) {
+						if (b.getY() < b.getWorld().getMinHeight() || b.getY() > b.getWorld().getMaxHeight()) {
 							break;
 						}
 						if (isEarthbendable(player, b.getRelative(BlockFace.UP))) {
@@ -167,14 +167,14 @@ public class Fissure extends LavaAbility implements AddonAbility {
 	
 	public static void performAction(Player player) {
 		if (hasAbility(player, Fissure.class)) {
-			((Fissure) getAbility(player, Fissure.class)).performAction();
+			getAbility(player, Fissure.class).performAction();
 		}
 	}
 	
 	private void performAction() {
 		if (width < maxWidth) {
 			expandFissure();
-		} else if (width >= maxWidth && blocks.contains(player.getTargetBlock((HashSet<Material>) null, (int) 10))) {
+		} else if (blocks.contains(player.getTargetBlock(null, 10))) {
 			forceRevert();
 		}
 	}
@@ -183,10 +183,10 @@ public class Fissure extends LavaAbility implements AddonAbility {
 		if (progressed && width <= maxWidth) {
 			width++;
 			for (Location location : centerSlap) {
-				Block left = location.getBlock().getRelative(getLeftBlockFace(GeneralMethods.getCardinalDirection(blockdirection)), width);
+				Block left = location.getBlock().getRelative(getLeftBlockFace(GeneralMethods.getCardinalDirection(blockDirection)), width);
 				expand(left);
 
-				Block right = location.getBlock().getRelative(getLeftBlockFace(GeneralMethods.getCardinalDirection(blockdirection)).getOppositeFace(), width);
+				Block right = location.getBlock().getRelative(getLeftBlockFace(GeneralMethods.getCardinalDirection(blockDirection)).getOppositeFace(), width);
 				expand(right);
 			}
 		}
@@ -204,7 +204,7 @@ public class Fissure extends LavaAbility implements AddonAbility {
 
 			while (!isEarthbendable(player, block)) {
 				block = block.getRelative(BlockFace.DOWN);
-				if (block == null || block.getY() < 1 || block.getY() > 255) {
+				if (block.getY() < 1 || block.getY() > 255) {
 					break;
 				}
 				if (isEarthbendable(player, block)) {
@@ -214,7 +214,7 @@ public class Fissure extends LavaAbility implements AddonAbility {
 
 			while (!isTransparent(player, block.getRelative(BlockFace.UP))) {
 				block = block.getRelative(BlockFace.UP);
-				if (block == null || block.getY() < 1 || block.getY() > 255) {
+				if (block.getY() < 1 || block.getY() > 255) {
 					break;
 				}
 				if (isEarthbendable(player, block.getRelative(BlockFace.UP))) {
@@ -224,8 +224,6 @@ public class Fissure extends LavaAbility implements AddonAbility {
 
 			if (isEarthbendable(player, block)) {
 				addTempBlock(block, Material.LAVA);
-			} else {
-				return;
 			}
 		}
 	}
@@ -258,7 +256,6 @@ public class Fissure extends LavaAbility implements AddonAbility {
 			return BlockFace.SOUTH_EAST;
 		case SOUTH_EAST:
 			return BlockFace.NORTH_EAST;
-
 		default:
 			return BlockFace.NORTH;
 		}
@@ -325,15 +322,115 @@ public class Fissure extends LavaAbility implements AddonAbility {
 		return "* JedCore Addon *\n" + config.getString("Abilities.Earth.Fissure.Description");
 	}
 
-	@Override
-	public void load() {
-		return;
+	public int getSlapRange() {
+		return slapRange;
+	}
+
+	public void setSlapRange(int slapRange) {
+		this.slapRange = slapRange;
+	}
+
+	public int getMaxWidth() {
+		return maxWidth;
+	}
+
+	public void setMaxWidth(int maxWidth) {
+		this.maxWidth = maxWidth;
+	}
+
+	public long getSlapDelay() {
+		return slapDelay;
+	}
+
+	public void setSlapDelay(long slapDelay) {
+		this.slapDelay = slapDelay;
+	}
+
+	public long getDuration() {
+		return duration;
+	}
+
+	public void setDuration(long duration) {
+		this.duration = duration;
+	}
+
+	public void setCooldown(long cooldown) {
+		this.cooldown = cooldown;
+	}
+
+	public void setLocation(Location location) {
+		this.location = location;
+	}
+
+	public Vector getDirection() {
+		return direction;
+	}
+
+	public void setDirection(Vector direction) {
+		this.direction = direction;
+	}
+
+	public Vector getBlockDirection() {
+		return blockDirection;
+	}
+
+	public void setBlockDirection(Vector blockDirection) {
+		this.blockDirection = blockDirection;
+	}
+
+	public long getTime() {
+		return time;
+	}
+
+	public void setTime(long time) {
+		this.time = time;
+	}
+
+	public long getStep() {
+		return step;
+	}
+
+	public void setStep(long step) {
+		this.step = step;
+	}
+
+	public int getSlap() {
+		return slap;
+	}
+
+	public void setSlap(int slap) {
+		this.slap = slap;
+	}
+
+	public int getWidth() {
+		return width;
+	}
+
+	public void setWidth(int width) {
+		this.width = width;
+	}
+
+	public boolean isProgressed() {
+		return progressed;
+	}
+
+	public void setProgressed(boolean progressed) {
+		this.progressed = progressed;
+	}
+
+	public List<Location> getCenterSlap() {
+		return centerSlap;
+	}
+
+	public List<Block> getBlocks() {
+		return blocks;
 	}
 
 	@Override
-	public void stop() {
-		return;
-	}
+	public void load() {}
+
+	@Override
+	public void stop() {}
 
 	@Override
 	public boolean isEnabled() {

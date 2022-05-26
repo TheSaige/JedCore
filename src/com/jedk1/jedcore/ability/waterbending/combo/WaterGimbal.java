@@ -43,18 +43,18 @@ import java.util.Random;
 public class WaterGimbal extends WaterAbility implements AddonAbility, ComboAbility {
 
 	@Attribute(Attribute.SELECT_RANGE)
-	private int sourcerange;
+	private int sourceRange;
 	@Attribute(Attribute.COOLDOWN)
 	private long cooldown;
 	@Attribute("Width")
-	private double ringsize;
+	private double ringSize;
 	@Attribute(Attribute.RANGE)
 	private double range;
 	@Attribute(Attribute.DAMAGE)
 	private double damage;
 	@Attribute(Attribute.SPEED)
 	private double speed;
-	private int animspeed;
+	private int animSpeed;
 	private boolean plantSourcing;
 	private boolean snowSourcing;
 	private boolean requireAdjacentPlants;
@@ -63,20 +63,19 @@ public class WaterGimbal extends WaterAbility implements AddonAbility, ComboAbil
 	private double entityCollisionRadius;
 	
 	private int step;
-	private double velocity = 0.15;
 	private boolean initializing;
-	private boolean leftvisible = true;
-	private boolean rightvisible = true;
-	private boolean rightconsumed = false;
-	private boolean leftconsumed = false;
-	private Block sourceblock;
+	private boolean leftVisible = true;
+	private boolean rightVisible = true;
+	private boolean rightConsumed = false;
+	private boolean leftConsumed = false;
+	private Block sourceBlock;
 	private TempBlock source;
-	private Location sourceloc;
+	private Location sourceLoc;
 	private Location origin1;
 	private Location origin2;
 	private boolean usingBottle;
 	
-	private Random rand = new Random();
+	private final Random rand = new Random();
 
 	static {
 		CollisionInitializer.abilityMap.put("WaterGimbal", "");
@@ -99,10 +98,10 @@ public class WaterGimbal extends WaterAbility implements AddonAbility, ComboAbil
 			start();
 			initializing = true;
 			if (hasAbility(player, Torrent.class)) {
-				((Torrent) getAbility(player, Torrent.class)).remove();
+				getAbility(player, Torrent.class).remove();
 			}
 			if (hasAbility(player, WaterManipulation.class)) {
-				((WaterManipulation) getAbility(player, WaterManipulation.class)).remove();
+				getAbility(player, WaterManipulation.class).remove();
 			}
 		}
 	}
@@ -110,13 +109,13 @@ public class WaterGimbal extends WaterAbility implements AddonAbility, ComboAbil
 	public void setFields() {
 		ConfigurationSection config = JedCoreConfig.getConfig(this.player);
 
-		sourcerange = config.getInt("Abilities.Water.WaterCombo.WaterGimbal.SourceRange");
+		sourceRange = config.getInt("Abilities.Water.WaterCombo.WaterGimbal.SourceRange");
 		cooldown = config.getLong("Abilities.Water.WaterCombo.WaterGimbal.Cooldown");
-		ringsize = config.getDouble("Abilities.Water.WaterCombo.WaterGimbal.RingSize");
+		ringSize = config.getDouble("Abilities.Water.WaterCombo.WaterGimbal.RingSize");
 		range = config.getDouble("Abilities.Water.WaterCombo.WaterGimbal.Range");
 		damage = config.getDouble("Abilities.Water.WaterCombo.WaterGimbal.Damage");
 		speed = config.getDouble("Abilities.Water.WaterCombo.WaterGimbal.Speed");
-		animspeed = config.getInt("Abilities.Water.WaterCombo.WaterGimbal.AnimationSpeed");
+		animSpeed = config.getInt("Abilities.Water.WaterCombo.WaterGimbal.AnimationSpeed");
 		plantSourcing = config.getBoolean("Abilities.Water.WaterCombo.WaterGimbal.PlantSource");
 		snowSourcing = config.getBoolean("Abilities.Water.WaterCombo.WaterGimbal.SnowSource");
 		requireAdjacentPlants = config.getBoolean("Abilities.Water.WaterCombo.WaterGimbal.RequireAdjacentPlants");
@@ -144,37 +143,37 @@ public class WaterGimbal extends WaterAbility implements AddonAbility, ComboAbil
 			return;
 		}
 		if (hasAbility(player, WaterManipulation.class)) {
-			((WaterManipulation) getAbility(player, WaterManipulation.class)).remove();
+			getAbility(player, WaterManipulation.class).remove();
 		}
-		if (leftconsumed && rightconsumed) {
+		if (leftConsumed && rightConsumed) {
 			remove();
 			return;
 		}
 		if (!initializing) {
 			getGimbalBlocks(player.getLocation());
-			if (!leftvisible && !leftconsumed && origin1 != null) {
+			if (!leftVisible && !leftConsumed && origin1 != null) {
 				if (origin1.getBlockY() <= player.getEyeLocation().getBlockY()) {
 					new WaterBlast(player, origin1, range, damage, speed, entityCollisionRadius, abilityCollisionRadius, this);
-					leftconsumed = true;
+					leftConsumed = true;
 				}
 			}
 
-			if (!rightvisible && !rightconsumed && origin2 != null) {
+			if (!rightVisible && !rightConsumed && origin2 != null) {
 				if (origin2.getBlockY() <= player.getEyeLocation().getBlockY()) {
 					new WaterBlast(player, origin2, range, damage, speed, entityCollisionRadius, abilityCollisionRadius, this);
-					rightconsumed = true;
+					rightConsumed = true;
 				}
 			}
 		} else {
-			Vector direction = GeneralMethods.getDirection(sourceloc, player.getEyeLocation());
-			sourceloc = sourceloc.add(direction.multiply(1).normalize());
+			Vector direction = GeneralMethods.getDirection(sourceLoc, player.getEyeLocation());
+			sourceLoc = sourceLoc.add(direction.multiply(1).normalize());
 
-			if (source == null || !sourceloc.getBlock().getLocation().equals(source.getLocation())) {
+			if (source == null || !sourceLoc.getBlock().getLocation().equals(source.getLocation())) {
 				if (source != null) {
 					source.revertBlock();
 				}
-				if (isTransparent(sourceloc.getBlock())) {
-					source = new TempBlock(sourceloc.getBlock(), Material.WATER, Material.WATER.createBlockData(bd -> ((Levelled)bd).setLevel(0)));
+				if (isTransparent(sourceLoc.getBlock())) {
+					source = new TempBlock(sourceLoc.getBlock(), Material.WATER, Material.WATER.createBlockData(bd -> ((Levelled) bd).setLevel(0)));
 				}
 			}
 
@@ -186,30 +185,30 @@ public class WaterGimbal extends WaterAbility implements AddonAbility, ComboAbil
 	}
 
 	private boolean grabSource() {
-		sourceblock = BlockSource.getWaterSourceBlock(player, sourcerange, ClickType.SHIFT_DOWN, true, true, plantSourcing, snowSourcing, false);
-		if (sourceblock != null) {
+		sourceBlock = BlockSource.getWaterSourceBlock(player, sourceRange, ClickType.SHIFT_DOWN, true, true, plantSourcing, snowSourcing, false);
+		if (sourceBlock != null) {
 			// All of these extra checks need to be done because PK sourcing system is buggy.
-			boolean usingSnow = snowSourcing && (sourceblock.getType() == Material.SNOW_BLOCK || sourceblock.getType() == Material.SNOW);
+			boolean usingSnow = snowSourcing && (sourceBlock.getType() == Material.SNOW_BLOCK || sourceBlock.getType() == Material.SNOW);
 
-			if (isPlant(sourceblock) || usingSnow) {
-				if (usingSnow || !requireAdjacentPlants || JCMethods.isAdjacentToThreeOrMoreSources(sourceblock, sourceblock.getType())) {
-					playFocusWaterEffect(sourceblock);
-					sourceloc = sourceblock.getLocation();
+			if (isPlant(sourceBlock) || usingSnow) {
+				if (usingSnow || !requireAdjacentPlants || JCMethods.isAdjacentToThreeOrMoreSources(sourceBlock, sourceBlock.getType())) {
+					playFocusWaterEffect(sourceBlock);
+					sourceLoc = sourceBlock.getLocation();
 
-					new PlantRegrowth(this.player, sourceblock);
-					sourceblock.setType(Material.AIR);
+					new PlantRegrowth(this.player, sourceBlock);
+					sourceBlock.setType(Material.AIR);
 
 					return true;
 				}
-			} else if (!ElementalAbility.isSnow(sourceblock)) {
-				boolean isTempBlock = TempBlock.isTempBlock(sourceblock);
+			} else if (!ElementalAbility.isSnow(sourceBlock)) {
+				boolean isTempBlock = TempBlock.isTempBlock(sourceBlock);
 
-				if (GeneralMethods.isAdjacentToThreeOrMoreSources(sourceblock, false) || (isTempBlock && WaterAbility.isBendableWaterTempBlock(sourceblock))) {
-					playFocusWaterEffect(sourceblock);
-					sourceloc = sourceblock.getLocation();
+				if (GeneralMethods.isAdjacentToThreeOrMoreSources(sourceBlock, false) || (isTempBlock && WaterAbility.isBendableWaterTempBlock(sourceBlock))) {
+					playFocusWaterEffect(sourceBlock);
+					sourceLoc = sourceBlock.getLocation();
 
 					if (isTempBlock) {
-						PhaseChange.thaw(sourceblock);
+						PhaseChange.thaw(sourceBlock);
 					}
 
 					return true;
@@ -223,8 +222,8 @@ public class WaterGimbal extends WaterAbility implements AddonAbility, ComboAbil
 			Location forward = eye.clone().add(eye.getDirection());
 
 			if (isTransparent(eye.getBlock()) && isTransparent(forward.getBlock())) {
-				sourceloc = forward;
-				sourceblock = sourceloc.getBlock();
+				sourceLoc = forward;
+				sourceBlock = sourceLoc.getBlock();
 				usingBottle = true;
 				WaterReturn.emptyWaterBottle(player);
 				return true;
@@ -237,9 +236,9 @@ public class WaterGimbal extends WaterAbility implements AddonAbility, ComboAbil
 	// This is to get around the WaterReturn limitation since OctopusForm will currently be using the bottle.
 	private boolean hasWaterBottle(Player player) {
 		PlayerInventory inventory = player.getInventory();
-		if(inventory.contains(Material.POTION)) {
+		if (inventory.contains(Material.POTION)) {
 			ItemStack item = inventory.getItem(inventory.first(Material.POTION));
-			PotionMeta meta = (PotionMeta)item.getItemMeta();
+			PotionMeta meta = (PotionMeta) item.getItemMeta();
 			return meta.getBasePotionData().getType().equals(PotionType.WATER);
 		}
 
@@ -248,42 +247,42 @@ public class WaterGimbal extends WaterAbility implements AddonAbility, ComboAbil
 
 	public static void prepareBlast(Player player) {
 		if (hasAbility(player, WaterGimbal.class)) {
-			((WaterGimbal) getAbility(player, WaterGimbal.class)).prepareBlast();
+			getAbility(player, WaterGimbal.class).prepareBlast();
 			if (hasAbility(player, WaterManipulation.class)) {
-				((WaterManipulation) getAbility(player, WaterManipulation.class)).remove();
+				getAbility(player, WaterManipulation.class).remove();
 			}
 		}
 	}
 
 	public void prepareBlast() {
-		if (leftvisible) {
-			leftvisible = false;
+		if (leftVisible) {
+			leftVisible = false;
 			return;
 		}
-		if (rightvisible) {
-			rightvisible = false;
-			return;
+		if (rightVisible) {
+			rightVisible = false;
 		}
 	}
 
 	private void getGimbalBlocks(Location location) {
-		List<Block> ring1 = new ArrayList<Block>();
-		List<Block> ring2 = new ArrayList<Block>();
+		List<Block> ring1 = new ArrayList<>();
+		List<Block> ring2 = new ArrayList<>();
 		Location l = location.clone().add(0, 1, 0);
 		int count = 0;
 
-		while (count < animspeed) {
+		while (count < animSpeed) {
 			boolean completed = false;
-			double angle =  3.0 + this.step * this.velocity;
+			double velocity = 0.15;
+			double angle =  3.0 + this.step * velocity;
 			double xRotation = Math.PI / 2.82 * 2.1;
-			Vector v1 = new Vector(Math.cos(angle), Math.sin(angle), 0.0D).multiply(ringsize);
-			Vector v2 = new Vector(Math.cos(angle), Math.sin(angle), 0.0D).multiply(ringsize);
+			Vector v1 = new Vector(Math.cos(angle), Math.sin(angle), 0.0D).multiply(ringSize);
+			Vector v2 = new Vector(Math.cos(angle), Math.sin(angle), 0.0D).multiply(ringSize);
 			rotateAroundAxisX(v1, xRotation);
 			rotateAroundAxisX(v2, -xRotation);
-			rotateAroundAxisY(v1, -((location.getYaw() * Math.PI / 180)-1.575));
-			rotateAroundAxisY(v2, -((location.getYaw() * Math.PI / 180)-1.575));
+			rotateAroundAxisY(v1, -((location.getYaw() * Math.PI / 180) - 1.575));
+			rotateAroundAxisY(v2, -((location.getYaw() * Math.PI / 180) - 1.575));
 
-			if (!ring1.contains(l.clone().add(v1).getBlock()) && !leftconsumed) {
+			if (!ring1.contains(l.clone().add(v1).getBlock()) && !leftConsumed) {
 				completed = true;
 				Block block = l.clone().add(v1).getBlock();
 				if (isTransparent(block)) {
@@ -298,7 +297,7 @@ public class WaterGimbal extends WaterAbility implements AddonAbility, ComboAbil
 				}
 			}
 
-			if (!ring2.contains(l.clone().add(v2).getBlock()) && !rightconsumed) {
+			if (!ring2.contains(l.clone().add(v2).getBlock()) && !rightConsumed) {
 				completed = true;
 				Block block = l.clone().add(v2).getBlock();
 				if (isTransparent(block)) {
@@ -317,37 +316,33 @@ public class WaterGimbal extends WaterAbility implements AddonAbility, ComboAbil
 				count++;
 			}
 
-			if (leftconsumed && rightconsumed) {
+			if (leftConsumed && rightConsumed) {
 				break;
 			}
 
 			this.step++;
 		}
 
-		if (!leftconsumed) {
+		if (!leftConsumed) {
 			if (!ring1.isEmpty()) {
 				Collections.reverse(ring1);
 				origin1 = ring1.get(0).getLocation();
 			}
 			for (Block block : ring1) {
-				//new TempBlock(block, Material.STATIONARY_WATER, (byte) 8);
-				//revert.put(block, System.currentTimeMillis() + 150L);
-				new RegenTempBlock(block, Material.WATER, Material.WATER.createBlockData(bd -> ((Levelled)bd).setLevel(0)), 150L);
+				new RegenTempBlock(block, Material.WATER, Material.WATER.createBlockData(bd -> ((Levelled) bd).setLevel(0)), 150L);
 				if (rand.nextInt(10) == 0) {
 					playWaterbendingSound(block.getLocation());
 				}
 			}
 		}
 
-		if (!rightconsumed) {
+		if (!rightConsumed) {
 			if (!ring2.isEmpty()) {
 				Collections.reverse(ring2);
 				origin2 = ring2.get(0).getLocation();
 			}
 			for (Block block : ring2) {
-				//new TempBlock(block, Material.STATIONARY_WATER, (byte) 8);
-				//revert.put(block, System.currentTimeMillis() + 150L);
-				new RegenTempBlock(block, Material.WATER, Material.WATER.createBlockData(bd -> ((Levelled)bd).setLevel(0)), 150L);
+				new RegenTempBlock(block, Material.WATER, Material.WATER.createBlockData(bd -> ((Levelled) bd).setLevel(0)), 150L);
 				if (rand.nextInt(10) == 0) {
 					playWaterbendingSound(block.getLocation());
 				}
@@ -355,20 +350,20 @@ public class WaterGimbal extends WaterAbility implements AddonAbility, ComboAbil
 		}
 	}
 
-	private Vector rotateAroundAxisX(Vector v, double angle) {
+	private void rotateAroundAxisX(Vector v, double angle) {
 		double cos = Math.cos(angle);
 		double sin = Math.sin(angle);
 		double y = v.getY() * cos - v.getZ() * sin;
 		double z = v.getY() * sin + v.getZ() * cos;
-		return v.setY(y).setZ(z);
+		v.setY(y).setZ(z);
 	}
 
-	private Vector rotateAroundAxisY(Vector v, double angle) {
+	private void rotateAroundAxisY(Vector v, double angle) {
 		double cos = Math.cos(angle);
 		double sin = Math.sin(angle);
 		double x = v.getX() * cos + v.getZ() * sin;
 		double z = v.getX() * -sin + v.getZ() * cos;
-		return v.setX(x).setZ(z);
+		v.setX(x).setZ(z);
 	}
 
 	@Override
@@ -381,7 +376,7 @@ public class WaterGimbal extends WaterAbility implements AddonAbility, ComboAbil
 		}
 
 		if (usingBottle) {
-			new WaterReturn(player, sourceblock);
+			new WaterReturn(player, sourceBlock);
 		}
 		super.remove();
 	}
@@ -457,13 +452,207 @@ public class WaterGimbal extends WaterAbility implements AddonAbility, ComboAbil
 		return JedCore.version;
 	}
 
-	@Override
-	public void load() {
+	public int getSourceRange() {
+		return sourceRange;
+	}
+
+	public void setSourceRange(int sourceRange) {
+		this.sourceRange = sourceRange;
+	}
+
+	public void setCooldown(long cooldown) {
+		this.cooldown = cooldown;
+	}
+
+	public double getRingSize() {
+		return ringSize;
+	}
+
+	public void setRingSize(double ringSize) {
+		this.ringSize = ringSize;
+	}
+
+	public double getRange() {
+		return range;
+	}
+
+	public void setRange(double range) {
+		this.range = range;
+	}
+
+	public double getDamage() {
+		return damage;
+	}
+
+	public void setDamage(double damage) {
+		this.damage = damage;
+	}
+
+	public double getSpeed() {
+		return speed;
+	}
+
+	public void setSpeed(double speed) {
+		this.speed = speed;
+	}
+
+	public int getAnimSpeed() {
+		return animSpeed;
+	}
+
+	public void setAnimSpeed(int animSpeed) {
+		this.animSpeed = animSpeed;
+	}
+
+	public boolean isPlantSourcing() {
+		return plantSourcing;
+	}
+
+	public void setPlantSourcing(boolean plantSourcing) {
+		this.plantSourcing = plantSourcing;
+	}
+
+	public boolean isSnowSourcing() {
+		return snowSourcing;
+	}
+
+	public void setSnowSourcing(boolean snowSourcing) {
+		this.snowSourcing = snowSourcing;
+	}
+
+	public boolean isRequireAdjacentPlants() {
+		return requireAdjacentPlants;
+	}
+
+	public void setRequireAdjacentPlants(boolean requireAdjacentPlants) {
+		this.requireAdjacentPlants = requireAdjacentPlants;
+	}
+
+	public boolean isCanUseBottle() {
+		return canUseBottle;
+	}
+
+	public void setCanUseBottle(boolean canUseBottle) {
+		this.canUseBottle = canUseBottle;
+	}
+
+	public double getAbilityCollisionRadius() {
+		return abilityCollisionRadius;
+	}
+
+	public void setAbilityCollisionRadius(double abilityCollisionRadius) {
+		this.abilityCollisionRadius = abilityCollisionRadius;
+	}
+
+	public double getEntityCollisionRadius() {
+		return entityCollisionRadius;
+	}
+
+	public void setEntityCollisionRadius(double entityCollisionRadius) {
+		this.entityCollisionRadius = entityCollisionRadius;
+	}
+
+	public int getStep() {
+		return step;
+	}
+
+	public void setStep(int step) {
+		this.step = step;
+	}
+
+	public boolean isInitializing() {
+		return initializing;
+	}
+
+	public void setInitializing(boolean initializing) {
+		this.initializing = initializing;
+	}
+
+	public boolean isLeftVisible() {
+		return leftVisible;
+	}
+
+	public void setLeftVisible(boolean leftVisible) {
+		this.leftVisible = leftVisible;
+	}
+
+	public boolean isRightVisible() {
+		return rightVisible;
+	}
+
+	public void setRightVisible(boolean rightVisible) {
+		this.rightVisible = rightVisible;
+	}
+
+	public boolean isRightConsumed() {
+		return rightConsumed;
+	}
+
+	public void setRightConsumed(boolean rightConsumed) {
+		this.rightConsumed = rightConsumed;
+	}
+
+	public boolean isLeftConsumed() {
+		return leftConsumed;
+	}
+
+	public void setLeftConsumed(boolean leftConsumed) {
+		this.leftConsumed = leftConsumed;
+	}
+
+	public Block getSourceBlock() {
+		return sourceBlock;
+	}
+
+	public void setSourceBlock(Block sourceBlock) {
+		this.sourceBlock = sourceBlock;
+	}
+
+	public TempBlock getSource() {
+		return source;
+	}
+
+	public void setSource(TempBlock source) {
+		this.source = source;
+	}
+
+	public Location getSourceLoc() {
+		return sourceLoc;
+	}
+
+	public void setSourceLoc(Location sourceLoc) {
+		this.sourceLoc = sourceLoc;
+	}
+
+	public Location getOrigin1() {
+		return origin1;
+	}
+
+	public void setOrigin1(Location origin1) {
+		this.origin1 = origin1;
+	}
+
+	public Location getOrigin2() {
+		return origin2;
+	}
+
+	public void setOrigin2(Location origin2) {
+		this.origin2 = origin2;
+	}
+
+	public boolean isUsingBottle() {
+		return usingBottle;
+	}
+
+	public void setUsingBottle(boolean usingBottle) {
+		this.usingBottle = usingBottle;
 	}
 
 	@Override
-	public void stop() {
-	}
+	public void load() {}
+
+	@Override
+	public void stop() {}
 	
 	@Override
 	public boolean isEnabled() {

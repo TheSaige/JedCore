@@ -10,7 +10,6 @@ import com.projectkorra.projectkorra.util.BlockSource;
 import com.projectkorra.projectkorra.util.ClickType;
 
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.configuration.ConfigurationSection;
@@ -18,14 +17,13 @@ import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class EarthPillar extends EarthAbility implements AddonAbility {
 
-	private static ConcurrentHashMap<Block, EarthPillar> affectedblocks = new ConcurrentHashMap<Block, EarthPillar>();
-	private static ConcurrentHashMap<EarthPillar, List<Block>> affected = new ConcurrentHashMap<EarthPillar, List<Block>>();
+	private static final ConcurrentHashMap<Block, EarthPillar> AFFECTED_BLOCKS = new ConcurrentHashMap<>();
+	private static final ConcurrentHashMap<EarthPillar, List<Block>> AFFECTED = new ConcurrentHashMap<>();
 
 	private Block block;
 	private BlockFace face;
@@ -35,17 +33,19 @@ public class EarthPillar extends EarthAbility implements AddonAbility {
 	private int range;
 	private int step;
 
-	private List<Block> blocks = new ArrayList<Block>();
+	private final List<Block> blocks = new ArrayList<>();
 
 	public EarthPillar(Player player) {
 		super(player);
+
 		if (!bPlayer.canBend(this)) {
 			return;
 		}
+
 		setFields();
 		Block target = BlockSource.getEarthSourceBlock(player, range, ClickType.SHIFT_DOWN);
-		if (target != null && !affectedblocks.containsKey(target)) {
-			List<Block> blocks = player.getLastTwoTargetBlocks((HashSet<Material>) null, range);
+		if (target != null && !AFFECTED_BLOCKS.containsKey(target)) {
+			List<Block> blocks = player.getLastTwoTargetBlocks(null, range);
 			if (blocks.size() > 1) {
 				this.player = player;
 				face = blocks.get(1).getFace(blocks.get(0));
@@ -53,14 +53,14 @@ public class EarthPillar extends EarthAbility implements AddonAbility {
 				height = getEarthbendableBlocksLength(block, getDirection(face).clone().multiply(-1), height);
 				start();
 			}
-		} else if (target != null && affectedblocks.containsKey(target)) {
-			List<Block> blocks = affected.get(affectedblocks.get(target));
+		} else if (target != null && AFFECTED_BLOCKS.containsKey(target)) {
+			List<Block> blocks = AFFECTED.get(AFFECTED_BLOCKS.get(target));
 			if (blocks != null && !blocks.isEmpty()) {
 				for (Block b : blocks) {
 					Collapse.revertBlock(b);
 				}
 				playEarthbendingSound(target.getLocation());
-				affected.remove(affectedblocks.get(target));
+				AFFECTED.remove(AFFECTED_BLOCKS.get(target));
 			}
 		}
 	}
@@ -78,17 +78,15 @@ public class EarthPillar extends EarthAbility implements AddonAbility {
 			step++;
 			movePillar();
 		} else {
-			affected.put(this, blocks);
+			AFFECTED.put(this, blocks);
 			remove();
-			return;
 		}
-		return;
 	}
 
 	private void movePillar() {
 		moveEarth(block, getDirection(face), height);
 		block = block.getRelative(face);
-		affectedblocks.put(block, this);
+		AFFECTED_BLOCKS.put(block, this);
 		blocks.add(block);
 	}
 
@@ -112,9 +110,9 @@ public class EarthPillar extends EarthAbility implements AddonAbility {
 	}
 
 	public static void progressAll() {
-		for (Block block : affectedblocks.keySet()) {
-			if (!EarthAbility.isEarthbendable(affectedblocks.get(block).getPlayer(), block)) {
-				affectedblocks.remove(block);
+		for (Block block : AFFECTED_BLOCKS.keySet()) {
+			if (!EarthAbility.isEarthbendable(AFFECTED_BLOCKS.get(block).getPlayer(), block)) {
+				AFFECTED_BLOCKS.remove(block);
 			}
 		}
 	}
@@ -126,7 +124,7 @@ public class EarthPillar extends EarthAbility implements AddonAbility {
 
 	@Override
 	public Location getLocation() {
-		return null;
+		return block != null ? block.getLocation() : null;
 	}
 
 	@Override
@@ -160,15 +158,55 @@ public class EarthPillar extends EarthAbility implements AddonAbility {
 		return "* JedCore Addon *\n" + config.getString("Abilities.Earth.EarthPillar.Description");
 	}
 
-	@Override
-	public void load() {
-		return;
+	public Block getBlock() {
+		return block;
+	}
+
+	public void setBlock(Block block) {
+		this.block = block;
+	}
+
+	public BlockFace getFace() {
+		return face;
+	}
+
+	public void setFace(BlockFace face) {
+		this.face = face;
+	}
+
+	public int getHeight() {
+		return height;
+	}
+
+	public void setHeight(int height) {
+		this.height = height;
+	}
+
+	public int getRange() {
+		return range;
+	}
+
+	public void setRange(int range) {
+		this.range = range;
+	}
+
+	public int getStep() {
+		return step;
+	}
+
+	public void setStep(int step) {
+		this.step = step;
+	}
+
+	public List<Block> getBlocks() {
+		return blocks;
 	}
 
 	@Override
-	public void stop() {
-		return;
-	}
+	public void load() {}
+
+	@Override
+	public void stop() {}
 
 	@Override
 	public boolean isEnabled() {

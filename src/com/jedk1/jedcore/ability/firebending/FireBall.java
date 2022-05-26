@@ -28,6 +28,7 @@ import com.projectkorra.projectkorra.util.DamageHandler;
 import com.projectkorra.projectkorra.util.ParticleEffect;
 
 public class FireBall extends FireAbility implements AddonAbility {
+
 	private Location location;
 	private Vector direction;
 	private double distanceTravelled;
@@ -35,7 +36,7 @@ public class FireBall extends FireAbility implements AddonAbility {
 	@Attribute(Attribute.RANGE)
 	private long range;
 	@Attribute(Attribute.FIRE_TICK)
-	private long fireticks;
+	private long fireTicks;
 	@Attribute(Attribute.COOLDOWN)
 	private long cooldown;
 	@Attribute(Attribute.DAMAGE)
@@ -45,7 +46,7 @@ public class FireBall extends FireAbility implements AddonAbility {
 	@Attribute("CollisionRadius")
 	private double collisionRadius;
 
-	public FireBall(Player player){
+	public FireBall(Player player) {
 		super(player);
 		if (!bPlayer.canBend(this)) {
 			return;
@@ -56,15 +57,17 @@ public class FireBall extends FireAbility implements AddonAbility {
 		location = player.getEyeLocation();
 		direction = player.getEyeLocation().getDirection().normalize();
 
-		bPlayer.addCooldown(this);
 		start();
+		if (!isRemoved()) {
+			bPlayer.addCooldown(this);
+		}
 	}
 
 	public void setFields() {
 		ConfigurationSection config = JedCoreConfig.getConfig(this.player);
 
 		range = config.getLong("Abilities.Fire.FireBall.Range");
-		fireticks = config.getLong("Abilities.Fire.FireBall.FireDuration");
+		fireTicks = config.getLong("Abilities.Fire.FireBall.FireDuration");
 		cooldown = config.getLong("Abilities.Fire.FireBall.Cooldown");
 		damage = config.getDouble("Abilities.Fire.FireBall.Damage");
 		controllable = config.getBoolean("Abilities.Fire.FireBall.Controllable");
@@ -90,12 +93,12 @@ public class FireBall extends FireAbility implements AddonAbility {
 	
 	@Override
 	public void progress(){
-		if(player.isDead() || !player.isOnline()){
+		if (player.isDead() || !player.isOnline()) {
 			remove();
 			return;
 		}
 
-		if(distanceTravelled >= range){
+		if (distanceTravelled >= range) {
 			remove();
 			return;
 		}
@@ -108,8 +111,8 @@ public class FireBall extends FireAbility implements AddonAbility {
 		progressFireball();
 	}
 	
-	private void progressFireball(){
-		for(int i = 0; i < 2; i++){
+	private void progressFireball() {
+		for (int i = 0; i < 2; i++) {
 			distanceTravelled ++;
 			if (distanceTravelled >= range) {
 				return;
@@ -119,8 +122,8 @@ public class FireBall extends FireAbility implements AddonAbility {
 				direction = player.getLocation().getDirection();
 			}
 			
-			location = location.add(direction.clone().multiply(1));
-			if(GeneralMethods.isSolid(location.getBlock()) || isWater(location.getBlock())){
+			location = location.add(direction);
+			if (GeneralMethods.isSolid(location.getBlock()) || isWater(location.getBlock())) {
 				distanceTravelled = range;
 				return;
 			}
@@ -144,13 +147,13 @@ public class FireBall extends FireAbility implements AddonAbility {
 		}
 	}
 	
-	private boolean doDamage(Entity entity){
+	private boolean doDamage(Entity entity) {
 		if (!(entity instanceof LivingEntity)) return false;
 
 		distanceTravelled = range;
 		DamageHandler.damageEntity(entity, damage, this);
 
-		FireTick.set(entity, Math.round(fireticks / 50));
+		FireTick.set(entity, Math.round(fireTicks / 50F));
 		new FireDamageTimer(entity, player);
 		return false;
 	}
@@ -214,15 +217,84 @@ public class FireBall extends FireAbility implements AddonAbility {
 		return "* JedCore Addon *\n" + config.getString("Abilities.Fire.FireBall.Description");
 	}
 
-	@Override
-	public void load() {
-		return;
+	public void setLocation(Location location) {
+		this.location = location;
+	}
+
+	public Vector getDirection() {
+		return direction;
+	}
+
+	public void setDirection(Vector direction) {
+		this.direction = direction;
+	}
+
+	public double getDistanceTravelled() {
+		return distanceTravelled;
+	}
+
+	public void setDistanceTravelled(double distanceTravelled) {
+		this.distanceTravelled = distanceTravelled;
+	}
+
+	public long getRange() {
+		return range;
+	}
+
+	public void setRange(long range) {
+		this.range = range;
+	}
+
+	public long getFireTicks() {
+		return fireTicks;
+	}
+
+	public void setFireTicks(long fireTicks) {
+		this.fireTicks = fireTicks;
+	}
+
+	public void setCooldown(long cooldown) {
+		this.cooldown = cooldown;
+	}
+
+	public double getDamage() {
+		return damage;
+	}
+
+	public void setDamage(double damage) {
+		this.damage = damage;
+	}
+
+	public boolean isControllable() {
+		return controllable;
+	}
+
+	public void setControllable(boolean controllable) {
+		this.controllable = controllable;
+	}
+
+	public boolean isFireTrail() {
+		return fireTrail;
+	}
+
+	public void setFireTrail(boolean fireTrail) {
+		this.fireTrail = fireTrail;
 	}
 
 	@Override
-	public void stop() {
-		return;
+	public double getCollisionRadius() {
+		return collisionRadius;
 	}
+
+	public void setCollisionRadius(double collisionRadius) {
+		this.collisionRadius = collisionRadius;
+	}
+
+	@Override
+	public void load() {}
+
+	@Override
+	public void stop() {}
 	
 	@Override
 	public boolean isEnabled() {

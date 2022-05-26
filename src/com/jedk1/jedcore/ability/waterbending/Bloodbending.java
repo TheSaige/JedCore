@@ -14,8 +14,6 @@ import com.projectkorra.projectkorra.command.Commands;
 import com.projectkorra.projectkorra.object.HorizontalVelocityTracker;
 import com.projectkorra.projectkorra.util.DamageHandler;
 
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
@@ -36,7 +34,7 @@ public class Bloodbending extends BloodAbility implements AddonAbility {
 	private boolean requireBound;
 	private int distance;
 	@Attribute(Attribute.DURATION)
-	private long holdtime;
+	private long holdTime;
 	@Attribute(Attribute.COOLDOWN)
 	private long cooldown;
 	
@@ -51,7 +49,7 @@ public class Bloodbending extends BloodAbility implements AddonAbility {
 			return;
 		}
 		setFields();
-		time = System.currentTimeMillis() + holdtime;
+		time = System.currentTimeMillis() + holdTime;
 		if (grab()) {
 			start();
 		}
@@ -66,7 +64,7 @@ public class Bloodbending extends BloodAbility implements AddonAbility {
 		bloodbendingThroughBlocks = config.getBoolean("Abilities.Water.Bloodbending.IgnoreWalls");
 		requireBound = config.getBoolean("Abilities.Water.Bloodbending.RequireBound");
 		distance = config.getInt("Abilities.Water.Bloodbending.Distance");
-		holdtime = config.getLong("Abilities.Water.Bloodbending.HoldTime");
+		holdTime = config.getLong("Abilities.Water.Bloodbending.HoldTime");
 		cooldown = config.getLong("Abilities.Water.Bloodbending.Cooldown");
 	}
 
@@ -82,7 +80,7 @@ public class Bloodbending extends BloodAbility implements AddonAbility {
 
 	public static void launch(Player player) {
 		if (hasAbility(player, Bloodbending.class)) {
-			((Bloodbending) getAbility(player, Bloodbending.class)).launch();
+			getAbility(player, Bloodbending.class).launch();
 		}
 	}
 
@@ -100,11 +98,11 @@ public class Bloodbending extends BloodAbility implements AddonAbility {
 	}
 
 	private boolean grab() {
-		List<Entity> entities = new ArrayList<Entity>();
+		List<Entity> entities = new ArrayList<>();
 		for (int i = 1; i < distance; i++) {
 			Location location;
 			if (bloodbendingThroughBlocks) {
-				location = player.getTargetBlock((HashSet<Material>) null, i).getLocation();
+				location = player.getTargetBlock(null, i).getLocation();
 			} else {
 				location = GeneralMethods.getTargetedLocation(player, i, ElementalAbility.getTransparentMaterials());
 			}
@@ -164,14 +162,10 @@ public class Bloodbending extends BloodAbility implements AddonAbility {
 			if (bPlayer.getAbilities().containsValue("Bloodbending")) {
 				return false;
 			}
-			if (bPlayer.getAbilities().containsValue("BloodPuppet")) {
-				return false;
-			}
+			return !bPlayer.getAbilities().containsValue("BloodPuppet");
 		} else {
 			if (bPlayer.canBind(getAbility("Bloodbending")) && bPlayer.canBloodbend()) {
-				if ((!isDay(player.getWorld()) || bPlayer.canBloodbendAtAnytime())) {
-					return false;
-				}
+				return isDay(player.getWorld()) && !bPlayer.canBloodbendAtAnytime();
 			}
 		}
 		return true;
@@ -278,15 +272,103 @@ public class Bloodbending extends BloodAbility implements AddonAbility {
 		return "* JedCore Addon *\n" + config.getString("Abilities.Water.Bloodbending.Description");
 	}
 
-	@Override
-	public void load() {
-		return;
+	public boolean isNightOnly() {
+		return nightOnly;
+	}
+
+	public void setNightOnly(boolean nightOnly) {
+		this.nightOnly = nightOnly;
+	}
+
+	public boolean isFullMoonOnly() {
+		return fullMoonOnly;
+	}
+
+	public void setFullMoonOnly(boolean fullMoonOnly) {
+		this.fullMoonOnly = fullMoonOnly;
+	}
+
+	public boolean isUndeadMobs() {
+		return undeadMobs;
+	}
+
+	public void setUndeadMobs(boolean undeadMobs) {
+		this.undeadMobs = undeadMobs;
+	}
+
+	public boolean isBloodbendingThroughBlocks() {
+		return bloodbendingThroughBlocks;
+	}
+
+	public void setBloodbendingThroughBlocks(boolean bloodbendingThroughBlocks) {
+		this.bloodbendingThroughBlocks = bloodbendingThroughBlocks;
+	}
+
+	public boolean isRequireBound() {
+		return requireBound;
+	}
+
+	public void setRequireBound(boolean requireBound) {
+		this.requireBound = requireBound;
+	}
+
+	public int getDistance() {
+		return distance;
+	}
+
+	public void setDistance(int distance) {
+		this.distance = distance;
+	}
+
+	public long getHoldTime() {
+		return holdTime;
+	}
+
+	public void setHoldTime(long holdTime) {
+		this.holdTime = holdTime;
+	}
+
+	public void setCooldown(long cooldown) {
+		this.cooldown = cooldown;
+	}
+
+	public long getTime() {
+		return time;
+	}
+
+	public void setTime(long time) {
+		this.time = time;
+	}
+
+	public LivingEntity getVictim() {
+		return victim;
+	}
+
+	public void setVictim(LivingEntity victim) {
+		this.victim = victim;
+	}
+
+	public BendingPlayer getVictimBPlayer() {
+		return victimBPlayer;
+	}
+
+	public void setVictimBPlayer(BendingPlayer victimBPlayer) {
+		this.victimBPlayer = victimBPlayer;
+	}
+
+	public boolean isGrabbed() {
+		return grabbed;
+	}
+
+	public void setGrabbed(boolean grabbed) {
+		this.grabbed = grabbed;
 	}
 
 	@Override
-	public void stop() {
-		return;
-	}
+	public void load() {}
+
+	@Override
+	public void stop() {}
 	
 	@Override
 	public boolean isEnabled() {

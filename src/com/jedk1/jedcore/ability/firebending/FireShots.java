@@ -1,9 +1,9 @@
 package com.jedk1.jedcore.ability.firebending;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import com.jedk1.jedcore.collision.CollisionDetector;
 import com.jedk1.jedcore.collision.Sphere;
@@ -30,10 +30,9 @@ import com.projectkorra.projectkorra.util.DamageHandler;
 import com.projectkorra.projectkorra.util.ParticleEffect;
 import org.bukkit.util.Vector;
 
-import static java.util.stream.Collectors.toList;
-
 public class FireShots extends FireAbility implements AddonAbility {
-	private List<FireShot> shots = new ArrayList<>();
+
+	private final List<FireShot> shots = new ArrayList<>();
 	@Attribute(Attribute.COOLDOWN)
 	private long cooldown;
 	@Attribute("MaxShots")
@@ -91,21 +90,21 @@ public class FireShots extends FireAbility implements AddonAbility {
 	
 	public class FireShot {
 		
-		private Ability ability;
-		private Player player;
+		private final Ability ability;
+		private final Player player;
 		private Location location;
-		private int range;
-		private int fireticks;
+		private final int range;
+		private final int fireTicks;
 		private double distanceTravelled;
-		private double damage;
+		private final double damage;
 		private Vector direction = null;
 		
-		public FireShot(Ability ability, Player player, Location location, int range, int fireticks, double damage) {
+		public FireShot(Ability ability, Player player, Location location, int range, int fireTicks, double damage) {
 			this.ability = ability;
 			this.player = player;
 			this.location = location;
 			this.range = range;
-			this.fireticks = fireticks;
+			this.fireTicks = fireTicks;
 			this.damage = damage;
 		}
 		
@@ -143,7 +142,7 @@ public class FireShots extends FireAbility implements AddonAbility {
 
 				boolean hit = CollisionDetector.checkEntityCollisions(player, collider, (entity) -> {
 					DamageHandler.damageEntity(entity, damage, ability);
-					FireTick.set(entity, Math.round(fireticks / 50));
+					FireTick.set(entity, Math.round(fireTicks / 50F));
 					new FireDamageTimer(entity, player);
 					return true;
 				});
@@ -153,6 +152,50 @@ public class FireShots extends FireAbility implements AddonAbility {
 				}
 			}
 			return true;
+		}
+
+		public Ability getAbility() {
+			return ability;
+		}
+
+		public Player getPlayer() {
+			return player;
+		}
+
+		public Location getLocation() {
+			return location;
+		}
+
+		public void setLocation(Location location) {
+			this.location = location;
+		}
+
+		public int getRange() {
+			return range;
+		}
+
+		public int getFireTicks() {
+			return fireTicks;
+		}
+
+		public double getDistanceTravelled() {
+			return distanceTravelled;
+		}
+
+		public void setDistanceTravelled(double distanceTravelled) {
+			this.distanceTravelled = distanceTravelled;
+		}
+
+		public double getDamage() {
+			return damage;
+		}
+
+		public Vector getDirection() {
+			return direction;
+		}
+
+		public void setDirection(Vector direction) {
+			this.direction = direction;
 		}
 	}
 
@@ -170,13 +213,7 @@ public class FireShots extends FireAbility implements AddonAbility {
 			}
 		}
 
-		for (Iterator<FireShot> iterator = shots.iterator(); iterator.hasNext();) {
-			FireShot shot = iterator.next();
-
-			if (!shot.progress()) {
-				iterator.remove();
-			}
-		}
+		shots.removeIf(shot -> !shot.progress());
 
 		if (amount <= 0 && shots.isEmpty()) {
 			remove();
@@ -225,7 +262,9 @@ public class FireShots extends FireAbility implements AddonAbility {
 
 	@Override
 	public List<Location> getLocations() {
-		return shots.stream().map(shot -> shot.location).collect(toList());
+		List<Location> list = shots.stream().map(shot -> shot.location).collect(Collectors.toList());
+		list.add(getRightHandPos());
+		return list;
 	}
 
 	@Override
@@ -233,9 +272,7 @@ public class FireShots extends FireAbility implements AddonAbility {
 		if (collision.isRemovingFirst()) {
 			Optional<FireShot> collidedShot = shots.stream().filter(shot -> shot.location.equals(collision.getLocationFirst())).findAny();
 
-			if (collidedShot.isPresent()) {
-				shots.remove(collidedShot.get());
-			}
+			collidedShot.ifPresent(shots::remove);
 		} else {
 			CoreAbility second = collision.getAbilitySecond();
 			if (second instanceof AirShield) {
@@ -288,15 +325,68 @@ public class FireShots extends FireAbility implements AddonAbility {
 		return "* JedCore Addon *\n" + config.getString("Abilities.Fire.FireShots.Description");
 	}
 
-	@Override
-	public void load() {
+	public List<FireShot> getShots() {
+		return shots;
+	}
 
+	public void setCooldown(long cooldown) {
+		this.cooldown = cooldown;
+	}
+
+	public int getStartAmount() {
+		return startAmount;
+	}
+
+	public void setStartAmount(int startAmount) {
+		this.startAmount = startAmount;
+	}
+
+	public int getFireticks() {
+		return fireticks;
+	}
+
+	public void setFireticks(int fireticks) {
+		this.fireticks = fireticks;
+	}
+
+	public int getRange() {
+		return range;
+	}
+
+	public void setRange(int range) {
+		this.range = range;
+	}
+
+	public double getDamage() {
+		return damage;
+	}
+
+	public void setDamage(double damage) {
+		this.damage = damage;
 	}
 
 	@Override
-	public void stop() {
-
+	public double getCollisionRadius() {
+		return collisionRadius;
 	}
+
+	public void setCollisionRadius(double collisionRadius) {
+		this.collisionRadius = collisionRadius;
+	}
+
+	public int getAmount() {
+		return amount;
+	}
+
+	public void setAmount(int amount) {
+		this.amount = amount;
+	}
+
+	@Override
+	public void load() {}
+
+	@Override
+	public void stop() {}
 	
 	@Override
 	public boolean isEnabled() {

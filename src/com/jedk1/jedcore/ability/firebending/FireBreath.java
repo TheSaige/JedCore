@@ -3,6 +3,7 @@ package com.jedk1.jedcore.ability.firebending;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 import java.util.UUID;
 
 import com.jedk1.jedcore.JCMethods;
@@ -34,11 +35,15 @@ import com.projectkorra.projectkorra.waterbending.ice.PhaseChange;
 
 public class FireBreath extends FireAbility implements AddonAbility {
 
-	public static List<UUID> rainbowPlayer = new ArrayList<UUID>();
+	public static List<UUID> rainbowPlayer = new ArrayList<>();
+	private static boolean easterEgg;
+	private static String bindMsg;
+	private static String unbindMsg;
+	private static String deniedMsg;
 
-	private long time;
 	private int ticks;
 	Random rand = new Random();
+	private final List<Location> locations = new ArrayList<>();
 
 	@Attribute(Attribute.COOLDOWN)
 	private long cooldown;
@@ -56,10 +61,7 @@ public class FireBreath extends FireAbility implements AddonAbility {
 	private boolean spawnFire;
 	private boolean meltEnabled;
 	private int meltChance;
-	private static boolean easterEgg;
-	private static String bindMsg;
-	private static String unbindMsg;
-	private static String deniedMsg;
+
 
 	public FireBreath(Player player) {
 		super(player);
@@ -79,7 +81,6 @@ public class FireBreath extends FireAbility implements AddonAbility {
 			playerDamage = playerDamage * 1.5;
 			mobDamage = mobDamage * 2;
 		}
-		time = System.currentTimeMillis();
 		start();
 	}
 
@@ -136,14 +137,12 @@ public class FireBreath extends FireAbility implements AddonAbility {
 			remove();
 			return;
 		}
-		if (System.currentTimeMillis() < time + duration) {
+		if (System.currentTimeMillis() < getStartTime() + duration) {
 			createBeam();
 		} else {
 			bPlayer.addCooldown(this);
 			remove();
-			return;
 		}
-		return;
 	}
 
 	private boolean isLocationSafe(Location loc) {
@@ -154,10 +153,7 @@ public class FireBreath extends FireAbility implements AddonAbility {
 		if (!isTransparent(block)) {
 			return false;
 		}
-		if (isWater(block)) {
-			return false;
-		}
-		return true;
+		return !isWater(block);
 	}
 
 	private void createBeam() {
@@ -166,15 +162,17 @@ public class FireBreath extends FireAbility implements AddonAbility {
 		double step = 1;
 		double size = 0;
 		double offset = 0;
-		double damageregion = 1.5;
+		double damageRegion = 1.5;
+
+		locations.clear();
 
 		for (double k = 0; k < range; k += step) {
 			loc = loc.add(dir.clone().multiply(step));
 			size += 0.005;
 			offset += 0.3;
-			damageregion += 0.01;
+			damageRegion += 0.01;
 			if (meltEnabled) {
-				for (Block b : GeneralMethods.getBlocksAroundPoint(loc, damageregion)) {
+				for (Block b : GeneralMethods.getBlocksAroundPoint(loc, damageRegion)) {
 					if (isIce(b) && rand.nextInt(meltChance) == 0) {
 						if (TempBlock.isTempBlock(b)) {
 							TempBlock temp = TempBlock.get(b);
@@ -188,7 +186,10 @@ public class FireBreath extends FireAbility implements AddonAbility {
 			}
 			if (!isLocationSafe(loc))
 				return;
-			for (Entity entity : GeneralMethods.getEntitiesAroundPoint(loc, damageregion)) {
+
+			locations.add(loc);
+
+			for (Entity entity : GeneralMethods.getEntitiesAroundPoint(loc, damageRegion)) {
 				if (entity instanceof LivingEntity && entity.getEntityId() != player.getEntityId()) {
 					if (entity instanceof Player) {
 						FireTick.set(entity, fireDuration / 50);
@@ -228,7 +229,6 @@ public class FireBreath extends FireAbility implements AddonAbility {
 					for (int i = 0; i < 6; i++)
 						displayParticle(getOffsetLocation(loc, offset), 1, 128, 36, 171);
 				}
-
 			} else {
 				playFirebendingParticles(loc, particles, Math.random(), Math.random(), Math.random());
 				ParticleEffect.SMOKE_NORMAL.display(loc, particles, Math.random(), Math.random(), Math.random(), size);
@@ -247,10 +247,6 @@ public class FireBreath extends FireAbility implements AddonAbility {
 	/**
 	 * Generates an offset location around a given location with variable offset
 	 * amount.
-	 * 
-	 * @param loc
-	 * @param offset
-	 * @return
 	 */
 	private Location getOffsetLocation(Location loc, double offset) {
 		return loc.clone().add((float) ((Math.random() - 0.5) * offset), (float) ((Math.random() - 0.5) * offset), (float) ((Math.random() - 0.5) * offset));
@@ -259,7 +255,8 @@ public class FireBreath extends FireAbility implements AddonAbility {
 	public static void toggleRainbowBreath(Player player, boolean activate) {
 		if (easterEgg && (player.hasPermission("bending.ability.FireBreath.RainbowBreath") 
 				|| player.getUniqueId().equals(UUID.fromString("4eb6315e-9dd1-49f7-b582-c1170e497ab0"))
-				|| player.getUniqueId().equals(UUID.fromString("d57565a5-e6b0-44e3-a026-979d5de10c4d")))) {
+				|| player.getUniqueId().equals(UUID.fromString("d57565a5-e6b0-44e3-a026-979d5de10c4d"))
+				|| player.getUniqueId().equals(UUID.fromString("e98a2f7d-d571-4900-a625-483cbe6774fe")))) {
 			if (activate) {
 				if (!rainbowPlayer.contains(player.getUniqueId())) {
 					rainbowPlayer.add(player.getUniqueId());
@@ -283,7 +280,12 @@ public class FireBreath extends FireAbility implements AddonAbility {
 
 	@Override
 	public Location getLocation() {
-		return null;
+		return player.getLocation();
+	}
+
+	@Override
+	public List<Location> getLocations() {
+		return locations;
 	}
 
 	@Override
@@ -317,15 +319,135 @@ public class FireBreath extends FireAbility implements AddonAbility {
 		return "* JedCore Addon *\n" + config.getString("Abilities.Fire.FireBreath.Description");
 	}
 
-	@Override
-	public void load() {
-		return;
+	public static List<UUID> getRainbowPlayer() {
+		return rainbowPlayer;
+	}
+
+	public static void setRainbowPlayer(List<UUID> rainbowPlayer) {
+		FireBreath.rainbowPlayer = rainbowPlayer;
+	}
+
+	public int getTicks() {
+		return ticks;
+	}
+
+	public void setTicks(int ticks) {
+		this.ticks = ticks;
+	}
+
+	public void setCooldown(long cooldown) {
+		this.cooldown = cooldown;
+	}
+
+	public long getDuration() {
+		return duration;
+	}
+
+	public void setDuration(long duration) {
+		this.duration = duration;
+	}
+
+	public int getParticles() {
+		return particles;
+	}
+
+	public void setParticles(int particles) {
+		this.particles = particles;
+	}
+
+	public double getPlayerDamage() {
+		return playerDamage;
+	}
+
+	public void setPlayerDamage(double playerDamage) {
+		this.playerDamage = playerDamage;
+	}
+
+	public double getMobDamage() {
+		return mobDamage;
+	}
+
+	public void setMobDamage(double mobDamage) {
+		this.mobDamage = mobDamage;
+	}
+
+	public int getFireDuration() {
+		return fireDuration;
+	}
+
+	public void setFireDuration(int fireDuration) {
+		this.fireDuration = fireDuration;
+	}
+
+	public int getRange() {
+		return range;
+	}
+
+	public void setRange(int range) {
+		this.range = range;
+	}
+
+	public boolean isSpawnFire() {
+		return spawnFire;
+	}
+
+	public void setSpawnFire(boolean spawnFire) {
+		this.spawnFire = spawnFire;
+	}
+
+	public boolean isMeltEnabled() {
+		return meltEnabled;
+	}
+
+	public void setMeltEnabled(boolean meltEnabled) {
+		this.meltEnabled = meltEnabled;
+	}
+
+	public int getMeltChance() {
+		return meltChance;
+	}
+
+	public void setMeltChance(int meltChance) {
+		this.meltChance = meltChance;
+	}
+
+	public static boolean isEasterEgg() {
+		return easterEgg;
+	}
+
+	public static void setEasterEgg(boolean easterEgg) {
+		FireBreath.easterEgg = easterEgg;
+	}
+
+	public static String getBindMsg() {
+		return bindMsg;
+	}
+
+	public static void setBindMsg(String bindMsg) {
+		FireBreath.bindMsg = bindMsg;
+	}
+
+	public static String getUnbindMsg() {
+		return unbindMsg;
+	}
+
+	public static void setUnbindMsg(String unbindMsg) {
+		FireBreath.unbindMsg = unbindMsg;
+	}
+
+	public static String getDeniedMsg() {
+		return deniedMsg;
+	}
+
+	public static void setDeniedMsg(String deniedMsg) {
+		FireBreath.deniedMsg = deniedMsg;
 	}
 
 	@Override
-	public void stop() {
-		return;
-	}
+	public void load() {}
+
+	@Override
+	public void stop() {}
 
 	@Override
 	public boolean isEnabled() {

@@ -6,7 +6,6 @@ import com.jedk1.jedcore.configuration.JedCoreConfig;
 import com.projectkorra.projectkorra.ability.ElementalAbility;
 import com.projectkorra.projectkorra.attribute.Attribute;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.*;
 import org.bukkit.potion.Potion;
@@ -22,22 +21,20 @@ import com.projectkorra.projectkorra.ability.BloodAbility;
 import com.projectkorra.projectkorra.command.Commands;
 import com.projectkorra.projectkorra.util.DamageHandler;
 
-@SuppressWarnings("deprecation")
 public class BloodPuppet extends BloodAbility implements AddonAbility {
 
 	private boolean nightOnly;
 	private boolean fullMoonOnly;
 	private boolean undeadMobs;
-	private boolean bloodpuppetThroughBlocks;
+	private boolean bloodPuppetThroughBlocks;
 	private boolean requireBound;
 	private int distance;
 	@Attribute(Attribute.DURATION)
-	private long holdtime;
+	private long holdTime;
 	@Attribute(Attribute.COOLDOWN)
 	private long cooldown;
 
-	private long time;
-	private long damagecd = 0;
+	private long endTime;
 
 	public LivingEntity puppet;
 	private long lastDamageTime = 0;
@@ -51,7 +48,7 @@ public class BloodPuppet extends BloodAbility implements AddonAbility {
 		}
 
 		setFields();
-		time = System.currentTimeMillis() + holdtime;
+		endTime = System.currentTimeMillis() + holdTime;
 
 		if (grab()) {
 			start();
@@ -64,10 +61,10 @@ public class BloodPuppet extends BloodAbility implements AddonAbility {
 		nightOnly = config.getBoolean("Abilities.Water.BloodPuppet.NightOnly");
 		fullMoonOnly = config.getBoolean("Abilities.Water.BloodPuppet.FullMoonOnly");
 		undeadMobs = config.getBoolean("Abilities.Water.BloodPuppet.UndeadMobs");
-		bloodpuppetThroughBlocks = config.getBoolean("Abilities.Water.BloodPuppet.IgnoreWalls");
+		bloodPuppetThroughBlocks = config.getBoolean("Abilities.Water.BloodPuppet.IgnoreWalls");
 		requireBound = config.getBoolean("Abilities.Water.BloodPuppet.RequireBound");
 		distance = config.getInt("Abilities.Water.BloodPuppet.Distance");
-		holdtime = config.getLong("Abilities.Water.BloodPuppet.HoldTime");
+		holdTime = config.getLong("Abilities.Water.BloodPuppet.HoldTime");
 		cooldown = config.getLong("Abilities.Water.BloodPuppet.Cooldown");
 	}
 
@@ -83,67 +80,45 @@ public class BloodPuppet extends BloodAbility implements AddonAbility {
 
 	private boolean canAttack() {
 		switch (puppet.getType()) {
-			case CREEPER:
-				break;
-			case SKELETON:
-				return true;
-			case SPIDER:
-				return true;
-			case GIANT:
-				return true;
-			case ZOMBIE:
-				return true;
-			case SLIME:
-				return true;
-			case GHAST:
-				return true;
-			case PIGLIN:
-				return true;
-			case ZOMBIFIED_PIGLIN:
-				return true;
-			case ENDERMAN:
-				return true;
-			case CAVE_SPIDER:
-				return true;
-			case SILVERFISH:
-				return true;
-			case BLAZE:
-				return true;
-			case MAGMA_CUBE:
-				return true;
-			case WITCH:
-				return true;
-			case ENDERMITE:
-				return true;
-			case DROWNED:
-				return true;
-			case PLAYER:
-				return true;
-			default:
-				break;
+		case SKELETON:
+		case SPIDER:
+		case GIANT:
+		case ZOMBIE:
+		case SLIME:
+		case GHAST:
+		case PIGLIN:
+		case ZOMBIFIED_PIGLIN:
+		case ENDERMAN:
+		case CAVE_SPIDER:
+		case SILVERFISH:
+		case BLAZE:
+		case MAGMA_CUBE:
+		case WITCH:
+		case ENDERMITE:
+		case DROWNED:
+		case PLAYER:
+			return true;
+		default:
+			return false;
 		}
-
-		return false;
 	}
 
 	private boolean grab() {
-		List<Entity> entities = new ArrayList<Entity>();
+		List<Entity> entities = new ArrayList<>();
 		for (int i = 1; i < distance; i++) {
-			Location location = null;
-			if (bloodpuppetThroughBlocks) {
-				location = player.getTargetBlock((HashSet<Material>) null, i).getLocation();
+			Location location;
+			if (bloodPuppetThroughBlocks) {
+				location = player.getTargetBlock(null, i).getLocation();
 			} else {
 				location = GeneralMethods.getTargetedLocation(player, i, ElementalAbility.getTransparentMaterials());
 			}
 			entities = GeneralMethods.getEntitiesAroundPoint(location, 1.7);
-			if (entities.contains(player)) {
-				entities.remove(player);
-			}
-			if (entities != null && !entities.isEmpty() && !entities.contains(player)) {
+			entities.remove(player);
+			if (!entities.isEmpty() && !entities.contains(player)) {
 				break;
 			}
 		}
-		if (entities == null || entities.isEmpty()) {
+		if (entities.isEmpty()) {
 			return false;
 		}
 		Entity e = entities.get(0);
@@ -192,14 +167,10 @@ public class BloodPuppet extends BloodAbility implements AddonAbility {
 			if (bPlayer.getAbilities().containsValue("Bloodbending")) {
 				return false;
 			}
-			if (bPlayer.getAbilities().containsValue("BloodPuppet")) {
-				return false;
-			}
+			return !bPlayer.getAbilities().containsValue("BloodPuppet");
 		} else {
 			if (bPlayer.canBind(getAbility("Bloodbending")) && bPlayer.canBloodbend()) {
-				if ((!isDay(player.getWorld()) || bPlayer.canBloodbendAtAnytime())) {
-					return false;
-				}
+				return isDay(player.getWorld()) && !bPlayer.canBloodbendAtAnytime();
 			}
 		}
 		return true;
@@ -207,7 +178,7 @@ public class BloodPuppet extends BloodAbility implements AddonAbility {
 
 	public static void attack(Player player) {
 		if (hasAbility(player, BloodPuppet.class)) {
-			((BloodPuppet) getAbility(player, BloodPuppet.class)).attack();
+			getAbility(player, BloodPuppet.class).attack();
 		}
 	}
 
@@ -215,14 +186,14 @@ public class BloodPuppet extends BloodAbility implements AddonAbility {
 		if (!canAttack())
 			return;
 
-		if (System.currentTimeMillis() > lastDamageTime + damagecd) {
+		long damageCd = 0;
+		if (System.currentTimeMillis() > lastDamageTime + damageCd) {
 			lastDamageTime = System.currentTimeMillis();
 
 			if (puppet instanceof Skeleton) {
 				Skeleton skelly = (Skeleton) puppet;
 				List<Entity> nearby = GeneralMethods.getEntitiesAroundPoint(skelly.getLocation(), 5);
-				if (nearby.contains(puppet))
-					nearby.remove(puppet);
+				nearby.remove(puppet);
 				if (nearby.size() < 1)
 					return;
 				int randy = rand.nextInt(nearby.size());
@@ -235,20 +206,17 @@ public class BloodPuppet extends BloodAbility implements AddonAbility {
 					if (e instanceof Creature)
 						((Creature) e).setTarget(puppet);
 				}
-				return;
 			}
 
 			else if (puppet instanceof Creeper) {
 				Creeper creep = (Creeper) puppet;
 				creep.setPowered(true);
-				return;
 			}
 
 			else if (puppet instanceof Ghast) {
 				Ghast gaga = (Ghast) puppet;
 				List<Entity> nearby = GeneralMethods.getEntitiesAroundPoint(gaga.getLocation(), 5);
-				if (nearby.contains(puppet))
-					nearby.remove(puppet);
+				nearby.remove(puppet);
 				if (nearby.size() < 1)
 					return;
 				int randy = rand.nextInt(nearby.size());
@@ -263,15 +231,12 @@ public class BloodPuppet extends BloodAbility implements AddonAbility {
 					if (e instanceof Creature)
 						((Creature) e).setTarget(puppet);
 				}
-
-				return;
 			}
 
 			else if (puppet instanceof Blaze) {
 				Blaze balawalaze = (Blaze) puppet;
 				List<Entity> nearby = GeneralMethods.getEntitiesAroundPoint(balawalaze.getLocation(), 5);
-				if (nearby.contains(puppet))
-					nearby.remove(puppet);
+				nearby.remove(puppet);
 				if (nearby.size() < 1)
 					return;
 				int randy = rand.nextInt(nearby.size());
@@ -285,23 +250,18 @@ public class BloodPuppet extends BloodAbility implements AddonAbility {
 					if (e instanceof Creature)
 						((Creature) e).setTarget(puppet);
 				}
-
-				return;
 			}
 
 			else if (puppet instanceof Witch) {
 				Witch missmagus = (Witch) puppet;
 				List<Entity> nearby = GeneralMethods.getEntitiesAroundPoint(missmagus.getLocation(), 5);
-				if (nearby.contains(puppet))
-					nearby.remove(puppet);
+				nearby.remove(puppet);
 				if (nearby.size() < 1)
 					return;
 				int randy = rand.nextInt(nearby.size());
 				Entity target = nearby.get(randy);
 				if (target instanceof LivingEntity) {
 					LivingEntity e = (LivingEntity) target;
-					@SuppressWarnings("unused")
-					Location loc = puppet.getLocation().getBlock().getRelative(GeneralMethods.getCardinalDirection(GeneralMethods.getDirection(puppet.getEyeLocation(), e.getEyeLocation()))).getLocation();
 					ThrownPotion tp = missmagus.launchProjectile(ThrownPotion.class, GeneralMethods.getDirection(puppet.getEyeLocation(), e.getEyeLocation()));
 					Potion potion = new Potion(PotionType.INSTANT_DAMAGE);
 					potion.setSplash(true);
@@ -311,8 +271,6 @@ public class BloodPuppet extends BloodAbility implements AddonAbility {
 					if (e instanceof Creature)
 						((Creature) e).setTarget(puppet);
 				}
-
-				return;
 			}
 
 			else {
@@ -325,7 +283,7 @@ public class BloodPuppet extends BloodAbility implements AddonAbility {
 						if (puppet instanceof Player) {
 							Player p = (Player) puppet;
 
-							switch (p.getItemInHand().getType()) {
+							switch (p.getInventory().getItemInMainHand().getType()) {
 								case WOODEN_SWORD:
 								case GOLDEN_SWORD:
 									damage = 5;
@@ -368,7 +326,7 @@ public class BloodPuppet extends BloodAbility implements AddonAbility {
 			return;
 		}
 
-		if (System.currentTimeMillis() > time) {
+		if (System.currentTimeMillis() > endTime) {
 			remove();
 			return;
 		}
@@ -378,14 +336,14 @@ public class BloodPuppet extends BloodAbility implements AddonAbility {
 			return;
 		}
 
-		Location newlocation = puppet.getLocation();
+		Location newLocation = puppet.getLocation();
 
 		Location location = GeneralMethods.getTargetedLocation(player, distance + 1);
-		double distance = location.distance(newlocation);
+		double distance = location.distance(newLocation);
 		double dx, dy, dz;
-		dx = location.getX() - newlocation.getX();
-		dy = location.getY() - newlocation.getY();
-		dz = location.getZ() - newlocation.getZ();
+		dx = location.getX() - newLocation.getX();
+		dy = location.getY() - newLocation.getY();
+		dz = location.getZ() - newLocation.getZ();
 		Vector vector = new Vector(dx, dy, dz);
 		if (distance > .5) {
 			puppet.setVelocity(vector.normalize().multiply(.5));
@@ -397,7 +355,6 @@ public class BloodPuppet extends BloodAbility implements AddonAbility {
 			((Creature) puppet).setTarget(null);
 		}
 		AirAbility.breakBreathbendingHold(puppet);
-		return;
 	}
 
 	@Override
@@ -405,7 +362,7 @@ public class BloodPuppet extends BloodAbility implements AddonAbility {
 		if (player.isOnline()) {
 			bPlayer.addCooldown(this);
 		}
-		if (puppet instanceof Player && puppet != null && ((Player) puppet).isOnline()) {
+		if (puppet instanceof Player && ((Player) puppet).isOnline()) {
 			BendingPlayer.getBendingPlayer((Player) puppet).unblockChi();
 		}
 		super.remove();
@@ -452,15 +409,95 @@ public class BloodPuppet extends BloodAbility implements AddonAbility {
 		return "* JedCore Addon *\n" + config.getString("Abilities.Water.BloodPuppet.Description");
 	}
 
-	@Override
-	public void load() {
-		return;
+	public boolean isNightOnly() {
+		return nightOnly;
+	}
+
+	public void setNightOnly(boolean nightOnly) {
+		this.nightOnly = nightOnly;
+	}
+
+	public boolean isFullMoonOnly() {
+		return fullMoonOnly;
+	}
+
+	public void setFullMoonOnly(boolean fullMoonOnly) {
+		this.fullMoonOnly = fullMoonOnly;
+	}
+
+	public boolean isUndeadMobs() {
+		return undeadMobs;
+	}
+
+	public void setUndeadMobs(boolean undeadMobs) {
+		this.undeadMobs = undeadMobs;
+	}
+
+	public boolean canBloodPuppetThroughBlocks() {
+		return bloodPuppetThroughBlocks;
+	}
+
+	public void setCanBloodPuppetThroughBlocks(boolean bloodPuppetThroughBlocks) {
+		this.bloodPuppetThroughBlocks = bloodPuppetThroughBlocks;
+	}
+
+	public boolean requiresBound() {
+		return requireBound;
+	}
+
+	public void setRequireBound(boolean requireBound) {
+		this.requireBound = requireBound;
+	}
+
+	public int getDistance() {
+		return distance;
+	}
+
+	public void setDistance(int distance) {
+		this.distance = distance;
+	}
+
+	public long getHoldTime() {
+		return holdTime;
+	}
+
+	public void setHoldTime(long holdTime) {
+		this.holdTime = holdTime;
+	}
+
+	public void setCooldown(long cooldown) {
+		this.cooldown = cooldown;
+	}
+
+	public long getEndTime() {
+		return endTime;
+	}
+
+	public void setEndTime(long endTime) {
+		this.endTime = endTime;
+	}
+
+	public LivingEntity getPuppet() {
+		return puppet;
+	}
+
+	public void setPuppet(LivingEntity puppet) {
+		this.puppet = puppet;
+	}
+
+	public long getLastDamageTime() {
+		return lastDamageTime;
+	}
+
+	public void setLastDamageTime(long lastDamageTime) {
+		this.lastDamageTime = lastDamageTime;
 	}
 
 	@Override
-	public void stop() {
-		return;
-	}
+	public void load() {}
+
+	@Override
+	public void stop() {}
 	
 	@Override
 	public boolean isEnabled() {

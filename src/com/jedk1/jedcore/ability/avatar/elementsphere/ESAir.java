@@ -46,13 +46,15 @@ public class ESAir extends AvatarAbility implements AddonAbility {
 			return;
 		}
 		setFields();
-		if(GeneralMethods.isRegionProtectedFromBuild(this, player.getTargetBlock(getTransparentMaterialSet(), (int)range).getLocation())){
+		if (GeneralMethods.isRegionProtectedFromBuild(this, player.getTargetBlock(getTransparentMaterialSet(), (int) range).getLocation())) {
 			return;
 		}
-		bPlayer.addCooldown("ESAir", getCooldown());
-		currES.setAirUses(currES.getAirUses() - 1);
 		location = player.getEyeLocation().clone().add(player.getEyeLocation().getDirection().multiply(1));
 		start();
+		if (!isRemoved()) {
+			bPlayer.addCooldown("ESAir", getCooldown());
+			currES.setAirUses(currES.getAirUses() - 1);
+		}
 	}
 	
 	public void setFields() {
@@ -84,7 +86,7 @@ public class ESAir extends AvatarAbility implements AddonAbility {
 			if (travelled >= range)
 				return;
 			location = location.add(location.getDirection().clone().multiply(1));
-			if(GeneralMethods.isRegionProtectedFromBuild(this, location)){
+			if (GeneralMethods.isRegionProtectedFromBuild(this, location)) {
 				travelled = range;
 				return;
 			}
@@ -99,7 +101,7 @@ public class ESAir extends AvatarAbility implements AddonAbility {
 			for (Entity entity : GeneralMethods.getEntitiesAroundPoint(location, 2.5)) {
 				if (entity instanceof LivingEntity && entity.getEntityId() != player.getEntityId() && !(entity instanceof ArmorStand) && !GeneralMethods.isRegionProtectedFromBuild(this, entity.getLocation()) && !((entity instanceof Player) && Commands.invincible.contains(((Player) entity).getName()))) {
 					DamageHandler.damageEntity(entity, damage, this);
-					entity.setVelocity(location.getDirection().multiply(knockback));
+					GeneralMethods.setVelocity(this, entity, location.getDirection().multiply(knockback));
 					travelled = range;
 				}
 			}
@@ -151,15 +153,51 @@ public class ESAir extends AvatarAbility implements AddonAbility {
 		return null;
 	}
 
-	@Override
-	public void load() {
-		return;
+	public double getDistanceTravelled() {
+		return travelled;
+	}
+
+	public void setDistanceTravelled(double travelled) {
+		this.travelled = travelled;
+	}
+
+	public double getRange() {
+		return range;
+	}
+
+	public void setRange(double range) {
+		this.range = range;
+	}
+
+	public double getDamage() {
+		return damage;
+	}
+
+	public void setDamage(double damage) {
+		this.damage = damage;
+	}
+
+	public double getKnockback() {
+		return knockback;
+	}
+
+	public void setKnockback(double knockback) {
+		this.knockback = knockback;
+	}
+
+	public int getSpeed() {
+		return speed;
+	}
+
+	public void setSpeed(int speed) {
+		this.speed = speed;
 	}
 
 	@Override
-	public void stop() {
-		return;
-	}
+	public void load() {}
+
+	@Override
+	public void stop() {}
 	
 	@Override
 	public boolean isEnabled() {

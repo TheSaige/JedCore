@@ -20,24 +20,24 @@ import org.bukkit.util.Vector;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 
 public class Discharge extends LightningAbility implements AddonAbility {
-	private HashMap<Integer, Location> branches = new HashMap<>();
-	
-	private long time;
+	private final HashMap<Integer, Location> branches = new HashMap<>();
+
 	private Location location;
 	private Vector direction;
 	private boolean hit;
 	private int spaces;
 	private double branchSpace;
-	private Random rand = new Random();
+	private final Random rand = new Random();
 
 	@Attribute(Attribute.DAMAGE)
 	private double damage;
 	@Attribute(Attribute.COOLDOWN)
-	private long cooldown, avatarcooldown;
+	private long cooldown, avatarCooldown;
 	@Attribute(Attribute.DURATION)
 	private long duration;
 	private boolean slotSwapping;
@@ -56,11 +56,13 @@ public class Discharge extends LightningAbility implements AddonAbility {
 		direction = player.getEyeLocation().getDirection().normalize();
 		
 		if (bPlayer.isAvatarState() || JCMethods.isSozinsComet(player.getWorld())) {
-			this.cooldown = avatarcooldown;
+			this.cooldown = avatarCooldown;
 		}
 
-		bPlayer.addCooldown(this);
 		start();
+		if (!isRemoved()) {
+			bPlayer.addCooldown(this);
+		}
 	}
 
 	public void setFields() {
@@ -68,13 +70,12 @@ public class Discharge extends LightningAbility implements AddonAbility {
 
 		damage = config.getDouble("Abilities.Fire.Discharge.Damage");
 		cooldown = config.getLong("Abilities.Fire.Discharge.Cooldown");
-		avatarcooldown = config.getLong("Abilities.Fire.Discharge.AvatarCooldown");
+		avatarCooldown = config.getLong("Abilities.Fire.Discharge.AvatarCooldown");
 		duration = config.getLong("Abilities.Fire.Discharge.Duration");
 		slotSwapping = config.getBoolean("Abilities.Fire.Discharge.SlotSwapping");
 		entityCollisionRadius = config.getDouble("Abilities.Fire.Discharge.EntityCollisionRadius");
 		
 		branchSpace = 0.2;
-		time = System.currentTimeMillis();
 	}
 	
 	@Override
@@ -89,7 +90,7 @@ public class Discharge extends LightningAbility implements AddonAbility {
 			return;
 		}
 
-		if (System.currentTimeMillis() < (time + duration) && !hit) {
+		if (System.currentTimeMillis() < (getStartTime() + duration) && !hit) {
 			advanceLocation();
 		} else {
 			remove();
@@ -98,29 +99,23 @@ public class Discharge extends LightningAbility implements AddonAbility {
 
 	private boolean canBend() {
 		if (!slotSwapping) {
-			if (!bPlayer.canBendIgnoreCooldowns(this)) {
-				return false;
-			}
+			return bPlayer.canBendIgnoreCooldowns(this);
 		} else {
-			if (!bPlayer.canBendIgnoreBindsCooldowns(this)) {
-				return false;
-			}
+			return bPlayer.canBendIgnoreBindsCooldowns(this);
 		}
-
-		return true;
 	}
 
 	private void advanceLocation() {
 		if (location == null) {
 			Location origin = player.getEyeLocation().clone();
 			location = origin.clone();
-			branches.put(branches.size()+1, location);
+			branches.put(branches.size() + 1, location);
 		}
 
 		spaces++;
 		if (spaces % 3 == 0) {
 			Location prevBranch = branches.get(1);
-			branches.put(branches.size()+1, prevBranch);
+			branches.put(branches.size() + 1, prevBranch);
 		}
 		
 		List<Integer> cleanup = new ArrayList<>();
@@ -136,7 +131,7 @@ public class Discharge extends LightningAbility implements AddonAbility {
 					continue;
 				}
 
-				l.add(createBranch(l.getX()), createBranch(l.getY()), createBranch(l.getZ()));
+				l.add(createBranch(), createBranch(), createBranch());
 				branchSpace += 0.001;
 
 				for (int j = 0; j < 5; j++) {
@@ -149,11 +144,11 @@ public class Discharge extends LightningAbility implements AddonAbility {
 					Vector vec = l.toVector();
 
 					hit = CollisionDetector.checkEntityCollisions(player, new Sphere(l.toVector(), entityCollisionRadius), (entity) -> {
-						if (GeneralMethods.isRegionProtectedFromBuild(this, entity.getLocation()) || ((entity instanceof Player) && Commands.invincible.contains(((Player) entity).getName()))){
+						if (GeneralMethods.isRegionProtectedFromBuild(this, entity.getLocation()) || ((entity instanceof Player) && Commands.invincible.contains(entity.getName()))) {
 							return true;
 						}
 						Vector knockbackVector = entity.getLocation().toVector().subtract(vec).normalize().multiply(0.8);
-						entity.setVelocity(knockbackVector);
+						GeneralMethods.setVelocity(this, entity, knockbackVector);
 
 						DamageHandler.damageEntity(entity, damage, this);
 
@@ -181,18 +176,16 @@ public class Discharge extends LightningAbility implements AddonAbility {
 		cleanup.clear();
 	}
 
-	private double createBranch(double start) {
+	private double createBranch() {
 		int i = rand.nextInt(3);
 
 		switch (i) {
-			case 0:
-				return branchSpace;
-			case 1:
-				return 0.0;
-			case 2:
-				return -branchSpace;
-			default:
-				return 0.0;
+		case 0:
+			return branchSpace;
+		case 2:
+			return -branchSpace;
+		default:
+			return 0.0;
 		}
 	}
 	
@@ -248,15 +241,95 @@ public class Discharge extends LightningAbility implements AddonAbility {
 		return "* JedCore Addon *\n" + config.getString("Abilities.Fire.Discharge.Description");
 	}
 
-	@Override
-	public void load() {
+	public HashMap<Integer, Location> getBranches() {
+		return branches;
+	}
 
+	public void setLocation(Location location) {
+		this.location = location;
+	}
+
+	public Vector getDirection() {
+		return direction;
+	}
+
+	public void setDirection(Vector direction) {
+		this.direction = direction;
+	}
+
+	public boolean isHit() {
+		return hit;
+	}
+
+	public void setHit(boolean hit) {
+		this.hit = hit;
+	}
+
+	public int getSpaces() {
+		return spaces;
+	}
+
+	public void setSpaces(int spaces) {
+		this.spaces = spaces;
+	}
+
+	public double getBranchSpace() {
+		return branchSpace;
+	}
+
+	public void setBranchSpace(double branchSpace) {
+		this.branchSpace = branchSpace;
+	}
+
+	public double getDamage() {
+		return damage;
+	}
+
+	public void setDamage(double damage) {
+		this.damage = damage;
+	}
+
+	public void setCooldown(long cooldown) {
+		this.cooldown = cooldown;
+	}
+
+	public long getAvatarCooldown() {
+		return avatarCooldown;
+	}
+
+	public void setAvatarCooldown(long avatarCooldown) {
+		this.avatarCooldown = avatarCooldown;
+	}
+
+	public long getDuration() {
+		return duration;
+	}
+
+	public void setDuration(long duration) {
+		this.duration = duration;
+	}
+
+	public boolean isSlotSwapping() {
+		return slotSwapping;
+	}
+
+	public void setSlotSwapping(boolean slotSwapping) {
+		this.slotSwapping = slotSwapping;
+	}
+
+	public double getEntityCollisionRadius() {
+		return entityCollisionRadius;
+	}
+
+	public void setEntityCollisionRadius(double entityCollisionRadius) {
+		this.entityCollisionRadius = entityCollisionRadius;
 	}
 
 	@Override
-	public void stop() {
+	public void load() {}
 
-	}
+	@Override
+	public void stop() {}
 	
 	@Override
 	public boolean isEnabled() {

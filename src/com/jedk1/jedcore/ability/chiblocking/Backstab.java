@@ -21,6 +21,9 @@ public class Backstab extends ChiAbility implements AddonAbility {
 		super(player);
 	}
 
+	@Override
+	public void progress() {}
+
 	public static boolean punch(Player player, LivingEntity target) {
 		BendingPlayer bPlayer = BendingPlayer.getBendingPlayer(player);
 		CoreAbility ability = CoreAbility.getAbility("Backstab");
@@ -98,23 +101,14 @@ public class Backstab extends ChiAbility implements AddonAbility {
 	}
 
 	@Override
-	public void load() {
-
-	}
+	public void load() {}
 
 	@Override
-	public void stop() {
-
-	}
+	public void stop() {}
 	
 	@Override
 	public boolean isEnabled() {
 		ConfigurationSection config = JedCoreConfig.getConfig(this.player);
 		return config.getBoolean("Abilities.Chi.Backstab.Enabled");
-	}
-
-	@Override
-	public void progress() {
-
 	}
 }

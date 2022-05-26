@@ -1,121 +1,96 @@
 package com.jedk1.jedcore.ability.firebending;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
-
-import com.jedk1.jedcore.configuration.JedCoreConfig;
-import com.jedk1.jedcore.util.FireTick;
 import org.bukkit.Location;
-import org.bukkit.Server;
-import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
-import org.bukkit.util.Vector;
 
 import com.jedk1.jedcore.JedCore;
-import com.projectkorra.projectkorra.BendingPlayer;
+import com.jedk1.jedcore.configuration.JedCoreConfig;
+import com.jedk1.jedcore.util.FireTick;
 import com.projectkorra.projectkorra.Element;
 import com.projectkorra.projectkorra.GeneralMethods;
 import com.projectkorra.projectkorra.ability.AddonAbility;
+import com.projectkorra.projectkorra.ability.BlueFireAbility;
 import com.projectkorra.projectkorra.ability.FireAbility;
+import com.projectkorra.projectkorra.attribute.Attribute;
 import com.projectkorra.projectkorra.firebending.util.FireDamageTimer;
 import com.projectkorra.projectkorra.util.DamageHandler;
 import com.projectkorra.projectkorra.util.ParticleEffect;
 
 public class FirePunch extends FireAbility implements AddonAbility {
 
-	public static List<UUID> recent = new ArrayList<UUID>();
+	@Attribute(Attribute.COOLDOWN)
+	private long cooldown;
+	@Attribute(Attribute.DAMAGE)
+	private double damage;
+	@Attribute(Attribute.FIRE_TICK)
+	private int fireTicks;
+
+	private Location location;
 	
 	public FirePunch(Player player) {
 		super(player);
-		if (!getRecent().contains(player.getUniqueId())) {
-			getRecent().add(player.getUniqueId());
+
+		setFields();
+
+		start();
+	}
+
+	private void setFields() {
+		ConfigurationSection config = JedCoreConfig.getConfig(player);
+
+		cooldown = config.getLong("Abilities.Fire.FirePunch.Cooldown");
+		damage = config.getDouble("Abilities.Fire.FirePunch.Damage");
+		fireTicks = config.getInt("Abilities.Fire.FirePunch.FireTicks");
+
+		applyModifiers();
+	}
+
+	private void applyModifiers() {
+		if (bPlayer.canUseSubElement(Element.BLUE_FIRE)) {
+			cooldown *= BlueFireAbility.getCooldownFactor();
+			damage *= BlueFireAbility.getDamageFactor();
 		}
-	}
 
-	public static void display(Server server) {
-		if (!getEnabled()) return;
-
-		for (Player player : server.getOnlinePlayers()) {
-			BendingPlayer bPlayer = BendingPlayer.getBendingPlayer(player);
-			if (bPlayer != null && bPlayer.canBend(getAbility("FirePunch"))) {
-				display(player);
-			}
+		if (isDay(player.getWorld())) {
+			cooldown -= ((long) getDayFactor(cooldown) - cooldown);
+			damage = getDayFactor(damage);
 		}
-	}
-
-	private static void display(Player player) {
-		Location offset = GeneralMethods.getRightSide(player.getLocation(), .55).add(0, 1.2, 0);
-		Vector dir = player.getEyeLocation().getDirection();
-		Location righthand = offset.toVector().add(dir.clone().multiply(.8D)).toLocation(player.getWorld());
-		BendingPlayer bPlayer = BendingPlayer.getBendingPlayer(player);
-		ParticleEffect flame = bPlayer.hasSubElement(Element.BLUE_FIRE) ? ParticleEffect.SOUL_FIRE_FLAME : ParticleEffect.FLAME;
-		flame.display(righthand, 3, 0, 0, 0, 0);
-		ParticleEffect.SMOKE_NORMAL.display(righthand, 3, 0, 0, 0, 0);
-	}
-
-	public static boolean punch(Player player, LivingEntity target) {
-		if (!getEnabled()) return false;
-		if (player == null || player.isDead() || !player.isOnline()) {
-			return false;
-		}
-		BendingPlayer bPlayer = BendingPlayer.getBendingPlayer(player);
-		if (bPlayer.canBend(getAbility("FirePunch")) && getRecent().contains(player.getUniqueId())) {
-			bPlayer.addCooldown(getAbility("FirePunch"), getStaticCooldown(player.getWorld()));
-			getRecent().remove(player.getUniqueId());
-			// playFirebendingParticles(target.getLocation().add(0, 1, 0), 1, 0f, 0f, 0f);
-			DamageAbility da = new DamageAbility(player);
-			da.remove();
-			DamageHandler.damageEntity(target, getDamage(target.getWorld()), da);
-
-			FireTick.set(target, getFireTicks(target.getWorld()) / 50);
-			if (getStaticCooldown(target.getWorld()) > getFireTicks(target.getWorld())) {
-				new FireDamageTimer(target, player);
-			}
-			return true;
-		}
-		return false;
-	}
-
-	public static boolean getEnabled() {
-		ConfigurationSection config = JedCoreConfig.getConfig((World)null);
-		return config.getBoolean("Abilities.Fire.FirePunch.Enabled");
-	}
-	
-	public static double getDamage(World world) {
-		ConfigurationSection config = JedCoreConfig.getConfig(world);
-		return config.getDouble("Abilities.Fire.FirePunch.Damage");
-	}
-	
-	public static int getFireTicks(World world) {
-		ConfigurationSection config = JedCoreConfig.getConfig(world);
-		return config.getInt("Abilities.Fire.FirePunch.FireTicks");
-	}
-	
-	public static long getStaticCooldown(World world) {
-		ConfigurationSection config = JedCoreConfig.getConfig(world);
-		return config.getLong("Abilities.Fire.FirePunch.Cooldown");
-	}
-	
-	public static List<UUID> getRecent() {
-		return recent;
 	}
 
 	@Override
 	public void progress() {
+		if (!player.isOnline() || player.isDead() || !bPlayer.canBend(this)) {
+			remove();
+			return;
+		}
+
+		location = GeneralMethods.getRightSide(player.getLocation(), 0.55)
+				.add(0, 1.2, 0)
+				.add(player.getLocation().getDirection().multiply(0.8));
+		playFirebendingParticles(location, 3, 0, 0, 0);
+		ParticleEffect.SMOKE_LARGE.display(location, 3);
+	}
+
+	public void punch(LivingEntity target) {
+		DamageHandler.damageEntity(target, damage, this);
+		FireTick.set(target, fireTicks / 50);
+		if (cooldown > fireTicks) {
+			new FireDamageTimer(target, player);
+		}
+		bPlayer.addCooldown(this);
+		remove();
 	}
 
 	@Override
 	public long getCooldown() {
-		ConfigurationSection config = JedCoreConfig.getConfig(this.player);
-		return config.getLong("Abilities.Fire.FirePunch.Cooldown");
+		return cooldown;
 	}
 
 	@Override
 	public Location getLocation() {
-		return null;
+		return location;
 	}
 
 	@Override
@@ -149,58 +124,35 @@ public class FirePunch extends FireAbility implements AddonAbility {
 		return "* JedCore Addon *\n" + config.getString("Abilities.Fire.FirePunch.Description");
 	}
 
-	@Override
-	public void load() {
-		return;
+	public void setCooldown(long cooldown) {
+		this.cooldown = cooldown;
+	}
+
+	public double getDamage() {
+		return damage;
+	}
+
+	public void setDamage(double damage) {
+		this.damage = damage;
+	}
+
+	public int getFireTicks() {
+		return fireTicks;
+	}
+
+	public void setFireTicks(int fireTicks) {
+		this.fireTicks = fireTicks;
 	}
 
 	@Override
-	public void stop() {
-		return;
-	}
+	public void load() {}
+
+	@Override
+	public void stop() {}
 
 	@Override
 	public boolean isEnabled() {
 		ConfigurationSection config = JedCoreConfig.getConfig(this.player);
 		return config.getBoolean("Abilities.Fire.FirePunch.Enabled");
-	}
-	
-	public static class DamageAbility extends FirePunch {
-		
-		public DamageAbility(Player player) {
-			super(player);
-			start();
-		}
-
-		@Override
-		public long getCooldown() {
-			return 0;
-		}
-
-		@Override
-		public Location getLocation() {
-			return null;
-		}
-
-		@Override
-		public String getName() {
-			return "FirePunch";
-		}
-
-		@Override
-		public boolean isHarmlessAbility() {
-			return false;
-		}
-
-		@Override
-		public boolean isSneakAbility() {
-			return false;
-		}
-
-		@Override
-		public void progress() {
-			remove();
-			return;
-		}
 	}
 }

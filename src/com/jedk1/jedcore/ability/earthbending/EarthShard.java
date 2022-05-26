@@ -50,9 +50,9 @@ public class EarthShard extends EarthAbility implements AddonAbility {
 	private double abilityCollisionRadius;
 	private double entityCollisionRadius;
 
-	private List<TempBlock> tblockTracker = new ArrayList<>();
-	private List<TempBlock> readyBlocksTracker = new ArrayList<>();
-	private List<TempFallingBlock> fallingBlocks = new ArrayList<>();
+	private final List<TempBlock> tblockTracker = new ArrayList<>();
+	private final List<TempBlock> readyBlocksTracker = new ArrayList<>();
+	private final List<TempFallingBlock> fallingBlocks = new ArrayList<>();
 
 	public EarthShard(Player player) {
 		super(player);
@@ -347,15 +347,99 @@ public class EarthShard extends EarthAbility implements AddonAbility {
 		return "* JedCore Addon *\n" + config.getString("Abilities.Earth.EarthShard.Description");
 	}
 
-	@Override
-	public void load() {
+	public static int getRange() {
+		return range;
+	}
 
+	public static void setRange(int range) {
+		EarthShard.range = range;
+	}
+
+	public static int getAbilityRange() {
+		return abilityRange;
+	}
+
+	public static void setAbilityRange(int abilityRange) {
+		EarthShard.abilityRange = abilityRange;
+	}
+
+	public static double getNormalDmg() {
+		return normalDmg;
+	}
+
+	public static void setNormalDmg(double normalDmg) {
+		EarthShard.normalDmg = normalDmg;
+	}
+
+	public static double getMetalDmg() {
+		return metalDmg;
+	}
+
+	public static void setMetalDmg(double metalDmg) {
+		EarthShard.metalDmg = metalDmg;
+	}
+
+	public static int getMaxShards() {
+		return maxShards;
+	}
+
+	public static void setMaxShards(int maxShards) {
+		EarthShard.maxShards = maxShards;
+	}
+
+	public static void setCooldown(long cooldown) {
+		EarthShard.cooldown = cooldown;
+	}
+
+	public boolean isThrown() {
+		return isThrown;
+	}
+
+	public void setThrown(boolean thrown) {
+		isThrown = thrown;
+	}
+
+	public Location getOrigin() {
+		return origin;
+	}
+
+	public void setOrigin(Location origin) {
+		this.origin = origin;
+	}
+
+	public double getAbilityCollisionRadius() {
+		return abilityCollisionRadius;
+	}
+
+	public void setAbilityCollisionRadius(double abilityCollisionRadius) {
+		this.abilityCollisionRadius = abilityCollisionRadius;
+	}
+
+	public double getEntityCollisionRadius() {
+		return entityCollisionRadius;
+	}
+
+	public void setEntityCollisionRadius(double entityCollisionRadius) {
+		this.entityCollisionRadius = entityCollisionRadius;
+	}
+
+	public List<TempBlock> getTblockTracker() {
+		return tblockTracker;
+	}
+
+	public List<TempBlock> getReadyBlocksTracker() {
+		return readyBlocksTracker;
+	}
+
+	public List<TempFallingBlock> getFallingBlocks() {
+		return fallingBlocks;
 	}
 
 	@Override
-	public void stop() {
+	public void load() {}
 
-	}
+	@Override
+	public void stop() {}
 
 	@Override
 	public boolean isEnabled() {

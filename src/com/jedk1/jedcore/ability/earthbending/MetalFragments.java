@@ -41,11 +41,11 @@ public class MetalFragments extends MetalAbility implements AddonAbility {
 	@Attribute(Attribute.COOLDOWN)
 	private long cooldown;
 
-	public List<Block> sources = new ArrayList<Block>();
-	private List<Item> thrownFragments = new ArrayList<Item>();
-	private List<TempBlock> tblockTracker = new ArrayList<TempBlock>();
-	//private List<FallingBlock> fblockTracker = new ArrayList<FallingBlock>();
-	private HashMap<Block, Integer> counters = new HashMap<Block, Integer>();
+	public List<Block> sources = new ArrayList<>();
+	private final List<Item> thrownFragments = new ArrayList<>();
+	private final List<TempBlock> tblockTracker = new ArrayList<>();
+	//private List<FallingBlock> fblockTracker = new ArrayList<>();
+	private final HashMap<Block, Integer> counters = new HashMap<>();
 
 	public MetalFragments(Player player) {
 		super(player);
@@ -67,12 +67,14 @@ public class MetalFragments extends MetalAbility implements AddonAbility {
 
 		if (prepare()) {
 			Block b = selectSource();
-                        if (GeneralMethods.isRegionProtectedFromBuild(player, "MetalFragments", b.getLocation())) {
-                            return;
+			if (GeneralMethods.isRegionProtectedFromBuild(player, "MetalFragments", b.getLocation())) {
+				return;
 			}
-			translateUpward(b);
 
 			start();
+			if (!isRemoved()) {
+				translateUpward(b);
+			}
 		}
 	}
 	
@@ -86,48 +88,40 @@ public class MetalFragments extends MetalAbility implements AddonAbility {
 		cooldown = config.getInt("Abilities.Earth.MetalFragments.Cooldown");
 	}
 
-	public static void shootFragment(Player player, boolean left) {
+	public static void shootFragment(Player player) {
 		if (hasAbility(player, MetalFragments.class)) {
-			((MetalFragments) getAbility(player, MetalFragments.class)).shootFragment(left);
+			getAbility(player, MetalFragments.class).shootFragment();
 		}
 	}
 
-	private void shootFragment(boolean left) {
+	private void shootFragment() {
 		if (sources.size() <= 0)
 			return;
 
 		Random randy = new Random();
 		int i = randy.nextInt(sources.size());
 		Block source = sources.get(i);
-		ItemStack is = null;
+		ItemStack is;
 
 		switch (source.getType()) {
-			case IRON_BLOCK:
-				is = new ItemStack(Material.IRON_INGOT, 1);
-				break;
-			case GOLD_BLOCK:
-				is = new ItemStack(Material.GOLD_INGOT, 1);
-				break;
-			case IRON_ORE:
-				is = new ItemStack(Material.IRON_INGOT, 1);
-				break;
-			case GOLD_ORE:
-				is = new ItemStack(Material.GOLD_INGOT, 1);
-				break;
-			case COAL_BLOCK:
-				is = new ItemStack(Material.COAL, 1);
-				break;
-			case COAL_ORE:
-				is = new ItemStack(Material.COAL_ORE, 1);
-				break;
-			default:
-				is = new ItemStack(Material.IRON_INGOT, 1);
-				break;
+		case GOLD_BLOCK:
+		case GOLD_ORE:
+			is = new ItemStack(Material.GOLD_INGOT, 1);
+			break;
+		case COAL_BLOCK:
+			is = new ItemStack(Material.COAL, 1);
+			break;
+		case COAL_ORE:
+			is = new ItemStack(Material.COAL_ORE, 1);
+			break;
+		default:
+			is = new ItemStack(Material.IRON_INGOT, 1);
+			break;
 		}
 
 		Vector direction;
-		if (GeneralMethods.getTargetedEntity(player, 30, new ArrayList<Entity>()) != null) {
-			direction = GeneralMethods.getDirection(source.getLocation(), GeneralMethods.getTargetedEntity(player, 30, new ArrayList<Entity>()).getLocation());
+		if (GeneralMethods.getTargetedEntity(player, 30, new ArrayList<>()) != null) {
+			direction = GeneralMethods.getDirection(source.getLocation(), GeneralMethods.getTargetedEntity(player, 30, new ArrayList<>()).getLocation());
 		} else {
 			direction = GeneralMethods.getDirection(source.getLocation(), GeneralMethods.getTargetedLocation(player, 30));
 		}
@@ -157,14 +151,13 @@ public class MetalFragments extends MetalAbility implements AddonAbility {
 
 			if (sources.size() == 0) {
 				remove();
-				return;
 			}
 		}
 	}
 
 	public static void selectAnotherSource(Player player) {
 		if (hasAbility(player, MetalFragments.class)) {
-			((MetalFragments) getAbility(player, MetalFragments.class)).selectAnotherSource();
+			getAbility(player, MetalFragments.class).selectAnotherSource();
 		}
 	}
 
@@ -184,10 +177,7 @@ public class MetalFragments extends MetalAbility implements AddonAbility {
 		if (block == null)
 			return false;
 
-		if (isMetal(block))
-			return true;
-
-		return false;
+		return isMetal(block);
 	}
 
 	public Block selectSource() {
@@ -228,9 +218,9 @@ public class MetalFragments extends MetalAbility implements AddonAbility {
 			return;
 		}
 
-		Iterator itr = tblockTracker.iterator();
+		Iterator<TempBlock> itr = tblockTracker.iterator();
 		while (itr.hasNext()) {
-			TempBlock tb = (TempBlock)itr.next();
+			TempBlock tb = itr.next();
 			if (player.getLocation().distance(tb.getLocation()) >= 10) {
 				player.getWorld().spawnFallingBlock(tb.getLocation().add(0.5,0.0,0.5), tb.getBlockData());
 				sources.remove(tb.getBlock());
@@ -272,7 +262,6 @@ public class MetalFragments extends MetalAbility implements AddonAbility {
 		}
 
 		//removeDeadFBlocks();
-		return;
 	}
 
 	/*
@@ -306,7 +295,7 @@ public class MetalFragments extends MetalAbility implements AddonAbility {
 
 	public static void remove(Player player, Block block) {
 		if (hasAbility(player, MetalFragments.class)) {
-			MetalFragments mf = (MetalFragments) getAbility(player, MetalFragments.class);
+			MetalFragments mf = getAbility(player, MetalFragments.class);
 			if (mf.sources.contains(block)) {
 				mf.remove();
 			}
@@ -365,15 +354,67 @@ public class MetalFragments extends MetalAbility implements AddonAbility {
 		return "* JedCore Addon *\n" + config.getString("Abilities.Earth.MetalFragments.Description");
 	}
 
-	@Override
-	public void load() {
-		return;
+	public int getMaxSources() {
+		return maxSources;
+	}
+
+	public void setMaxSources(int maxSources) {
+		this.maxSources = maxSources;
+	}
+
+	public int getSelectRange() {
+		return selectRange;
+	}
+
+	public void setSelectRange(int selectRange) {
+		this.selectRange = selectRange;
+	}
+
+	public int getMaxFragments() {
+		return maxFragments;
+	}
+
+	public void setMaxFragments(int maxFragments) {
+		this.maxFragments = maxFragments;
+	}
+
+	public double getDamage() {
+		return damage;
+	}
+
+	public void setDamage(double damage) {
+		this.damage = damage;
+	}
+
+	public void setCooldown(long cooldown) {
+		this.cooldown = cooldown;
+	}
+
+	public List<Block> getSources() {
+		return sources;
+	}
+
+	public void setSources(List<Block> sources) {
+		this.sources = sources;
+	}
+
+	public List<Item> getThrownFragments() {
+		return thrownFragments;
+	}
+
+	public List<TempBlock> getTblockTracker() {
+		return tblockTracker;
+	}
+
+	public HashMap<Block, Integer> getCounters() {
+		return counters;
 	}
 
 	@Override
-	public void stop() {
-		return;
-	}
+	public void load() {}
+
+	@Override
+	public void stop() {}
 
 	@Override
 	public boolean isEnabled() {

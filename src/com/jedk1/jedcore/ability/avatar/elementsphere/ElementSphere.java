@@ -54,18 +54,7 @@ public class ElementSphere extends AvatarAbility implements AddonAbility, MultiA
 	private Location location;
 	private double yaw;
 	private int point;
-	private long time;
-
-	@Attribute("CooldownAir")
-	public long cooldownAir;
-	@Attribute("CooldownEarth")
-	public long cooldownEarth;
-	@Attribute("CooldownFire")
-	public long cooldownFire;
-	@Attribute("CooldownWater")
-	public long cooldownWater;
-	@Attribute("CooldownStream")
-	public long cooldownStream;
+	private long endTime;
 
 	private long lastClickTime;
 
@@ -122,14 +111,15 @@ public class ElementSphere extends AvatarAbility implements AddonAbility, MultiA
 
 		if (bPlayer.canBend(this)) {
 			world = player.getWorld();
-			time = System.currentTimeMillis() + duration;
-			MultiAbilityManager.bindMultiAbility(player, "ElementSphere");
-			bPlayer.addCooldown(this);
-			flightHandler.createInstance(player, this.getName());
+			endTime = System.currentTimeMillis() + duration;
 			start();
-			if (ChatColor.stripColor(bPlayer.getBoundAbilityName()) == null) {
-				remove();
-				return;
+			if (!isRemoved()) {
+				MultiAbilityManager.bindMultiAbility(player, "ElementSphere");
+				bPlayer.addCooldown(this);
+				flightHandler.createInstance(player, this.getName());
+				if (ChatColor.stripColor(bPlayer.getBoundAbilityName()) == null) {
+					remove();
+				}
 			}
 		}
 	}
@@ -165,7 +155,7 @@ public class ElementSphere extends AvatarAbility implements AddonAbility, MultiA
 			remove();
 			return;
 		}
-		if (System.currentTimeMillis() > time && duration > 0) {
+		if (System.currentTimeMillis() > endTime && duration > 0) {
 			remove();
 			return;
 		}
@@ -282,20 +272,20 @@ public class ElementSphere extends AvatarAbility implements AddonAbility, MultiA
 			point = 0;
 	}
 
-	private Vector rotateAroundAxisX(Vector v, double angle) {
+	private void rotateAroundAxisX(Vector v, double angle) {
 		double cos = Math.cos(angle);
 		double sin = Math.sin(angle);
 		double y = v.getY() * cos - v.getZ() * sin;
 		double z = v.getY() * sin + v.getZ() * cos;
-		return v.setY(y).setZ(z);
+		v.setY(y).setZ(z);
 	}
 
-	private Vector rotateAroundAxisY(Vector v, double angle) {
+	private void rotateAroundAxisY(Vector v, double angle) {
 		double cos = Math.cos(angle);
 		double sin = Math.sin(angle);
 		double x = v.getX() * cos + v.getZ() * sin;
 		double z = v.getX() * -sin + v.getZ() * cos;
-		return v.setX(x).setZ(z);
+		v.setX(x).setZ(z);
 	}
 
 	@Override

@@ -54,15 +54,17 @@ public class ESEarth extends AvatarAbility implements AddonAbility {
 		if (bPlayer.isOnCooldown("ESEarth")) {
 			return;
 		}
-		setFields();
-		if(GeneralMethods.isRegionProtectedFromBuild(this, player.getTargetBlock(getTransparentMaterialSet(), 40).getLocation())){
+		if (GeneralMethods.isRegionProtectedFromBuild(this, player.getTargetBlock(getTransparentMaterialSet(), 40).getLocation())) {
 			return;
 		}
-		bPlayer.addCooldown("ESEarth", getCooldown());
-		currES.setEarthUses(currES.getEarthUses() - 1);
-		Location location = player.getEyeLocation().clone().add(player.getEyeLocation().getDirection().multiply(1));
-		tfb = new TempFallingBlock(location, Material.DIRT.createBlockData(), location.getDirection().multiply(3), this);
+		setFields();
 		start();
+		if (!isRemoved()) {
+			bPlayer.addCooldown("ESEarth", getCooldown());
+			currES.setEarthUses(currES.getEarthUses() - 1);
+			Location location = player.getEyeLocation().clone().add(player.getEyeLocation().getDirection().multiply(1));
+			tfb = new TempFallingBlock(location, Material.DIRT.createBlockData(), location.getDirection().multiply(3), this);
+		}
 	}
 
 	public void setFields() {
@@ -84,7 +86,7 @@ public class ESEarth extends AvatarAbility implements AddonAbility {
 			remove();
 			return;
 		}
-		if(GeneralMethods.isRegionProtectedFromBuild(this, tfb.getLocation())){
+		if (GeneralMethods.isRegionProtectedFromBuild(this, tfb.getLocation())){
 			remove();
 			return;
 		}
@@ -112,13 +114,13 @@ public class ESEarth extends AvatarAbility implements AddonAbility {
 			//	TempBlock.revertBlock(l.getBlock(), Material.AIR);
 			//	TempBlock.removeBlock(l.getBlock());
 			//}
-			if (!isUnbreakable(l.getBlock()) && !GeneralMethods.isRegionProtectedFromBuild(player, "ElementSphere", l) && EarthAbility.isEarthbendable(player, l.getBlock())) {
+			if (isBreakable(l.getBlock()) && !GeneralMethods.isRegionProtectedFromBuild(player, "ElementSphere", l) && EarthAbility.isEarthbendable(player, l.getBlock())) {
 				ParticleEffect.SMOKE_LARGE.display(l, 0, 0, 0, 0.1F, 2);
 				//new RegenTempBlock(l.getBlock(), Material.AIR, (byte) 0, (long) rand.nextInt((int) es.revertDelay - (int) (es.revertDelay - 1000)) + (es.revertDelay - 1000));
 				new RegenTempBlock(l.getBlock(), Material.AIR, Material.AIR.createBlockData(), (long) rand.nextInt((int) es.revertDelay - (int) (es.revertDelay - 1000)) + (es.revertDelay - 1000), false);
 			}
 
-			if (GeneralMethods.isSolid(l.getBlock().getRelative(BlockFace.DOWN)) && !isUnbreakable(l.getBlock()) && ElementalAbility.isAir(l.getBlock().getType()) && rand.nextInt(20) == 0 && EarthAbility.isEarthbendable(player, l.getBlock().getRelative(BlockFace.DOWN))) {
+			if (GeneralMethods.isSolid(l.getBlock().getRelative(BlockFace.DOWN)) && isBreakable(l.getBlock()) && ElementalAbility.isAir(l.getBlock().getType()) && rand.nextInt(20) == 0 && EarthAbility.isEarthbendable(player, l.getBlock().getRelative(BlockFace.DOWN))) {
 				Material type = l.getBlock().getRelative(BlockFace.DOWN).getType();
 				new RegenTempBlock(l.getBlock(), type, type.createBlockData(), (long) rand.nextInt((int) es.revertDelay - (int) (es.revertDelay - 1000)) + (es.revertDelay - 1000));
 			}
@@ -130,10 +132,8 @@ public class ESEarth extends AvatarAbility implements AddonAbility {
 	static Material[] unbreakables = { Material.BEDROCK, Material.BARRIER, Material.NETHER_PORTAL, Material.END_PORTAL,
 			Material.END_PORTAL_FRAME, Material.ENDER_CHEST, Material.CHEST, Material.TRAPPED_CHEST };
 
-	public static boolean isUnbreakable(Block block) {
-		if (Arrays.asList(unbreakables).contains(block.getType()))
-			return true;
-		return false;
+	public static boolean isBreakable(Block block) {
+		return !Arrays.asList(unbreakables).contains(block.getType());
 	}
 
 	@Override
@@ -143,7 +143,7 @@ public class ESEarth extends AvatarAbility implements AddonAbility {
 
 	@Override
 	public Location getLocation() {
-		return null;
+		return tfb.getLocation();
 	}
 
 	@Override
@@ -181,15 +181,39 @@ public class ESEarth extends AvatarAbility implements AddonAbility {
 		return null;
 	}
 
-	@Override
-	public void load() {
-		return;
+	public long getRevertDelay() {
+		return revertDelay;
+	}
+
+	public void setRevertDelay(long revertDelay) {
+		this.revertDelay = revertDelay;
+	}
+
+	public double getDamage() {
+		return damage;
+	}
+
+	public void setDamage(double damage) {
+		this.damage = damage;
+	}
+
+	public int getImpactSize() {
+		return impactSize;
+	}
+
+	public void setImpactSize(int impactSize) {
+		this.impactSize = impactSize;
+	}
+
+	public TempFallingBlock getTempFallingBlock() {
+		return tfb;
 	}
 
 	@Override
-	public void stop() {
-		return;
-	}
+	public void load() {}
+
+	@Override
+	public void stop() {}
 
 	@Override
 	public boolean isEnabled() {

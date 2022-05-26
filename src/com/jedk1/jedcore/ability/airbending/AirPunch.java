@@ -22,7 +22,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class AirPunch extends AirAbility implements AddonAbility {
 
-	private Map<Location, Double> locations = new ConcurrentHashMap<>();
+	private final Map<Location, Double> locations = new ConcurrentHashMap<>();
 
 	@Attribute(Attribute.COOLDOWN)
 	private long cooldown;
@@ -53,7 +53,8 @@ public class AirPunch extends AirAbility implements AddonAbility {
 		setFields();
 
 		start();
-		createShot();
+		if (!isRemoved())
+			createShot();
 	}
 	
 	public void setFields() {
@@ -200,15 +201,59 @@ public class AirPunch extends AirAbility implements AddonAbility {
 		return "* JedCore Addon *\n" + config.getString("Abilities.Air.AirPunch.Description");
 	}
 
-	@Override
-	public void load() {
+	public long getThreshold() {
+		return threshold;
+	}
 
+	public void setThreshold(long threshold) {
+		this.threshold = threshold;
+	}
+
+	public double getRange() {
+		return range;
+	}
+
+	public void setRange(double range) {
+		this.range = range;
+	}
+
+	public double getDamage() {
+		return damage;
+	}
+
+	public void setDamage(double damage) {
+		this.damage = damage;
+	}
+
+	public double getEntityCollisionRadius() {
+		return entityCollisionRadius;
+	}
+
+	public void setEntityCollisionRadius(double entityCollisionRadius) {
+		this.entityCollisionRadius = entityCollisionRadius;
+	}
+
+	public int getShots() {
+		return shots;
+	}
+
+	public void setShots(int shots) {
+		this.shots = shots;
+	}
+
+	public long getLastShotTime() {
+		return lastShotTime;
+	}
+
+	public void setLastShotTime(long lastShotTime) {
+		this.lastShotTime = lastShotTime;
 	}
 
 	@Override
-	public void stop() {
+	public void load() {}
 
-	}
+	@Override
+	public void stop() {}
 	
 	@Override
 	public boolean isEnabled() {

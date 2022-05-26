@@ -20,21 +20,22 @@ import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
 public class WaterBlast extends WaterAbility implements AddonAbility {
+
 	private Location location;
 	private Vector direction;
-	private Ability ability;
+	private final Ability ability;
 	private double travelled;
 
 	@Attribute(Attribute.RANGE)
-	private double range;
+	private final double range;
 	@Attribute(Attribute.DAMAGE)
-	private double damage;
+	private final double damage;
 	@Attribute(Attribute.SPEED)
-	private double speed;
+	private final double speed;
 	@Attribute("CollisionRadius")
-	private double entityCollisionRadius;
+	private final double entityCollisionRadius;
 	@Attribute("CollisionRadius")
-	private double abilityCollisionRadius;
+	private final double abilityCollisionRadius;
 
 	static {
 		CollisionInitializer.abilityMap.put("WaterBlast", "WaterGimbal");
@@ -186,15 +187,55 @@ public class WaterBlast extends WaterAbility implements AddonAbility {
 		return null;
 	}
 
-	@Override
-	public void load() {
+	public void setLocation(Location location) {
+		this.location = location;
+	}
 
+	public Vector getDirection() {
+		return direction;
+	}
+
+	public void setDirection(Vector direction) {
+		this.direction = direction;
+	}
+
+	public Ability getAbility() {
+		return ability;
+	}
+
+	public double getTravelled() {
+		return travelled;
+	}
+
+	public void setTravelled(double travelled) {
+		this.travelled = travelled;
+	}
+
+	public double getRange() {
+		return range;
+	}
+
+	public double getDamage() {
+		return damage;
+	}
+
+	public double getSpeed() {
+		return speed;
+	}
+
+	public double getEntityCollisionRadius() {
+		return entityCollisionRadius;
+	}
+
+	public double getAbilityCollisionRadius() {
+		return abilityCollisionRadius;
 	}
 
 	@Override
-	public void stop() {
+	public void load() {}
 
-	}
+	@Override
+	public void stop() {}
 	
 	@Override
 	public boolean isEnabled() {

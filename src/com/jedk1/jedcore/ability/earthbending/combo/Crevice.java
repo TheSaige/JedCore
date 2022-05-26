@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Random;
 
 public class Crevice extends EarthAbility implements AddonAbility, ComboAbility {
@@ -44,11 +45,10 @@ public class Crevice extends EarthAbility implements AddonAbility, ComboAbility 
 	private Vector direction;
 	private double travelled;
 	private boolean skip;
-	private long time;
 
-	private List<List<TempBlock>> columns = new ArrayList<>();
+	private final List<List<TempBlock>> columns = new ArrayList<>();
 
-	private Random rand = new Random();
+	private final Random rand = new Random();
 
 	public Crevice(Player player) {
 		super(player);
@@ -57,7 +57,6 @@ public class Crevice extends EarthAbility implements AddonAbility, ComboAbility 
 		}
 		
 		setFields();
-		time = System.currentTimeMillis();
 		createInstance();
 	}
 	
@@ -72,19 +71,21 @@ public class Crevice extends EarthAbility implements AddonAbility, ComboAbility 
 	}
 
 	private void createInstance() {
-		origin = player.getTargetBlock((HashSet<Material>) null, (int) 6).getLocation();
+		origin = player.getTargetBlock(null, 6).getLocation();
 		if (isEarthbendable(origin.getBlock())) {
 			Location tempLoc = player.getLocation().clone();
 			tempLoc.setPitch(0);
 			direction = tempLoc.getDirection().clone();
 			origin.setDirection(tempLoc.getDirection());
 			location = origin.clone();
-			bPlayer.addCooldown(this);
 			if (bPlayer.isAvatarState()) {
 				randomDepth = avatarDepth;
 			}
 
 			start();
+			if (!isRemoved()) {
+				bPlayer.addCooldown(this);
+			}
 		}
 	}
 
@@ -96,7 +97,7 @@ public class Crevice extends EarthAbility implements AddonAbility, ComboAbility 
 			return;
 		}
 		if (travelled >= range || skip) {
-			if (System.currentTimeMillis() > time + regenDelay) {
+			if (System.currentTimeMillis() > getStartTime() + regenDelay) {
 				prepareRevert();
 				remove();
 				return;
@@ -113,7 +114,7 @@ public class Crevice extends EarthAbility implements AddonAbility, ComboAbility 
 	}
 
 	public static void closeCrevice(Player player) {
-		Block target = player.getTargetBlock((HashSet<Material>) null, (int) 10);
+		Block target = player.getTargetBlock(null, 10);
 		for (Block near : GeneralMethods.getBlocksAroundPoint(target.getLocation(), 2)) {
 			for (Crevice c : getAbilities(Crevice.class)) {
 				for (List<TempBlock> tbs : c.columns) {
@@ -192,7 +193,7 @@ public class Crevice extends EarthAbility implements AddonAbility, ComboAbility 
 		Location tempLoc = location.clone().getBlock().getLocation();
 		tempLoc.add(0, 1, 0);
 		for (int i = 0; i < depth + 1; i++) {
-			if (tempLoc.getY() < 2 || tempLoc.getY() > 255) {
+			if (tempLoc.getY() < Objects.requireNonNull(tempLoc.getWorld()).getMinHeight() || tempLoc.getY() > tempLoc.getWorld().getMaxHeight()) {
 				break;
 			}
 			if (GeneralMethods.isRegionProtectedFromBuild(player, "Crevice", tempLoc)) {
@@ -227,7 +228,7 @@ public class Crevice extends EarthAbility implements AddonAbility, ComboAbility 
 				for (Entity entity : GeneralMethods.getEntitiesAroundPoint(tb.getLocation(), 1)) {
 					entity.setVelocity(new Vector(0, 0.7, 0));
 				}
-				new RegenTempBlock(tb.getBlock(), Material.AIR, Material.AIR.createBlockData(), i * 50);
+				new RegenTempBlock(tb.getBlock(), Material.AIR, Material.AIR.createBlockData(), i * 50L);
 			}
 		}
 		columns.clear();
@@ -240,7 +241,7 @@ public class Crevice extends EarthAbility implements AddonAbility, ComboAbility 
 
 	@Override
 	public Location getLocation() {
-		return null;
+		return location;
 	}
 
 	@Override
@@ -299,13 +300,71 @@ public class Crevice extends EarthAbility implements AddonAbility, ComboAbility 
 		return JedCore.version;
 	}
 
-	@Override
-	public void load() {
+	public double getRange() {
+		return range;
+	}
+
+	public void setRange(double range) {
+		this.range = range;
+	}
+
+	public long getRegenDelay() {
+		return regenDelay;
+	}
+
+	public void setRegenDelay(long regenDelay) {
+		this.regenDelay = regenDelay;
+	}
+
+	public int getDepth() {
+		return randomDepth;
+	}
+
+	public void setDepth(int depth) {
+		this.randomDepth = depth;
+	}
+
+	public int getAvatarDepth() {
+		return avatarDepth;
+	}
+
+	public void setAvatarDepth(int avatarDepth) {
+		this.avatarDepth = avatarDepth;
+	}
+
+	public Location getOrigin() {
+		return origin;
+	}
+
+	public void setOrigin(Location origin) {
+		this.origin = origin;
+	}
+
+	public Vector getDirection() {
+		return direction;
+	}
+
+	public void setDirection(Vector direction) {
+		this.direction = direction;
+	}
+
+	public double getDistanceTravelled() {
+		return travelled;
+	}
+
+	public void setDistanceTravelled(double travelled) {
+		this.travelled = travelled;
+	}
+
+	public List<List<TempBlock>> getColumns() {
+		return columns;
 	}
 
 	@Override
-	public void stop() {
-	}
+	public void load() {}
+
+	@Override
+	public void stop() {}
 	
 	@Override
 	public boolean isEnabled() {

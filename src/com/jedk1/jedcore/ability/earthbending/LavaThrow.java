@@ -45,7 +45,7 @@ public class LavaThrow extends LavaAbility implements AddonAbility {
 	private Location location;
 	private int shots;
 
-	private ConcurrentHashMap<Location, Location> blasts = new ConcurrentHashMap<>();
+	private final ConcurrentHashMap<Location, Location> blasts = new ConcurrentHashMap<>();
 
 	public LavaThrow(Player player) {
 		super(player);
@@ -65,11 +65,13 @@ public class LavaThrow extends LavaAbility implements AddonAbility {
 		location.setPitch(0);
 		location = location.toVector().add(location.getDirection().multiply(sourceRange)).toLocation(location.getWorld());
 
-		sourceRange = Math.round(sourceRange / 2);
+		sourceRange = Math.round(sourceRange / 2F);
 
 		if (prepare()) {
-			createBlast();
 			start();
+			if (!isRemoved()) {
+				createBlast();
+			}
 		}
 	}
 
@@ -119,11 +121,7 @@ public class LavaThrow extends LavaAbility implements AddonAbility {
 	private boolean prepare() {
 		Block block = getRandomSourceBlock(location, 3);
 
-		if (block != null) {
-			return true;
-		}
-
-		return false;
+		return block != null;
 	}
 
 	public void createBlast() {
@@ -206,7 +204,7 @@ public class LavaThrow extends LavaAbility implements AddonAbility {
 
 			Block block = blocks.get(index);
 
-			if (block == null || !LavaAbility.isLava(block)) {
+			if (!LavaAbility.isLava(block)) {
 				continue;
 			}
 
@@ -267,15 +265,79 @@ public class LavaThrow extends LavaAbility implements AddonAbility {
 		return "* JedCore Addon *\n" + config.getString("Abilities.Earth.LavaThrow.Description");
 	}
 
-	@Override
-	public void load() {
+	public void setCooldown(long cooldown) {
+		this.cooldown = cooldown;
+	}
 
+	public int getRange() {
+		return range;
+	}
+
+	public void setRange(int range) {
+		this.range = range;
+	}
+
+	public double getDamage() {
+		return damage;
+	}
+
+	public void setDamage(double damage) {
+		this.damage = damage;
+	}
+
+	public int getSourceRange() {
+		return sourceRange;
+	}
+
+	public void setSourceRange(int sourceRange) {
+		this.sourceRange = sourceRange;
+	}
+
+	public long getSourceRegen() {
+		return sourceRegen;
+	}
+
+	public void setSourceRegen(long sourceRegen) {
+		this.sourceRegen = sourceRegen;
+	}
+
+	public int getShotMax() {
+		return shotMax;
+	}
+
+	public void setShotMax(int shotMax) {
+		this.shotMax = shotMax;
+	}
+
+	public int getFireTicks() {
+		return fireTicks;
+	}
+
+	public void setFireTicks(int fireTicks) {
+		this.fireTicks = fireTicks;
+	}
+
+	public void setLocation(Location location) {
+		this.location = location;
+	}
+
+	public int getShots() {
+		return shots;
+	}
+
+	public void setShots(int shots) {
+		this.shots = shots;
+	}
+
+	public ConcurrentHashMap<Location, Location> getBlasts() {
+		return blasts;
 	}
 
 	@Override
-	public void stop() {
+	public void load() {}
 
-	}
+	@Override
+	public void stop() {}
 
 	@Override
 	public boolean isEnabled() {

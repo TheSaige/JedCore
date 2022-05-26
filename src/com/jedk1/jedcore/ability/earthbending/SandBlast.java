@@ -41,7 +41,7 @@ public class SandBlast extends SandAbility implements AddonAbility {
 	@Attribute(Attribute.COOLDOWN)
 	private long cooldown;
 	@Attribute(Attribute.SELECT_RANGE)
-	private double sourcerange;
+	private double sourceRange;
 	@Attribute(Attribute.RANGE)
 	private int range;
 	@Attribute("MaxShots")
@@ -54,9 +54,9 @@ public class SandBlast extends SandAbility implements AddonAbility {
 	private int blasts;
 	private boolean blasting;
 	private Vector direction;
-	private TempBlock tempblock;
-	private List<Entity> affectedEntities = new ArrayList<>();
-	private List<TempFallingBlock> fallingBlocks = new ArrayList<>();
+	private TempBlock tempBlock;
+	private final List<Entity> affectedEntities = new ArrayList<>();
+	private final List<TempFallingBlock> fallingBlocks = new ArrayList<>();
 
 	Random rand = new Random();
 
@@ -68,7 +68,7 @@ public class SandBlast extends SandAbility implements AddonAbility {
 		}
 
 		if (hasAbility(player, SandBlast.class)) {
-			SandBlast sb = (SandBlast) getAbility(player, SandBlast.class);
+			SandBlast sb = getAbility(player, SandBlast.class);
 			sb.remove();
 		}
 
@@ -82,14 +82,14 @@ public class SandBlast extends SandAbility implements AddonAbility {
 		ConfigurationSection config = JedCoreConfig.getConfig(this.player);
 		
 		cooldown = config.getLong("Abilities.Earth.SandBlast.Cooldown");
-		sourcerange = config.getDouble("Abilities.Earth.SandBlast.SourceRange");
+		sourceRange = config.getDouble("Abilities.Earth.SandBlast.SourceRange");
 		range = config.getInt("Abilities.Earth.SandBlast.Range");
 		maxBlasts = config.getInt("Abilities.Earth.SandBlast.MaxSandBlocks");
 		damage = config.getDouble("Abilities.Earth.SandBlast.Damage");
 	}
 
 	private boolean prepare() {
-		source = BlockSource.getEarthSourceBlock(player, sourcerange, ClickType.SHIFT_DOWN);
+		source = BlockSource.getEarthSourceBlock(player, sourceRange, ClickType.SHIFT_DOWN);
 
 		if (source != null) {
 			if (isSand(source) && ElementalAbility.isAir(source.getRelative(BlockFace.UP).getType())) {
@@ -97,7 +97,7 @@ public class SandBlast extends SandAbility implements AddonAbility {
 				if (DensityShift.isPassiveSand(source)) {
 					DensityShift.revertSand(source);
 				}
-				tempblock = new TempBlock(source, Material.SANDSTONE, Material.SANDSTONE.createBlockData());
+				tempBlock = new TempBlock(source, Material.SANDSTONE, Material.SANDSTONE.createBlockData());
 				return true;
 			}
 		}
@@ -133,15 +133,15 @@ public class SandBlast extends SandAbility implements AddonAbility {
 
 	@Override
 	public void remove() {
-		if (this.tempblock != null) {
-			this.tempblock.revertBlock();
+		if (this.tempBlock != null) {
+			this.tempBlock.revertBlock();
 		}
 		super.remove();
 	}
 
 	public static void blastSand(Player player) {
 		if (hasAbility(player, SandBlast.class)) {
-			SandBlast sb = (SandBlast) getAbility(player, SandBlast.class);
+			SandBlast sb = getAbility(player, SandBlast.class);
 			if (sb.blasting) {
 				return;
 			}
@@ -155,7 +155,7 @@ public class SandBlast extends SandAbility implements AddonAbility {
 			direction = GeneralMethods.getDirection(source.getLocation().clone().add(0, 1, 0), GeneralMethods.getTargetedLocation(player, range)).multiply(0.07);
 			this.bPlayer.addCooldown(this);
 		}
-		tempblock.revertBlock();
+		tempBlock.revertBlock();
 
 		//FallingBlock fblock = source.getWorld().spawnFallingBlock(source.getLocation().clone().add(0, 1, 0), source.getType(), source.getData());
 
@@ -272,15 +272,103 @@ public class SandBlast extends SandAbility implements AddonAbility {
 		return "* JedCore Addon *\n" + config.getString("Abilities.Earth.SandBlast.Description");
 	}
 
-	@Override
-	public void load() {
-		return;
+	public void setCooldown(long cooldown) {
+		this.cooldown = cooldown;
+	}
+
+	public double getSourceRange() {
+		return sourceRange;
+	}
+
+	public void setSourceRange(double sourceRange) {
+		this.sourceRange = sourceRange;
+	}
+
+	public int getRange() {
+		return range;
+	}
+
+	public void setRange(int range) {
+		this.range = range;
+	}
+
+	public int getMaxBlasts() {
+		return maxBlasts;
+	}
+
+	public void setMaxBlasts(int maxBlasts) {
+		this.maxBlasts = maxBlasts;
+	}
+
+	public static double getDamage() {
+		return damage;
+	}
+
+	public static void setDamage(double damage) {
+		SandBlast.damage = damage;
+	}
+
+	public Block getSource() {
+		return source;
+	}
+
+	public void setSource(Block source) {
+		this.source = source;
+	}
+
+	public BlockData getSourceData() {
+		return sourceData;
+	}
+
+	public void setSourceData(BlockData sourceData) {
+		this.sourceData = sourceData;
+	}
+
+	public int getBlasts() {
+		return blasts;
+	}
+
+	public void setBlasts(int blasts) {
+		this.blasts = blasts;
+	}
+
+	public boolean isBlasting() {
+		return blasting;
+	}
+
+	public void setBlasting(boolean blasting) {
+		this.blasting = blasting;
+	}
+
+	public Vector getDirection() {
+		return direction;
+	}
+
+	public void setDirection(Vector direction) {
+		this.direction = direction;
+	}
+
+	public TempBlock getTempBlock() {
+		return tempBlock;
+	}
+
+	public void setTempBlock(TempBlock tempBlock) {
+		this.tempBlock = tempBlock;
+	}
+
+	public List<Entity> getAffectedEntities() {
+		return affectedEntities;
+	}
+
+	public List<TempFallingBlock> getFallingBlocks() {
+		return fallingBlocks;
 	}
 
 	@Override
-	public void stop() {
-		return;
-	}
+	public void load() {}
+
+	@Override
+	public void stop() {}
 
 	@Override
 	public boolean isEnabled() {

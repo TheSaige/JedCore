@@ -51,7 +51,6 @@ public class MudSurge extends EarthAbility implements AddonAbility {
 
 	public static int surgeInterval = 300;
 	public static int mudPoolRadius = 2;
-	public static long mudCreationInterval = 100;
 	public static Material[] mudTypes = new Material[] {
 			Material.SAND, Material.CLAY, Material.TERRACOTTA, Material.BLACK_TERRACOTTA, Material.BLUE_TERRACOTTA,
 			Material.BROWN_TERRACOTTA, Material.CYAN_TERRACOTTA, Material.GRAY_TERRACOTTA, Material.GREEN_TERRACOTTA,
@@ -67,20 +66,19 @@ public class MudSurge extends EarthAbility implements AddonAbility {
 	private TempBlock sourceTB;
 
 	private int wavesOnTheRun = 0;
-	private long lastSurgeTime = 0;
 	private boolean mudFormed = false;
 	private boolean doNotSurge = false;
 	public boolean started = false;
 
-	private List<Block> mudArea = new ArrayList<>();
+	private final List<Block> mudArea = new ArrayList<>();
 	private ListIterator<Block> mudAreaItr;
-	private List<TempBlock> mudBlocks = new ArrayList<>();
-	private List<Player> blind = new ArrayList<>();
-	private List<Entity> affectedEntities = new ArrayList<>();
+	private final List<TempBlock> mudBlocks = new ArrayList<>();
+	private final List<Player> blind = new ArrayList<>();
+	private final List<Entity> affectedEntities = new ArrayList<>();
 
-	private List<TempFallingBlock> fallingBlocks = new ArrayList<>();
+	private final List<TempFallingBlock> fallingBlocks = new ArrayList<>();
 	
-	private Random rand = new Random();
+	private final Random rand = new Random();
 
 	public MudSurge(Player player) {
 		super(player);
@@ -102,17 +100,17 @@ public class MudSurge extends EarthAbility implements AddonAbility {
 				new CannotBendRemovalPolicy(this.bPlayer, this, true, true),
 				new IsOfflineRemovalPolicy(this.player),
 				new IsDeadRemovalPolicy(this.player),
-				new OutOfRangeRemovalPolicy(this.player, 25.0, () -> {
-					return this.source.getLocation();
-				}),
+				new OutOfRangeRemovalPolicy(this.player, 25.0, () -> this.source.getLocation()),
 				new SwappedSlotsRemovalPolicy<>(bPlayer, MudSurge.class)
 		);
 		
 		setFields();
 
 		if (getSource()) {
-			loadMudPool();
 			start();
+			if (!isRemoved()) {
+				loadMudPool();
+			}
 		}
 	}
 	
@@ -140,6 +138,7 @@ public class MudSurge extends EarthAbility implements AddonAbility {
 			return;
 		}
 
+		long lastSurgeTime = 0;
 		if (mudFormed && started && System.currentTimeMillis() > lastSurgeTime + surgeInterval) {
 			surge();
 			affect();
@@ -362,7 +361,7 @@ public class MudSurge extends EarthAbility implements AddonAbility {
 					tfb.remove();
 					continue;
 				}
-				if (GeneralMethods.isRegionProtectedFromBuild(this, e.getLocation()) || ((e instanceof Player) && Commands.invincible.contains(((Player) e).getName()))){
+				if (GeneralMethods.isRegionProtectedFromBuild(this, e.getLocation()) || ((e instanceof Player) && Commands.invincible.contains(e.getName()))){
 					continue;
 				}
 
@@ -455,15 +454,188 @@ public class MudSurge extends EarthAbility implements AddonAbility {
 		return "* JedCore Addon *\n" + config.getString("Abilities.Earth.MudSurge.Description");
 	}
 
-	@Override
-	public void load() {
+	public int getPrepareRange() {
+		return prepareRange;
+	}
 
+	public void setPrepareRange(int prepareRange) {
+		this.prepareRange = prepareRange;
+	}
+
+	public int getBlindChance() {
+		return blindChance;
+	}
+
+	public void setBlindChance(int blindChance) {
+		this.blindChance = blindChance;
+	}
+
+	public int getBlindTicks() {
+		return blindTicks;
+	}
+
+	public void setBlindTicks(int blindTicks) {
+		this.blindTicks = blindTicks;
+	}
+
+	public boolean isMultipleHits() {
+		return multipleHits;
+	}
+
+	public void setMultipleHits(boolean multipleHits) {
+		this.multipleHits = multipleHits;
+	}
+
+	public double getDamage() {
+		return damage;
+	}
+
+	public void setDamage(double damage) {
+		this.damage = damage;
+	}
+
+	public int getWaves() {
+		return waves;
+	}
+
+	public void setWaves(int waves) {
+		this.waves = waves;
+	}
+
+	public int getWaterSearchRadius() {
+		return waterSearchRadius;
+	}
+
+	public void setWaterSearchRadius(int waterSearchRadius) {
+		this.waterSearchRadius = waterSearchRadius;
+	}
+
+	public boolean isWetSource() {
+		return wetSource;
+	}
+
+	public void setWetSource(boolean wetSource) {
+		this.wetSource = wetSource;
+	}
+
+	public void setCooldown(long cooldown) {
+		this.cooldown = cooldown;
+	}
+
+	public void setCollisionRadius(double collisionRadius) {
+		this.collisionRadius = collisionRadius;
+	}
+
+	public static int getSurgeInterval() {
+		return surgeInterval;
+	}
+
+	public static void setSurgeInterval(int surgeInterval) {
+		MudSurge.surgeInterval = surgeInterval;
+	}
+
+	public static int getMudPoolRadius() {
+		return mudPoolRadius;
+	}
+
+	public static void setMudPoolRadius(int mudPoolRadius) {
+		MudSurge.mudPoolRadius = mudPoolRadius;
+	}
+
+	public static Material[] getMudTypes() {
+		return mudTypes;
+	}
+
+	public static void setMudTypes(Material[] mudTypes) {
+		MudSurge.mudTypes = mudTypes;
+	}
+
+	public CompositeRemovalPolicy getRemovalPolicy() {
+		return removalPolicy;
+	}
+
+	public void setRemovalPolicy(CompositeRemovalPolicy removalPolicy) {
+		this.removalPolicy = removalPolicy;
+	}
+
+	public void setSource(Block source) {
+		this.source = source;
+	}
+
+	public TempBlock getSourceTB() {
+		return sourceTB;
+	}
+
+	public void setSourceTB(TempBlock sourceTB) {
+		this.sourceTB = sourceTB;
+	}
+
+	public int getWavesOnTheRun() {
+		return wavesOnTheRun;
+	}
+
+	public void setWavesOnTheRun(int wavesOnTheRun) {
+		this.wavesOnTheRun = wavesOnTheRun;
+	}
+
+	public boolean isMudFormed() {
+		return mudFormed;
+	}
+
+	public void setMudFormed(boolean mudFormed) {
+		this.mudFormed = mudFormed;
+	}
+
+	public boolean isDoNotSurge() {
+		return doNotSurge;
+	}
+
+	public void setDoNotSurge(boolean doNotSurge) {
+		this.doNotSurge = doNotSurge;
 	}
 
 	@Override
-	public void stop() {
-
+	public boolean isStarted() {
+		return started;
 	}
+
+	public void setStarted(boolean started) {
+		this.started = started;
+	}
+
+	public List<Block> getMudArea() {
+		return mudArea;
+	}
+
+	public ListIterator<Block> getMudAreaItr() {
+		return mudAreaItr;
+	}
+
+	public void setMudAreaItr(ListIterator<Block> mudAreaItr) {
+		this.mudAreaItr = mudAreaItr;
+	}
+
+	public List<TempBlock> getMudBlocks() {
+		return mudBlocks;
+	}
+
+	public List<Player> getBlind() {
+		return blind;
+	}
+
+	public List<Entity> getAffectedEntities() {
+		return affectedEntities;
+	}
+
+	public List<TempFallingBlock> getFallingBlocks() {
+		return fallingBlocks;
+	}
+
+	@Override
+	public void load() {}
+
+	@Override
+	public void stop() {}
 
 	@Override
 	public boolean isEnabled() {

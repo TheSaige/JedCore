@@ -8,7 +8,6 @@ import com.jedk1.jedcore.util.TempFallingBlock;
 import com.projectkorra.projectkorra.GeneralMethods;
 import com.projectkorra.projectkorra.ability.AddonAbility;
 import com.projectkorra.projectkorra.ability.EarthAbility;
-import com.projectkorra.projectkorra.ability.ElementalAbility;
 import com.projectkorra.projectkorra.attribute.Attribute;
 import com.projectkorra.projectkorra.command.Commands;
 import com.projectkorra.projectkorra.earthbending.passive.DensityShift;
@@ -31,24 +30,24 @@ public class EarthLine extends EarthAbility implements AddonAbility {
 
 	private Location location;
 	private Location endLocation;
-	private Block sourceblock;
-	private Material sourcetype;
+	private Block sourceBlock;
+	private Material sourceType;
 	private boolean progressing;
 	private boolean hitted;
 	private int goOnAfterHit;
 	private long removalTime = -1;
 
-	private long usecooldown;
-	private long preparecooldown;
+	private long useCooldown;
+	private long prepareCooldown;
 	@Attribute(Attribute.DURATION)
-	private long maxduration;
+	private long maxDuration;
 	@Attribute(Attribute.RANGE)
 	private double range;
 	@Attribute(Attribute.SELECT_RANGE)
-	private double preparerange;
-	private double sourcekeeprange;
+	private double prepareRange;
+	private double sourceKeepRange;
 	@Attribute(Attribute.RADIUS)
-	private int affectingradius;
+	private int affectingRadius;
 	@Attribute(Attribute.DAMAGE)
 	private double damage;
 	private boolean allowChangeDirection;
@@ -63,17 +62,14 @@ public class EarthLine extends EarthAbility implements AddonAbility {
 		if (!bPlayer.canBend(this)) {
 			return;
 		}
-		location = null;
-		endLocation = null;
-		sourceblock = null;
-		sourcetype = null;
-		progressing = false;
 		goOnAfterHit = 1;
 
 		setFields();
 		if (prepare()) {
-			if (preparecooldown != 0) bPlayer.addCooldown(this, preparecooldown);
 			start();
+			if (!isRemoved() && prepareCooldown != 0) {
+				bPlayer.addCooldown(this, prepareCooldown);
+			}
 		}
 	}
 	
@@ -89,27 +85,27 @@ public class EarthLine extends EarthAbility implements AddonAbility {
 
 		this.removalPolicy.load(config);
 
-		usecooldown = config.getLong("Abilities.Earth.EarthLine.Cooldown");
-		preparecooldown = config.getLong("Abilities.Earth.EarthLine.PrepareCooldown");
+		useCooldown = config.getLong("Abilities.Earth.EarthLine.Cooldown");
+		prepareCooldown = config.getLong("Abilities.Earth.EarthLine.PrepareCooldown");
 		range = config.getInt("Abilities.Earth.EarthLine.Range");
-		preparerange = config.getDouble("Abilities.Earth.EarthLine.PrepareRange");
-		sourcekeeprange = config.getDouble("Abilities.Earth.EarthLine.SourceKeepRange");
-		affectingradius = config.getInt("Abilities.Earth.EarthLine.AffectingRadius");
+		prepareRange = config.getDouble("Abilities.Earth.EarthLine.PrepareRange");
+		sourceKeepRange = config.getDouble("Abilities.Earth.EarthLine.SourceKeepRange");
+		affectingRadius = config.getInt("Abilities.Earth.EarthLine.AffectingRadius");
 		damage = config.getDouble("Abilities.Earth.EarthLine.Damage");
 		allowChangeDirection = config.getBoolean("Abilities.Earth.EarthLine.AllowChangeDirection");
-		maxduration = config.getLong("Abilities.Earth.EarthLine.MaxDuration");
+		maxDuration = config.getLong("Abilities.Earth.EarthLine.MaxDuration");
 	}
 
 	public boolean prepare() {
 		if (hasAbility(player, EarthLine.class)) {
-			EarthLine el = (EarthLine) getAbility(player, EarthLine.class);
+			EarthLine el = getAbility(player, EarthLine.class);
 			if (!el.progressing) {
 				el.remove();
 			}
 		}
-		Block block = BlockSource.getEarthSourceBlock(player, preparerange, ClickType.SHIFT_DOWN);
+		Block block = BlockSource.getEarthSourceBlock(player, prepareRange, ClickType.SHIFT_DOWN);
 		if (block != null) {
-			sourceblock = block;
+			sourceBlock = block;
 			focusBlock();
 			return true;
 		} else {
@@ -118,36 +114,36 @@ public class EarthLine extends EarthAbility implements AddonAbility {
 	}
 
 	private void focusBlock() {
-		if (sourceblock.getType() == Material.SAND) {
-			if (DensityShift.isPassiveSand(this.sourceblock)) {
-				DensityShift.revertSand(this.sourceblock);
-				this.sourcetype = this.sourceblock.getType();
+		if (sourceBlock.getType() == Material.SAND) {
+			if (DensityShift.isPassiveSand(this.sourceBlock)) {
+				DensityShift.revertSand(this.sourceBlock);
+				this.sourceType = this.sourceBlock.getType();
 			} else {
-				sourcetype = Material.SAND;
+				sourceType = Material.SAND;
 			}
-			sourceblock.setType(Material.SANDSTONE);
-		} else if (sourceblock.getType() == Material.STONE) {
-			sourcetype = sourceblock.getType();
-			sourceblock.setType(Material.COBBLESTONE);
+			sourceBlock.setType(Material.SANDSTONE);
+		} else if (sourceBlock.getType() == Material.STONE) {
+			sourceType = sourceBlock.getType();
+			sourceBlock.setType(Material.COBBLESTONE);
 		} else {
-			sourcetype = sourceblock.getType();
-			sourceblock.setType(Material.STONE);
+			sourceType = sourceBlock.getType();
+			sourceBlock.setType(Material.STONE);
 		}
-		location = sourceblock.getLocation();
+		location = sourceBlock.getLocation();
 	}
 	
 	private void unfocusBlock() {
-		sourceblock.setType(sourcetype);
+		sourceBlock.setType(sourceType);
 	}
 
 	private void breakSourceBlock() {
-		sourceblock.setType(sourcetype);
-		new RegenTempBlock(sourceblock, Material.AIR, Material.AIR.createBlockData(), 5000L);
+		sourceBlock.setType(sourceType);
+		new RegenTempBlock(sourceBlock, Material.AIR, Material.AIR.createBlockData(), 5000L);
 	}
 
 	@Override
 	public void remove() {
-		sourceblock.setType(sourcetype);
+		sourceBlock.setType(sourceType);
 		super.remove();
 	}
 
@@ -164,28 +160,26 @@ public class EarthLine extends EarthAbility implements AddonAbility {
 		return location;
 	}
 
-	public void shootline(Location endLocation) {
-		if (usecooldown != 0 && bPlayer.getCooldown(this.getName()) < usecooldown) bPlayer.addCooldown(this, usecooldown);
-		if (maxduration > 0) removalTime = System.currentTimeMillis() + maxduration;
+	public void shootLine(Location endLocation) {
+		if (useCooldown != 0 && bPlayer.getCooldown(this.getName()) < useCooldown) bPlayer.addCooldown(this, useCooldown);
+		if (maxDuration > 0) removalTime = System.currentTimeMillis() + maxDuration;
 		this.endLocation = endLocation;
 		progressing = true;
 		breakSourceBlock();
-		sourceblock.getWorld().playEffect(sourceblock.getLocation(), Effect.GHAST_SHOOT, 0, 10);
+		sourceBlock.getWorld().playEffect(sourceBlock.getLocation(), Effect.GHAST_SHOOT, 0, 10);
 	}
 
-	public static boolean shootLine(Player player) {
+	public static void shootLine(Player player) {
 		if (hasAbility(player, EarthLine.class)) {
-			EarthLine el = (EarthLine) getAbility(player, EarthLine.class);
+			EarthLine el = getAbility(player, EarthLine.class);
 			if (!el.progressing) {
-				el.shootline(getTargetLocation(player));
-				return true;
+				el.shootLine(getTargetLocation(player));
 			}
 		}
-		return false;
 	}
 	
 	private boolean sourceOutOfRange() {
-		return sourceblock == null || sourceblock.getLocation().add(0.5, 0.5, 0.5).distanceSquared(player.getLocation()) > sourcekeeprange * sourcekeeprange || sourceblock.getWorld() != player.getWorld();
+		return sourceBlock == null || sourceBlock.getLocation().add(0.5, 0.5, 0.5).distanceSquared(player.getLocation()) > sourceKeepRange * sourceKeepRange || sourceBlock.getWorld() != player.getWorld();
 	}
 
 	public void progress() {
@@ -202,7 +196,7 @@ public class EarthLine extends EarthAbility implements AddonAbility {
 			return;
 		}
 
-		if (sourceblock == null || GeneralMethods.isRegionProtectedFromBuild(this, location)) {
+		if (sourceBlock == null || GeneralMethods.isRegionProtectedFromBuild(this, location)) {
 			remove();
 			return;
 		}
@@ -228,11 +222,11 @@ public class EarthLine extends EarthAbility implements AddonAbility {
 
 		double x1 = endLocation.getX();
 		double z1 = endLocation.getZ();
-		double x0 = sourceblock.getX();
-		double z0 = sourceblock.getZ();
+		double x0 = sourceBlock.getX();
+		double z0 = sourceBlock.getZ();
 		Vector looking = new Vector(x1 - x0, 0.0D, z1 - z0);
 		Vector push = new Vector(x1 - x0, 0.34999999999999998D, z1 - z0);
-		if (location.distance(sourceblock.getLocation()) < range) {
+		if (location.distance(sourceBlock.getLocation()) < range) {
 			Material cloneType = location.getBlock().getType();
 			Location locationYUP = location.getBlock().getLocation().clone().add(0.5, 0.1, 0.5);
 
@@ -257,12 +251,12 @@ public class EarthLine extends EarthAbility implements AddonAbility {
 					return;
 				}
 			} else {
-				for (Entity entity : GeneralMethods.getEntitiesAroundPoint(location, affectingradius)) {
-					if (GeneralMethods.isRegionProtectedFromBuild(this, entity.getLocation()) || ((entity instanceof Player) && Commands.invincible.contains(((Player) entity).getName()))){
+				for (Entity entity : GeneralMethods.getEntitiesAroundPoint(location, affectingRadius)) {
+					if (GeneralMethods.isRegionProtectedFromBuild(this, entity.getLocation()) || ((entity instanceof Player) && Commands.invincible.contains(entity.getName()))){
 						return;
 					}
 					if ((entity instanceof LivingEntity) && entity.getEntityId() != player.getEntityId()) {
-						entity.setVelocity(push.normalize().multiply(2));
+						GeneralMethods.setVelocity(this, entity, push.normalize().multiply(2));
 						DamageHandler.damageEntity(entity, damage, this);
 						hitted = true;
 					}
@@ -274,9 +268,7 @@ public class EarthLine extends EarthAbility implements AddonAbility {
 		}
 		if (!isEarthbendable(player, location.getBlock()) && !isTransparent(location.getBlock())) {
 			remove();
-			return;
 		}
-		return;
 	}
 
 	private boolean climb() {
@@ -302,7 +294,7 @@ public class EarthLine extends EarthAbility implements AddonAbility {
 	
 	@Override
 	public long getCooldown() {
-		return usecooldown;
+		return useCooldown;
 	}
 
 	@Override
@@ -341,15 +333,131 @@ public class EarthLine extends EarthAbility implements AddonAbility {
 		return "* JedCore Addon *\n" + config.getString("Abilities.Earth.EarthLine.Description");
 	}
 
-	@Override
-	public void load() {
-		return;
+	public Location getEndLocation() {
+		return endLocation;
+	}
+
+	public void setEndLocation(Location endLocation) {
+		this.endLocation = endLocation;
+	}
+
+	public Block getSourceBlock() {
+		return sourceBlock;
+	}
+
+	public void setSourceBlock(Block sourceBlock) {
+		this.sourceBlock = sourceBlock;
+	}
+
+	public Material getSourceType() {
+		return sourceType;
+	}
+
+	public void setSourceType(Material sourceType) {
+		this.sourceType = sourceType;
+	}
+
+	public boolean isProgressing() {
+		return progressing;
+	}
+
+	public void setProgressing(boolean progressing) {
+		this.progressing = progressing;
+	}
+
+	public int getGoOnAfterHit() {
+		return goOnAfterHit;
+	}
+
+	public void setGoOnAfterHit(int goOnAfterHit) {
+		this.goOnAfterHit = goOnAfterHit;
+	}
+
+	public long getRemovalTime() {
+		return removalTime;
+	}
+
+	public void setRemovalTime(long removalTime) {
+		this.removalTime = removalTime;
+	}
+
+	public long getUseCooldown() {
+		return useCooldown;
+	}
+
+	public void setUseCooldown(long useCooldown) {
+		this.useCooldown = useCooldown;
+	}
+
+	public long getPrepareCooldown() {
+		return prepareCooldown;
+	}
+
+	public void setPrepareCooldown(long prepareCooldown) {
+		this.prepareCooldown = prepareCooldown;
+	}
+
+	public long getMaxDuration() {
+		return maxDuration;
+	}
+
+	public void setMaxDuration(long maxDuration) {
+		this.maxDuration = maxDuration;
+	}
+
+	public double getRange() {
+		return range;
+	}
+
+	public void setRange(double range) {
+		this.range = range;
+	}
+
+	public double getPrepareRange() {
+		return prepareRange;
+	}
+
+	public void setPrepareRange(double prepareRange) {
+		this.prepareRange = prepareRange;
+	}
+
+	public double getSourceKeepRange() {
+		return sourceKeepRange;
+	}
+
+	public void setSourceKeepRange(double sourceKeepRange) {
+		this.sourceKeepRange = sourceKeepRange;
+	}
+
+	public int getAffectingRadius() {
+		return affectingRadius;
+	}
+
+	public void setAffectingRadius(int affectingRadius) {
+		this.affectingRadius = affectingRadius;
+	}
+
+	public double getDamage() {
+		return damage;
+	}
+
+	public void setDamage(double damage) {
+		this.damage = damage;
+	}
+
+	public boolean isAllowChangeDirection() {
+		return allowChangeDirection;
+	}
+
+	public void setAllowChangeDirection(boolean allowChangeDirection) {
+		this.allowChangeDirection = allowChangeDirection;
 	}
 
 	@Override
-	public void stop() {
-		return;
-	}
+	public void load() {}
+
+	@Override
+	public void stop() {}
 
 	@Override
 	public boolean isEnabled() {

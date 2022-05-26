@@ -32,7 +32,6 @@ public class AirSlam extends AirAbility implements AddonAbility, ComboAbility {
 	private int range;
 
 	private LivingEntity target;
-	private long time;
 
 	public AirSlam(Player player) {
 		super(player);
@@ -42,19 +41,19 @@ public class AirSlam extends AirAbility implements AddonAbility, ComboAbility {
 		}
 		
 		setFields();
-		Entity target = GeneralMethods.getTargetedEntity(player, range, new ArrayList<Entity>());
-		if (target != null && target instanceof LivingEntity) {
-			if (GeneralMethods.isRegionProtectedFromBuild(this, target.getLocation()) || ((target instanceof Player) && Commands.invincible.contains(((Player) target).getName()))) {
-				return;
-			}
-			this.target = (LivingEntity) target;
-			target.setVelocity(new Vector(0, 2, 0));
-		} else {
+
+		Entity target = GeneralMethods.getTargetedEntity(player, range, new ArrayList<>());
+		if (!(target instanceof LivingEntity)
+				|| GeneralMethods.isRegionProtectedFromBuild(this, target.getLocation())
+				|| ((target instanceof Player) && Commands.invincible.contains(target.getName())))
 			return;
-		}
-		time = System.currentTimeMillis();
-		bPlayer.addCooldown(this);
+		this.target = (LivingEntity) target;
+
 		start();
+		if (!isRemoved()) {
+			bPlayer.addCooldown(this);
+			GeneralMethods.setVelocity(this, target, new Vector(0, 2, 0));
+		}
 	}
 	
 	public void setFields() {
@@ -71,14 +70,14 @@ public class AirSlam extends AirAbility implements AddonAbility, ComboAbility {
 			remove();
 			return;
 		}
-		if (System.currentTimeMillis() > time + 50) {
+		if (System.currentTimeMillis() > getStartTime() + 50) {
 			Vector dir = player.getLocation().getDirection();
-			GeneralMethods.setVelocity(target, new Vector(dir.getX(), 0.05, dir.getZ()).multiply(power));
+			GeneralMethods.setVelocity(this, target, new Vector(dir.getX(), 0.05, dir.getZ()).multiply(power));
 			new HorizontalVelocityTracker(target, player, 0L, this);
 			new ThrownEntityTracker(this, target, player, 0L);
 			target.setFallDistance(0);
 		}
-		if (System.currentTimeMillis() > time + 400) {
+		if (System.currentTimeMillis() > getStartTime() + 400) {
 			remove();
 			return;
 		}
@@ -92,7 +91,7 @@ public class AirSlam extends AirAbility implements AddonAbility, ComboAbility {
 
 	@Override
 	public Location getLocation() {
-		return null;
+		return target != null ? target.getLocation() : null;
 	}
 
 	@Override
@@ -150,13 +149,35 @@ public class AirSlam extends AirAbility implements AddonAbility, ComboAbility {
 		return JedCore.version;
 	}
 
-	@Override
-	public void load() {
+	public double getPower() {
+		return power;
+	}
+
+	public void setPower(double power) {
+		this.power = power;
+	}
+
+	public int getRange() {
+		return range;
+	}
+
+	public void setRange(int range) {
+		this.range = range;
+	}
+
+	public LivingEntity getTarget() {
+		return target;
+	}
+
+	public void setTarget(LivingEntity target) {
+		this.target = target;
 	}
 
 	@Override
-	public void stop() {
-	}
+	public void load() {}
+
+	@Override
+	public void stop() {}
 	
 	@Override
 	public boolean isEnabled() {

@@ -31,10 +31,10 @@ public class MetalHook extends MetalAbility implements AddonAbility {
 	@Attribute(Attribute.RANGE)
 	private int range;
 	@Attribute("MaxHooks")
-	private int maxhooks;
+	private int maxHooks;
 	private int totalHooks;
 	private int hooksUsed;
-	private boolean nosource;
+	private boolean noSource;
 	private boolean barrierHooking;
 
 	private boolean hasHook;
@@ -43,8 +43,8 @@ public class MetalHook extends MetalAbility implements AddonAbility {
 
 	private Location destination;
 
-	private ConcurrentHashMap<Arrow, Boolean> hooks = new ConcurrentHashMap<>();
-	private List<UUID> hookIds = new ArrayList<>();
+	private final ConcurrentHashMap<Arrow, Boolean> hooks = new ConcurrentHashMap<>();
+	private final List<UUID> hookIds = new ArrayList<>();
 
 	public MetalHook(Player player) {
 		super(player);
@@ -78,9 +78,9 @@ public class MetalHook extends MetalAbility implements AddonAbility {
 		
 		cooldown = config.getLong("Abilities.Earth.MetalHook.Cooldown");
 		range = config.getInt("Abilities.Earth.MetalHook.Range");
-		maxhooks = config.getInt("Abilities.Earth.MetalHook.MaxHooks");
+		maxHooks = config.getInt("Abilities.Earth.MetalHook.MaxHooks");
 		totalHooks = config.getInt("Abilities.Earth.MetalHook.TotalHooks");
-		nosource = config.getBoolean("Abilities.Earth.MetalHook.RequireItem");
+		noSource = config.getBoolean("Abilities.Earth.MetalHook.RequireItem");
 		barrierHooking = config.getBoolean("Abilities.Earth.MetalHook.BarrierHooking");
 	}
 
@@ -144,8 +144,6 @@ public class MetalHook extends MetalAbility implements AddonAbility {
 				if (hooks.get(a)) {
 					target.add(GeneralMethods.getDirection(player.getEyeLocation(), a.getLocation()));
 				}
-			} else {
-				hooks.remove(a);
 			}
 		}
 
@@ -156,14 +154,14 @@ public class MetalHook extends MetalAbility implements AddonAbility {
 				player.setFlying(false);
 				double velocity = 0.8;
 
-				player.setVelocity(target.clone().normalize().multiply(velocity));
+				GeneralMethods.setVelocity(this, player, target.clone().normalize().multiply(velocity));
 			} else if (player.getLocation().distance(destination) < 2 && player.getLocation().distance(destination) >= 1) {
 				player.setFlying(false);
 				double velocity = 0.35;
 
-				player.setVelocity(target.clone().normalize().multiply(velocity));
+				GeneralMethods.setVelocity(this, player, target.clone().normalize().multiply(velocity));
 			} else {
-				player.setVelocity(new Vector(0, 0, 0));
+				GeneralMethods.setVelocity(this, player, new Vector(0, 0, 0));
 
 				if (player.getAllowFlight()) {
 					player.setFlying(true);
@@ -199,7 +197,7 @@ public class MetalHook extends MetalAbility implements AddonAbility {
 
 		Vector dir = GeneralMethods.getDirection(player.getEyeLocation(), GeneralMethods.getTargetedLocation(player, range));
 
-		if (!hookIds.isEmpty() && hookIds.size() > (maxhooks - 1)) {
+		if (!hookIds.isEmpty() && hookIds.size() > (maxHooks - 1)) {
 			for (Arrow a : hooks.keySet()) {
 				if (a.getUniqueId().equals(hookIds.get(0))) {
 					hooks.remove(a);
@@ -229,7 +227,7 @@ public class MetalHook extends MetalAbility implements AddonAbility {
 	}
 
 	public boolean hasRequiredInv() {
-		if (nosource) return true;
+		if (noSource) return true;
 
 		if (player.getInventory().getChestplate() != null) {
 			Material[] chestplates = {Material.IRON_CHESTPLATE, Material.CHAINMAIL_CHESTPLATE};
@@ -252,11 +250,11 @@ public class MetalHook extends MetalAbility implements AddonAbility {
 	}
 
 	public int getMaxHooks() {
-		return this.maxhooks;
+		return this.maxHooks;
 	}
 
 	public void setMaxHooks(int maxhooks) {
-		this.maxhooks = maxhooks;
+		this.maxHooks = maxhooks;
 	}
 
 	@Override
@@ -300,15 +298,95 @@ public class MetalHook extends MetalAbility implements AddonAbility {
 		return "* JedCore Addon *\n" + config.getString("Abilities.Earth.MetalHook.Description");
 	}
 
-	@Override
-	public void load() {
+	public void setCooldown(long cooldown) {
+		this.cooldown = cooldown;
+	}
 
+	public int getRange() {
+		return range;
+	}
+
+	public void setRange(int range) {
+		this.range = range;
+	}
+
+	public int getTotalHooks() {
+		return totalHooks;
+	}
+
+	public void setTotalHooks(int totalHooks) {
+		this.totalHooks = totalHooks;
+	}
+
+	public int getHooksUsed() {
+		return hooksUsed;
+	}
+
+	public void setHooksUsed(int hooksUsed) {
+		this.hooksUsed = hooksUsed;
+	}
+
+	public boolean isNoSource() {
+		return noSource;
+	}
+
+	public void setNoSource(boolean noSource) {
+		this.noSource = noSource;
+	}
+
+	public boolean isBarrierHooking() {
+		return barrierHooking;
+	}
+
+	public void setBarrierHooking(boolean barrierHooking) {
+		this.barrierHooking = barrierHooking;
+	}
+
+	public boolean isHasHook() {
+		return hasHook;
+	}
+
+	public void setHasHook(boolean hasHook) {
+		this.hasHook = hasHook;
+	}
+
+	public boolean isWasSprinting() {
+		return wasSprinting;
+	}
+
+	public void setWasSprinting(boolean wasSprinting) {
+		this.wasSprinting = wasSprinting;
+	}
+
+	public long getTime() {
+		return time;
+	}
+
+	public void setTime(long time) {
+		this.time = time;
+	}
+
+	public Location getDestination() {
+		return destination;
+	}
+
+	public void setDestination(Location destination) {
+		this.destination = destination;
+	}
+
+	public ConcurrentHashMap<Arrow, Boolean> getHooks() {
+		return hooks;
+	}
+
+	public List<UUID> getHookIds() {
+		return hookIds;
 	}
 
 	@Override
-	public void stop() {
+	public void load() {}
 
-	}
+	@Override
+	public void stop() {}
 
 	@Override
 	public boolean isEnabled() {

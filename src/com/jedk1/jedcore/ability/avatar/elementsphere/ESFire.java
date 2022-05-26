@@ -55,15 +55,17 @@ public class ESFire extends AvatarAbility implements AddonAbility {
 		if (bPlayer.isOnCooldown("ESFire")) {
 			return;
 		}
-		setFields();
-		if(GeneralMethods.isRegionProtectedFromBuild(this, player.getTargetBlock(getTransparentMaterialSet(), (int)range).getLocation())){
+		if (GeneralMethods.isRegionProtectedFromBuild(this, player.getTargetBlock(getTransparentMaterialSet(), (int) range).getLocation())) {
 			return;
 		}
-		bPlayer.addCooldown("ESFire", getCooldown());
-		currES.setFireUses(currES.getFireUses() - 1);
-		location = player.getEyeLocation().clone().add(player.getEyeLocation().getDirection().multiply(1));
-		direction = location.getDirection().clone();
+		setFields();
 		start();
+		if (!isRemoved()) {
+			bPlayer.addCooldown("ESFire", getCooldown());
+			currES.setFireUses(currES.getFireUses() - 1);
+			location = player.getEyeLocation().clone().add(player.getEyeLocation().getDirection().multiply(1));
+			direction = location.getDirection().clone();
+		}
 	}
 	
 	public void setFields() {
@@ -110,7 +112,7 @@ public class ESFire extends AvatarAbility implements AddonAbility {
 				direction = GeneralMethods.getDirection(player.getLocation(), GeneralMethods.getTargetedLocation(player, range, Material.WATER)).normalize();
 
 			location = location.add(direction.clone().multiply(1));
-			if(GeneralMethods.isRegionProtectedFromBuild(this, location)){
+			if (GeneralMethods.isRegionProtectedFromBuild(this, location)) {
 				travelled = range;
 				return;
 			}
@@ -129,7 +131,7 @@ public class ESFire extends AvatarAbility implements AddonAbility {
 			for (Entity entity : GeneralMethods.getEntitiesAroundPoint(location, 2.5)) {
 				if (entity instanceof LivingEntity && entity.getEntityId() != player.getEntityId() && !(entity instanceof ArmorStand) && !GeneralMethods.isRegionProtectedFromBuild(this, entity.getLocation()) && !((entity instanceof Player) && Commands.invincible.contains(((Player) entity).getName()))) {
 					DamageHandler.damageEntity(entity, damage, this);
-					entity.setFireTicks((int) Math.round(burnTime / 50));
+					entity.setFireTicks(Math.round(burnTime / 50F));
 					travelled = range;
 				}
 			}
@@ -188,15 +190,67 @@ public class ESFire extends AvatarAbility implements AddonAbility {
 		return null;
 	}
 
-	@Override
-	public void load() {
-		return;
+	public Vector getDirection() {
+		return direction;
+	}
+
+	public void setDirection(Vector direction) {
+		this.direction = direction;
+	}
+
+	public double getDistanceTravelled() {
+		return travelled;
+	}
+
+	public void setDistanceTravelled(double travelled) {
+		this.travelled = travelled;
+	}
+
+	public double getRange() {
+		return range;
+	}
+
+	public void setRange(double range) {
+		this.range = range;
+	}
+
+	public double getDamage() {
+		return damage;
+	}
+
+	public void setDamage(double damage) {
+		this.damage = damage;
+	}
+
+	public long getBurnTime() {
+		return burnTime;
+	}
+
+	public void setBurnTime(long burnTime) {
+		this.burnTime = burnTime;
+	}
+
+	public int getSpeed() {
+		return speed;
+	}
+
+	public void setSpeed(int speed) {
+		this.speed = speed;
+	}
+
+	public boolean isControllable() {
+		return controllable;
+	}
+
+	public void setControllable(boolean controllable) {
+		this.controllable = controllable;
 	}
 
 	@Override
-	public void stop() {
-		return;
-	}
+	public void load() {}
+
+	@Override
+	public void stop() {}
 	
 	@Override
 	public boolean isEnabled() {

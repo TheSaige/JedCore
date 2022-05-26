@@ -16,7 +16,6 @@ import org.bukkit.potion.PotionEffectType;
 
 public class Meditate extends AirAbility implements AddonAbility {
 
-	private long time;
 	private double startHealth;
 
 	private String unfocusMsg;
@@ -53,8 +52,7 @@ public class Meditate extends AirAbility implements AddonAbility {
 		absorptionBoost = config.getInt("Abilities.Air.Meditate.AbsorptionBoost");
 		speedBoost = config.getInt("Abilities.Air.Meditate.SpeedBoost");
 		jumpBoost = config.getInt("Abilities.Air.Meditate.JumpBoost");
-		
-		time = System.currentTimeMillis();
+
 		startHealth = player.getHealth();
 	}
 
@@ -70,50 +68,40 @@ public class Meditate extends AirAbility implements AddonAbility {
 		}
 		if (player.getHealth() < startHealth) {
 			if (lossFocusMessage) {
-				player.sendMessage(new StringBuilder().append(Element.AIR.getColor()).append(unfocusMsg).toString());
+				player.sendMessage(Element.AIR.getColor() + unfocusMsg);
 			}
 			remove();
 			return;
 		}
-		if (System.currentTimeMillis() > time + warmup) {
+		if (System.currentTimeMillis() > getStartTime() + warmup) {
 			ParticleEffect.SPELL_INSTANT.display(player.getLocation(), particleDensity, Math.random(), Math.random(), Math.random(), 0.0);
 			if (!player.isSneaking()) {
 				bPlayer.addCooldown(this);
 				givePlayerBuffs();
 				remove();
-				return;
 			}
-			return;
 		} else if (player.isSneaking()) {
 			ParticleEffect.SPELL_MOB_AMBIENT.display(player.getLocation(), particleDensity, Math.random(), Math.random(), Math.random(), 0.0);
 		} else {
 			remove();
-			return;
 		}
-		return;
 	}
 
 	private void givePlayerBuffs() {
 		if (player.hasPotionEffect(PotionEffectType.SPEED)) {
 			player.removePotionEffect(PotionEffectType.SPEED);
-			player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, boostDuration/50, speedBoost - 1));
-		} else {
-			player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, boostDuration/50, speedBoost - 1));
 		}
+		player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, boostDuration/50, speedBoost - 1));
 
 		if (player.hasPotionEffect(PotionEffectType.JUMP)) {
 			player.removePotionEffect(PotionEffectType.JUMP);
-			player.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, boostDuration/50, jumpBoost - 1));
-		} else {
-			player.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, boostDuration/50, jumpBoost - 1));
 		}
+		player.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, boostDuration/50, jumpBoost - 1));
 
 		if (player.hasPotionEffect(PotionEffectType.ABSORPTION)) {
 			player.removePotionEffect(PotionEffectType.ABSORPTION);
-			player.addPotionEffect(new PotionEffect(PotionEffectType.ABSORPTION, boostDuration/50, absorptionBoost - 1));
-		} else {
-			player.addPotionEffect(new PotionEffect(PotionEffectType.ABSORPTION, boostDuration/50, absorptionBoost - 1));
 		}
+		player.addPotionEffect(new PotionEffect(PotionEffectType.ABSORPTION, boostDuration/50, absorptionBoost - 1));
 	}
 	
 	@Override
@@ -123,7 +111,7 @@ public class Meditate extends AirAbility implements AddonAbility {
 
 	@Override
 	public Location getLocation() {
-		return null;
+		return player.getLocation();
 	}
 
 	@Override
@@ -157,15 +145,83 @@ public class Meditate extends AirAbility implements AddonAbility {
 		return "* JedCore Addon *\n" + config.getString("Abilities.Air.Meditate.Description");
 	}
 
-	@Override
-	public void load() {
-		return;
+	public double getStartHealth() {
+		return startHealth;
+	}
+
+	public void setStartHealth(double startHealth) {
+		this.startHealth = startHealth;
+	}
+
+	public String getUnfocusMsg() {
+		return unfocusMsg;
+	}
+
+	public void setUnfocusMsg(String unfocusMsg) {
+		this.unfocusMsg = unfocusMsg;
+	}
+
+	public boolean hasUnfocusMessage() {
+		return lossFocusMessage;
+	}
+
+	public void setHasUnfocusMessage(boolean hasUnfocusMessage) {
+		this.lossFocusMessage = hasUnfocusMessage;
+	}
+
+	public long getWarmup() {
+		return warmup;
+	}
+
+	public void setWarmup(long warmup) {
+		this.warmup = warmup;
+	}
+
+	public int getBoostDuration() {
+		return boostDuration;
+	}
+
+	public void setBoostDuration(int boostDuration) {
+		this.boostDuration = boostDuration;
+	}
+
+	public int getParticleDensity() {
+		return particleDensity;
+	}
+
+	public void setParticleDensity(int particleDensity) {
+		this.particleDensity = particleDensity;
+	}
+
+	public int getAbsorptionBoost() {
+		return absorptionBoost;
+	}
+
+	public void setAbsorptionBoost(int absorptionBoost) {
+		this.absorptionBoost = absorptionBoost;
+	}
+
+	public int getSpeedBoost() {
+		return speedBoost;
+	}
+
+	public void setSpeedBoost(int speedBoost) {
+		this.speedBoost = speedBoost;
+	}
+
+	public int getJumpBoost() {
+		return jumpBoost;
+	}
+
+	public void setJumpBoost(int jumpBoost) {
+		this.jumpBoost = jumpBoost;
 	}
 
 	@Override
-	public void stop() {
-		return;
-	}
+	public void load() {}
+
+	@Override
+	public void stop() {}
 	
 	@Override
 	public boolean isEnabled() {

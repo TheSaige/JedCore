@@ -52,7 +52,7 @@ public class LavaDisc extends LavaAbility implements AddonAbility {
 	private CompositeRemovalPolicy removalPolicy;
 	private DiscRenderer discRenderer;
 	private State state;
-	private Set<Block> trailBlocks = new HashSet<>();
+	private final Set<Block> trailBlocks = new HashSet<>();
 
 	public LavaDisc(Player player) {
 		super(player);
@@ -167,7 +167,7 @@ public class LavaDisc extends LavaAbility implements AddonAbility {
 
 		Block block = location.getBlock();
 
-		return block != null && isTransparent(block);
+		return isTransparent(block);
 	}
 
 	private boolean isLocationSafe(Location location) {
@@ -226,15 +226,87 @@ public class LavaDisc extends LavaAbility implements AddonAbility {
 		return "* JedCore Addon *\n" + config.getString("Abilities.Earth.LavaDisc.Description");
 	}
 
-	@Override
-	public void load() {
+	public void setLocation(Location location) {
+		this.location = location;
+	}
 
+	public int getRecallCount() {
+		return recallCount;
+	}
+
+	public void setRecallCount(int recallCount) {
+		this.recallCount = recallCount;
+	}
+
+	public long getTime() {
+		return time;
+	}
+
+	public void setTime(long time) {
+		this.time = time;
+	}
+
+	public double getDamage() {
+		return damage;
+	}
+
+	public void setDamage(double damage) {
+		this.damage = damage;
+	}
+
+	public void setCooldown(long cooldown) {
+		this.cooldown = cooldown;
+	}
+
+	public long getDuration() {
+		return duration;
+	}
+
+	public void setDuration(long duration) {
+		this.duration = duration;
+	}
+
+	public int getRecallLimit() {
+		return recallLimit;
+	}
+
+	public void setRecallLimit(int recallLimit) {
+		this.recallLimit = recallLimit;
+	}
+
+	public boolean isTrailFlow() {
+		return trailFlow;
+	}
+
+	public void setTrailFlow(boolean trailFlow) {
+		this.trailFlow = trailFlow;
+	}
+
+	public DiscRenderer getDiscRenderer() {
+		return discRenderer;
+	}
+
+	public void setDiscRenderer(DiscRenderer discRenderer) {
+		this.discRenderer = discRenderer;
+	}
+
+	public State getState() {
+		return state;
+	}
+
+	public void setState(State state) {
+		this.state = state;
+	}
+
+	public Set<Block> getTrailBlocks() {
+		return trailBlocks;
 	}
 
 	@Override
-	public void stop() {
+	public void load() {}
 
-	}
+	@Override
+	public void stop() {}
 
 	@Override
 	public boolean isEnabled() {
@@ -276,7 +348,7 @@ public class LavaDisc extends LavaAbility implements AddonAbility {
 	}
 
 	private abstract class TravelState implements State {
-		private boolean passHit;
+		private final boolean passHit;
 
 		protected Vector direction;
 		protected boolean hasHit;
@@ -388,8 +460,8 @@ public class LavaDisc extends LavaAbility implements AddonAbility {
 	// Waits for the RegenTempBlocks to revert.
 	// This exists so the instance stays alive and block flow events can stop the lava from flowing.
 	private class CleanupState implements State {
-		private long startTime;
-		private long regenTime;
+		private final long startTime;
+		private final long regenTime;
 
 		public CleanupState() {
 			this.startTime = System.currentTimeMillis();
@@ -409,15 +481,15 @@ public class LavaDisc extends LavaAbility implements AddonAbility {
 	}
 
 	private class DiscRenderer {
-		private Player player;
+		private final Player player;
 		private int angle;
 
-		private boolean damageBlocks;
-		private List<String> meltable;
-		private long regenTime;
-		private boolean lavaTrail;
+		private final boolean damageBlocks;
+		private final List<String> meltable;
+		private final long regenTime;
+		private final boolean lavaTrail;
 
-		private int particles;
+		private final int particles;
 
 
 		public DiscRenderer(Player player) {
@@ -465,7 +537,7 @@ public class LavaDisc extends LavaAbility implements AddonAbility {
 					}
 
 					if (lavaTrail) {
-						new RegenTempBlock(l.getBlock(), Material.LAVA, Material.LAVA.createBlockData(bd -> ((Levelled)bd).setLevel(4)), regenTime);
+						new RegenTempBlock(l.getBlock(), Material.LAVA, Material.LAVA.createBlockData(bd -> ((Levelled) bd).setLevel(4)), regenTime);
 
 						trailBlocks.add(l.getBlock());
 					} else {

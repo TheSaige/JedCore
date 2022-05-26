@@ -3,6 +3,7 @@ package com.jedk1.jedcore.ability.airbending;
 import com.jedk1.jedcore.JedCore;
 import com.jedk1.jedcore.collision.CollisionDetector;
 import com.jedk1.jedcore.configuration.JedCoreConfig;
+import com.projectkorra.projectkorra.GeneralMethods;
 import com.projectkorra.projectkorra.ability.AddonAbility;
 import com.projectkorra.projectkorra.ability.AirAbility;
 import com.projectkorra.projectkorra.airbending.AirSpout;
@@ -117,7 +118,7 @@ public class AirGlide extends AirAbility implements AddonAbility {
 			Vector shootFromPlayer = new Vector(directionVector.getX() * distanceFromPlayer, -fallSpeed, directionVector.getZ() * distanceFromPlayer);
 			firstLocation.add(shootFromPlayer.getX(), shootFromPlayer.getY(), shootFromPlayer.getZ());
 
-			player.setVelocity(shootFromPlayer);
+			GeneralMethods.setVelocity(this, player, shootFromPlayer);
 			playAirbendingParticles(player.getLocation(), particles);
 		} else if (!isTransparent(player.getLocation().getBlock().getRelative(BlockFace.DOWN))) {
 			remove();
@@ -135,10 +136,7 @@ public class AirGlide extends AirAbility implements AddonAbility {
 	}
 
 	private boolean hasAirGlide() {
-		if (bPlayer.getAbilities().containsValue("AirGlide")) {
-			return true;
-		}
-		return false;
+		return bPlayer.getAbilities().containsValue("AirGlide");
 	}
 
 	@Override
@@ -148,7 +146,7 @@ public class AirGlide extends AirAbility implements AddonAbility {
 
 	@Override
 	public Location getLocation() {
-		return null;
+		return player.getLocation();
 	}
 
 	@Override
@@ -182,15 +180,75 @@ public class AirGlide extends AirAbility implements AddonAbility {
 		return "* JedCore Addon *\n" + config.getString("Abilities.Air.AirGlide.Description");
 	}
 
-	@Override
-	public void load() {
-		return;
+	public boolean isRequireGround() {
+		return requireGround;
+	}
+
+	public void setRequireGround(boolean requireGround) {
+		this.requireGround = requireGround;
+	}
+
+	public double getSpeed() {
+		return speed;
+	}
+
+	public void setSpeed(double speed) {
+		this.speed = speed;
+	}
+
+	public double getFallSpeed() {
+		return fallSpeed;
+	}
+
+	public void setFallSpeed(double fallSpeed) {
+		this.fallSpeed = fallSpeed;
+	}
+
+	public int getParticles() {
+		return particles;
+	}
+
+	public void setParticles(int particles) {
+		this.particles = particles;
+	}
+
+	public boolean allowsAirSpout() {
+		return airspout;
+	}
+
+	public void setAllowAirSpout(boolean airspout) {
+		this.airspout = airspout;
+	}
+
+	public long getDuration() {
+		return duration;
+	}
+
+	public void setDuration(long duration) {
+		this.duration = duration;
+	}
+
+	public long getLastCooldown() {
+		return lastCooldown;
+	}
+
+	public void setLastCooldown(long lastCooldown) {
+		this.lastCooldown = lastCooldown;
+	}
+
+	public boolean isProgressing() {
+		return progressing;
+	}
+
+	public void setProgressing(boolean progressing) {
+		this.progressing = progressing;
 	}
 
 	@Override
-	public void stop() {
-		return;
-	}
+	public void load() {}
+
+	@Override
+	public void stop() {}
 	
 	@Override
 	public boolean isEnabled() {

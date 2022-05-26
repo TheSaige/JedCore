@@ -24,7 +24,6 @@ import org.bukkit.util.Vector;
 
 public class AirBreath extends AirAbility implements AddonAbility {
 
-	private long time;
 	private boolean isAvatar;
 
 	@Attribute(Attribute.COOLDOWN)
@@ -63,7 +62,6 @@ public class AirBreath extends AirAbility implements AddonAbility {
 		}
 
 		setFields();
-		time = System.currentTimeMillis();
 		isAvatar = bPlayer.isAvatarState();
 		if (isAvatar && avatarAmplify) {
 			range = avatarRange;
@@ -109,15 +107,13 @@ public class AirBreath extends AirAbility implements AddonAbility {
 			remove();
 			return;
 		}
-		if (System.currentTimeMillis() < time + duration) {
+		if (System.currentTimeMillis() < getStartTime() + duration) {
 			playAirbendingSound(player.getLocation());
 			createBeam();
 		} else {
 			bPlayer.addCooldown(this);
 			remove();
-			return;
 		}
-		return;
 	}
 
 	private boolean isLocationSafe(Location loc) {
@@ -125,10 +121,7 @@ public class AirBreath extends AirAbility implements AddonAbility {
 		if (GeneralMethods.isRegionProtectedFromBuild(player, "AirBreath", loc)) {
 			return false;
 		}
-		if (!isTransparent(block)) {
-			return false;
-		}
-		return true;
+		return isTransparent(block);
 	}
 
 	private void createBeam() {
@@ -146,7 +139,7 @@ public class AirBreath extends AirAbility implements AddonAbility {
 			if (!isLocationSafe(loc)) {
 				if (!isTransparent(loc.getBlock())) {
 					if (player.getLocation().getPitch() > 30) {
-						player.setVelocity(player.getLocation().getDirection().multiply(-launch));
+						GeneralMethods.setVelocity(this, player, player.getLocation().getDirection().multiply(-launch));
 					}
 				}
 				return;
@@ -154,7 +147,7 @@ public class AirBreath extends AirAbility implements AddonAbility {
 
 			for (Entity entity : GeneralMethods.getEntitiesAroundPoint(loc, damageregion)) {
 				if (entity.getEntityId() != player.getEntityId() && !(entity instanceof ArmorStand)) {
-					if (GeneralMethods.isRegionProtectedFromBuild(this, entity.getLocation()) || ((entity instanceof Player) && Commands.invincible.contains(((Player) entity).getName()))){
+					if (GeneralMethods.isRegionProtectedFromBuild(this, entity.getLocation()) || ((entity instanceof Player) && Commands.invincible.contains(entity.getName()))){
 						continue;
 					}
 					if (entity instanceof LivingEntity) {
@@ -175,7 +168,7 @@ public class AirBreath extends AirAbility implements AddonAbility {
 					}
 
 					dir.multiply(knockback);
-					entity.setVelocity(dir);
+					GeneralMethods.setVelocity(this, entity, dir);
 				}
 			}
 
@@ -206,7 +199,7 @@ public class AirBreath extends AirAbility implements AddonAbility {
 
 	@Override
 	public Location getLocation() {
-		return null;
+		return player.getEyeLocation();
 	}
 
 	@Override
@@ -240,15 +233,131 @@ public class AirBreath extends AirAbility implements AddonAbility {
 		return "* JedCore Addon *\n" + config.getString("Abilities.Air.AirBreath.Description");
 	}
 
-	@Override
-	public void load() {
-		return;
+	public long getDuration() {
+		return duration;
+	}
+
+	public void setDuration(long duration) {
+		this.duration = duration;
+	}
+
+	public int getParticles() {
+		return particles;
+	}
+
+	public void setParticles(int particles) {
+		this.particles = particles;
+	}
+
+	public boolean isCoolLava() {
+		return coolLava;
+	}
+
+	public void setCoolLava(boolean coolLava) {
+		this.coolLava = coolLava;
+	}
+
+	public boolean canExtinguishFire() {
+		return extinguishFire;
+	}
+
+	public void setExtinguishFire(boolean extinguishFire) {
+		this.extinguishFire = extinguishFire;
+	}
+
+	public boolean canExtinguishMobs() {
+		return extinguishMobs;
+	}
+
+	public void setExtinguishMobs(boolean extinguishMobs) {
+		this.extinguishMobs = extinguishMobs;
+	}
+
+	public boolean isDamageEnabled() {
+		return damageEnabled;
+	}
+
+	public void setDamageEnabled(boolean damageEnabled) {
+		this.damageEnabled = damageEnabled;
+	}
+
+	public double getPlayerDamage() {
+		return playerDamage;
+	}
+
+	public void setPlayerDamage(double playerDamage) {
+		this.playerDamage = playerDamage;
+	}
+
+	public double getMobDamage() {
+		return mobDamage;
+	}
+
+	public void setMobDamage(double mobDamage) {
+		this.mobDamage = mobDamage;
+	}
+
+	public double getKnockback() {
+		return knockback;
+	}
+
+	public void setKnockback(double knockback) {
+		this.knockback = knockback;
+	}
+
+	public int getRange() {
+		return range;
+	}
+
+	public void setRange(int range) {
+		this.range = range;
+	}
+
+	public double getLaunch() {
+		return launch;
+	}
+
+	public void setLaunch(double launch) {
+		this.launch = launch;
+	}
+
+	public boolean canRegenOxygen() {
+		return regenOxygen;
+	}
+
+	public void setRegenOxygen(boolean regenOxygen) {
+		this.regenOxygen = regenOxygen;
+	}
+
+	public boolean isAvatarAmplify() {
+		return avatarAmplify;
+	}
+
+	public void setAvatarAmplify(boolean avatarAmplify) {
+		this.avatarAmplify = avatarAmplify;
+	}
+
+	public int getAvatarRange() {
+		return avatarRange;
+	}
+
+	public void setAvatarRange(int avatarRange) {
+		this.avatarRange = avatarRange;
+	}
+
+	public double getAvatarKnockback() {
+		return avatarKnockback;
+	}
+
+	public void setAvatarKnockback(double avatarKnockback) {
+		this.avatarKnockback = avatarKnockback;
 	}
 
 	@Override
-	public void stop() {
-		return;
-	}
+	public void load() {}
+
+	@Override
+	public void stop() {}
 	
 	@Override
 	public boolean isEnabled() {

@@ -29,9 +29,7 @@ public class SwiftStream extends FlightAbility implements AddonAbility, ComboAbi
 	@Attribute(Attribute.DURATION)
 	public long duration;
 
-	private List<LivingEntity> affectedEntities = new ArrayList<LivingEntity>();
-
-	private long startTime;
+	private final List<LivingEntity> affectedEntities = new ArrayList<>();
 
 	public SwiftStream(Player player) {
 		super(player);
@@ -40,10 +38,11 @@ public class SwiftStream extends FlightAbility implements AddonAbility, ComboAbi
 		}
 
 		setFields();
-		startTime = System.currentTimeMillis();
-		launch();
 		start();
-		bPlayer.addCooldown(this);
+		if (!isRemoved()) {
+			launch();
+			bPlayer.addCooldown(this);
+		}
 	}
 	
 	public void setFields() {
@@ -60,7 +59,7 @@ public class SwiftStream extends FlightAbility implements AddonAbility, ComboAbi
 		v = v.multiply(5);
 		v.add(new Vector(0, 0.2, 0));
 
-		GeneralMethods.setVelocity(player, v);
+		GeneralMethods.setVelocity(this, player, v);
 	}
 
 	public void affectNearby() {
@@ -74,7 +73,7 @@ public class SwiftStream extends FlightAbility implements AddonAbility, ComboAbi
 
 				v = v.add(new Vector(0, 0.15, 0));
 
-				GeneralMethods.setVelocity(e, v);
+				GeneralMethods.setVelocity(this, e, v);
 				affectedEntities.add((LivingEntity) e);
 				new HorizontalVelocityTracker(e, player, 200, this);
 			}
@@ -93,7 +92,7 @@ public class SwiftStream extends FlightAbility implements AddonAbility, ComboAbi
 			return;
 		}
 
-		if (System.currentTimeMillis() > startTime + duration) {
+		if (System.currentTimeMillis() > getStartTime() + duration) {
 			remove();
 			return;
 		}
@@ -109,7 +108,7 @@ public class SwiftStream extends FlightAbility implements AddonAbility, ComboAbi
 
 	@Override
 	public Location getLocation() {
-		return null;
+		return player.getLocation();
 	}
 
 	@Override
@@ -167,13 +166,31 @@ public class SwiftStream extends FlightAbility implements AddonAbility, ComboAbi
 		return JedCore.version;
 	}
 
-	@Override
-	public void load() {
+	public double getDragFactor() {
+		return dragFactor;
+	}
+
+	public void setDragFactor(double dragFactor) {
+		this.dragFactor = dragFactor;
+	}
+
+	public long getDuration() {
+		return duration;
+	}
+
+	public void setDuration(long duration) {
+		this.duration = duration;
+	}
+
+	public List<LivingEntity> getAffectedEntities() {
+		return affectedEntities;
 	}
 
 	@Override
-	public void stop() {
-	}
+	public void load() {}
+
+	@Override
+	public void stop() {}
 	
 	@Override
 	public boolean isEnabled() {

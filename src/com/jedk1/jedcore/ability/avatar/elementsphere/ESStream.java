@@ -75,7 +75,7 @@ public class ESStream extends AvatarAbility implements AddonAbility {
 			return;
 		}
 
-		if(GeneralMethods.isRegionProtectedFromBuild(this, player.getTargetBlock(getTransparentMaterialSet(), (int)range).getLocation())){
+		if (GeneralMethods.isRegionProtectedFromBuild(this, player.getTargetBlock(getTransparentMaterialSet(), (int) range).getLocation())) {
 			return;
 		}
 		
@@ -88,14 +88,15 @@ public class ESStream extends AvatarAbility implements AddonAbility {
 			currES.setWaterUses(currES.getWaterUses()-requiredUses);
 		}
 		
-		bPlayer.addCooldown("ESStream", getCooldown());
-		
 		stream = player.getEyeLocation();
 		origin = player.getEyeLocation();
 		dir = player.getEyeLocation().getDirection();
 		an = 0;
 		
 		start();
+		if (!isRemoved()) {
+			bPlayer.addCooldown("ESStream", getCooldown());
+		}
 	}
 	
 	public void setFields() {
@@ -111,7 +112,6 @@ public class ESStream extends AvatarAbility implements AddonAbility {
 		regen = config.getLong("Abilities.Avatar.ElementSphere.Stream.ImpactRevert");
 	}
 
-	@SuppressWarnings("deprecation")
 	@Override
 	public void progress() {
 		if (player == null || !player.isOnline()) {
@@ -130,10 +130,10 @@ public class ESStream extends AvatarAbility implements AddonAbility {
 		}
 
 		for (Entity e : GeneralMethods.getEntitiesAroundPoint(stream, 1.5)) {
-			if (e instanceof Player && ((Player) e) == player) {
+			if (e instanceof Player && e == player) {
 				continue;
 			}
-			e.setVelocity(dir.normalize().multiply(knockback));
+			GeneralMethods.setVelocity(this, e, dir.normalize().multiply(knockback));
 			if (e instanceof LivingEntity) {
 				DamageHandler.damageEntity(e, damage, this);
 			}
@@ -141,13 +141,13 @@ public class ESStream extends AvatarAbility implements AddonAbility {
 
 		if (!player.isDead() && hasAbility(player, ElementSphere.class)) {
 			Location loc = stream.clone();
-			dir = GeneralMethods.getDirection(loc, player.getTargetBlock((HashSet<Material>) null, (int) range).getLocation()).normalize().multiply(1.2);
+			dir = GeneralMethods.getDirection(loc, player.getTargetBlock(null, (int) range).getLocation()).normalize().multiply(1.2);
 		}
 
 		stream.add(dir);
 		
 		if (!isTransparent(stream.getBlock())) {
-			List<BlockState> blocks = new ArrayList<BlockState>();
+			List<BlockState> blocks = new ArrayList<>();
 			for (Location loc : GeneralMethods.getCircle(stream, (int) radius, 0, false, true, 0)) {
 				if (JCMethods.isUnbreakable(loc.getBlock())) continue;
 				if (GeneralMethods.isRegionProtectedFromBuild(this, loc)) continue;
@@ -155,13 +155,13 @@ public class ESStream extends AvatarAbility implements AddonAbility {
 				new RegenTempBlock(loc.getBlock(), Material.AIR, Material.AIR.createBlockData(), regen, false);
 			}
 			for (Entity e : GeneralMethods.getEntitiesAroundPoint(stream, radius)) {
-				if (e instanceof Player && ((Player) e) == player) {
+				if (e instanceof Player && e == player) {
 					continue;
 				}
 				if (GeneralMethods.isRegionProtectedFromBuild(this, e.getLocation()) || ((e instanceof Player) && Commands.invincible.contains(((Player) e).getName()))){
 					continue;
 				}
-				e.setVelocity(dir.normalize().multiply(knockback));
+				GeneralMethods.setVelocity(this, e, dir.normalize().multiply(knockback));
 				if (e instanceof LivingEntity) {
 					DamageHandler.damageEntity(e, damage, this);
 				}
@@ -227,7 +227,6 @@ public class ESStream extends AvatarAbility implements AddonAbility {
 				}
 			}
 		}
-		return;
 	}
 	
 	@Override
@@ -275,15 +274,83 @@ public class ESStream extends AvatarAbility implements AddonAbility {
 		return null;
 	}
 
-	@Override
-	public void load() {
-		return;
+	public double getKnockback() {
+		return knockback;
+	}
+
+	public void setKnockback(double knockback) {
+		this.knockback = knockback;
+	}
+
+	public double getRange() {
+		return range;
+	}
+
+	public void setRange(double range) {
+		this.range = range;
+	}
+
+	public double getDamage() {
+		return damage;
+	}
+
+	public void setDamage(double damage) {
+		this.damage = damage;
+	}
+
+	public boolean cancelsAbility() {
+		return cancelAbility;
+	}
+
+	public void setCancelsAbility(boolean cancelAbility) {
+		this.cancelAbility = cancelAbility;
+	}
+
+	public int getRequiredUses() {
+		return requiredUses;
+	}
+
+	public void setRequiredUses(int requiredUses) {
+		this.requiredUses = requiredUses;
+	}
+
+	public double getRadius() {
+		return radius;
+	}
+
+	public void setRadius(double radius) {
+		this.radius = radius;
+	}
+
+	public long getRegenTime() {
+		return regen;
+	}
+
+	public void setRegenTime(long regen) {
+		this.regen = regen;
+	}
+
+	public Location getOrigin() {
+		return origin;
+	}
+
+	public void setOrigin(Location origin) {
+		this.origin = origin;
+	}
+
+	public Vector getDirection() {
+		return dir;
+	}
+
+	public void setDirection(Vector dir) {
+		this.dir = dir;
 	}
 
 	@Override
-	public void stop() {
-		return;
-	}
+	public void load() {}
+
+	@Override
+	public void stop() {}
 	
 	@Override
 	public boolean isEnabled() {

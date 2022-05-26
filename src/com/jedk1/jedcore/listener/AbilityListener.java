@@ -221,7 +221,7 @@ public class AbilityListener implements Listener {
 					new LavaThrow(player);
 				}
 				if (abil.equalsIgnoreCase("metalfragments")) {
-					MetalFragments.shootFragment(player, true);
+					MetalFragments.shootFragment(player);
 				}
 				if (abil.equalsIgnoreCase("metalhook")) {
 					new MetalHook(player);
@@ -489,7 +489,7 @@ public class AbilityListener implements Listener {
 	@EventHandler(priority = EventPriority.NORMAL)
 	public void onPlayerInteraction(PlayerInteractEvent event) {
 		if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
-			MetalFragments.shootFragment(event.getPlayer(), false);
+			MetalFragments.shootFragment(event.getPlayer());
 		}
 	}
 }

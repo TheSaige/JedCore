@@ -24,7 +24,6 @@ import org.bukkit.util.Vector;
 public class FireSki extends FireAbility implements AddonAbility {
 
 	private Location location;
-	private long time;
 
 	@Attribute(Attribute.COOLDOWN)
 	private long cooldown;
@@ -61,7 +60,6 @@ public class FireSki extends FireAbility implements AddonAbility {
 		
 		this.flightHandler.createInstance(player, this.getName());
 
-		time = System.currentTimeMillis();
 		location = player.getLocation();
 		player.setAllowFlight(true);
 		player.setFlying(true);
@@ -115,23 +113,19 @@ public class FireSki extends FireAbility implements AddonAbility {
 		}
 		if (!collision()) {
 			movePlayer();
-			if (System.currentTimeMillis() > time + duration || isWater(player.getLocation().getBlock())) {
+			if (System.currentTimeMillis() > getStartTime() + duration || isWater(player.getLocation().getBlock())) {
 				remove();
-				return;
 			}
 		} else {
 			remove();
-			return;
 		}
-		return;
 	}
 
 	private void movePlayer() {
-
 		location = player.getEyeLocation();
 		location.setPitch(0);
 		Vector dV = location.getDirection().normalize();
-		Vector travel = new Vector();
+		Vector travel;
 
 		if (getPlayerDistance() > 1.8) {
 			removeFlight();
@@ -154,13 +148,13 @@ public class FireSki extends FireAbility implements AddonAbility {
 			}
 		}
 
-		player.setVelocity(travel);
+		GeneralMethods.setVelocity(this, player, travel);
 		player.setFallDistance(0);
 	}
 
 	private double getPlayerDistance() {
 		Location l = player.getLocation().clone();
-		while (l.getBlock() != null && l.getBlockY() > 1 && !GeneralMethods.isSolid(l.getBlock())) {
+		while (l.getBlockY() > l.getWorld().getMinHeight() && !GeneralMethods.isSolid(l.getBlock())) {
 			l.add(0, -0.1, 0);
 		}
 		return player.getLocation().getY() - l.getY();
@@ -213,10 +207,7 @@ public class FireSki extends FireAbility implements AddonAbility {
 		if (l.clone().add(0, -1, 0).getBlock().getType().isSolid()) {
 			return true;
 		}
-		if (l.clone().add(0, -2, 0).getBlock().getType().isSolid()) {
-			return true;
-		}
-		return false;
+		return l.clone().add(0, -2, 0).getBlock().getType().isSolid();
 	}
 
 	@Override
@@ -273,15 +264,59 @@ public class FireSki extends FireAbility implements AddonAbility {
 		return null;
 	}
 
-	@Override
-	public void load() {
-		return;
+	public void setLocation(Location location) {
+		this.location = location;
+	}
+
+	public void setCooldown(long cooldown) {
+		this.cooldown = cooldown;
+	}
+
+	public long getDuration() {
+		return duration;
+	}
+
+	public void setDuration(long duration) {
+		this.duration = duration;
+	}
+
+	public double getSpeed() {
+		return speed;
+	}
+
+	public void setSpeed(double speed) {
+		this.speed = speed;
+	}
+
+	public boolean isIgnite() {
+		return ignite;
+	}
+
+	public void setIgnite(boolean ignite) {
+		this.ignite = ignite;
+	}
+
+	public int getFireTicks() {
+		return fireTicks;
+	}
+
+	public void setFireTicks(int fireTicks) {
+		this.fireTicks = fireTicks;
+	}
+
+	public double getRequiredHeight() {
+		return requiredHeight;
+	}
+
+	public void setRequiredHeight(double requiredHeight) {
+		this.requiredHeight = requiredHeight;
 	}
 
 	@Override
-	public void stop() {
-		return;
-	}
+	public void load() {}
+
+	@Override
+	public void stop() {}
 
 	@Override
 	public boolean isEnabled() {

@@ -139,7 +139,9 @@ public class JCListener implements Listener {
 
 				// Only activate these in melee range
 				if (distSq <= 5 * 5) {
-					if (FirePunch.punch((Player) event.getDamager(), (LivingEntity) event.getEntity())) {
+					FirePunch fp = CoreAbility.getAbility((Player) event.getDamager(), FirePunch.class);
+					if (fp != null) {
+						fp.punch((LivingEntity) event.getEntity());
 						event.setCancelled(true);
 						return;
 					}
@@ -163,7 +165,7 @@ public class JCListener implements Listener {
 			if (event.getEntity() instanceof LivingEntity) {
 				if (arrow.hasMetadata("daggerthrow") && arrow.getShooter() instanceof Player) {
 					if (event.getEntity().getEntityId() != ((Player) arrow.getShooter()).getEntityId()) {
-						DaggerThrow.damageEntityFromArrow((Player) arrow.getShooter(), (LivingEntity) event.getEntity(), arrow);
+						DaggerThrow.damageEntityFromArrow(((LivingEntity) event.getEntity()), arrow);
 					}
 					event.setDamage(0);
 					event.setCancelled(true);

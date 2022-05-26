@@ -45,8 +45,10 @@ public class AirBlade extends AirAbility implements AddonAbility {
 		
 		this.location = player.getEyeLocation().clone();
 		this.direction = player.getEyeLocation().getDirection().clone();
-		bPlayer.addCooldown(this);
+
 		start();
+		if (!isRemoved())
+			bPlayer.addCooldown(this);
 	}
 
 	public void setFields() {
@@ -200,16 +202,60 @@ public class AirBlade extends AirAbility implements AddonAbility {
 		ConfigurationSection config = JedCoreConfig.getConfig(this.player);
 		return "* JedCore Addon *\n" + config.getString("Abilities.Air.AirBlade.Description");
 	}
-	
-	@Override
-	public void load() {
 
+	public Vector getDirection() {
+		return direction;
+	}
+
+	public void setDirection(Vector direction) {
+		this.direction = direction;
+	}
+
+	public double getTravelled() {
+		return travelled;
+	}
+
+	public void setTravelled(double travelled) {
+		this.travelled = travelled;
+	}
+
+	public double getGrowth() {
+		return growth;
+	}
+
+	public void setGrowth(double growth) {
+		this.growth = growth;
+	}
+
+	public double getRange() {
+		return range;
+	}
+
+	public void setRange(double range) {
+		this.range = range;
+	}
+
+	public double getDamage() {
+		return damage;
+	}
+
+	public void setDamage(double damage) {
+		this.damage = damage;
+	}
+
+	public double getEntityCollisionRadius() {
+		return entityCollisionRadius;
+	}
+
+	public void setEntityCollisionRadius(double entityCollisionRadius) {
+		this.entityCollisionRadius = entityCollisionRadius;
 	}
 
 	@Override
-	public void stop() {
+	public void load() {}
 
-	}
+	@Override
+	public void stop() {}
 	
 	@Override
 	public boolean isEnabled() {

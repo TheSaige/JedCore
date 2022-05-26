@@ -71,8 +71,8 @@ public class JCMethods {
 
 	/**
 	 * Gets the points of a line between two points.
-	 * @param start
-	 * @param end
+	 * @param startLoc
+	 * @param endLoc
 	 * @param points
 	 * @return locations
 	 */
@@ -123,7 +123,7 @@ public class JCMethods {
 	 * @return
 	 */
 	public static List<Location> getVerticalCirclePoints(Location location, int points, double size, float yawOffset) {
-		List<Location> locations = new ArrayList<Location>();
+		List<Location> locations = new ArrayList<>();
 		Location fakeLoc = location.clone();
 		fakeLoc.setPitch(0);
 		fakeLoc.setYaw(yawOffset);

@@ -45,8 +45,6 @@ public class LavaFlux extends LavaAbility implements AddonAbility {
 	private boolean wave;
 
 	private Location location;
-	private Vector direction;
-	private Vector blockdirection;
 	private int step;
 	private int counter;
 	private long time;
@@ -54,7 +52,7 @@ public class LavaFlux extends LavaAbility implements AddonAbility {
 
 	Random rand = new Random();
 
-	private List<Location> flux = new ArrayList<Location>();
+	private final List<Location> flux = new ArrayList<>();
 
 	public LavaFlux(Player player) {
 		super(player);
@@ -66,8 +64,10 @@ public class LavaFlux extends LavaAbility implements AddonAbility {
 		setFields();
 		time = System.currentTimeMillis();
 		if (prepareLine()) {
-			bPlayer.addCooldown(this);
 			start();
+			if (!isRemoved()) {
+				bPlayer.addCooldown(this);
+			}
 		}
 	}
 
@@ -108,14 +108,13 @@ public class LavaFlux extends LavaAbility implements AddonAbility {
 					new RegenTempBlock(location.getBlock(), Material.STONE, Material.STONE.createBlockData(), cleanup + rand.nextInt(1000));
 				}
 				remove();
-				return;
 			}
 		}
 	}
 
 	private boolean prepareLine() {
-		direction = player.getEyeLocation().getDirection().setY(0).normalize();
-		blockdirection = this.direction.clone().setX(Math.round(this.direction.getX()));
+		Vector direction = player.getEyeLocation().getDirection().setY(0).normalize();
+		Vector blockdirection = direction.clone().setX(Math.round(direction.getX()));
 		blockdirection = blockdirection.setZ(Math.round(direction.getZ()));
 		Location origin = player.getLocation().add(0, -1, 0).add(blockdirection.multiply(2));
 		if (isEarthbendable(player, origin.getBlock())) {
@@ -124,11 +123,11 @@ public class LavaFlux extends LavaAbility implements AddonAbility {
 			while (bi.hasNext()) {
 				Block b = bi.next();
 
-				if (b != null && b.getY() > 1 && b.getY() < 255 && !GeneralMethods.isRegionProtectedFromBuild(this, b.getLocation()) && !EarthAbility.getMovedEarth().containsKey(b)) {
+				if (b.getY() > b.getWorld().getMinHeight() && b.getY() < b.getWorld().getMaxHeight() && !GeneralMethods.isRegionProtectedFromBuild(this, b.getLocation()) && !EarthAbility.getMovedEarth().containsKey(b)) {
 					if (isWater(b)) break;
 					while (!isEarthbendable(player, b)) {
 						b = b.getRelative(BlockFace.DOWN);
-						if (b == null || b.getY() < 1 || b.getY() > 255) {
+						if (b.getY() < b.getWorld().getMinHeight() || b.getY() > b.getWorld().getMaxHeight()) {
 							break;
 						}
 						if (isEarthbendable(player, b)) {
@@ -138,7 +137,7 @@ public class LavaFlux extends LavaAbility implements AddonAbility {
 
 					while (!isTransparent(b.getRelative(BlockFace.UP))) {
 						b = b.getRelative(BlockFace.UP);
-						if (b == null || b.getY() < 1 || b.getY() > 255) {
+						if (b.getY() < b.getWorld().getMinHeight() || b.getY() > b.getWorld().getMaxHeight()) {
 							break;
 						}
 						if (isEarthbendable(player, b.getRelative(BlockFace.UP))) {
@@ -207,7 +206,7 @@ public class LavaFlux extends LavaAbility implements AddonAbility {
 			if (isWater(block)) return;
 			while (!isEarthbendable(block)) {
 				block = block.getRelative(BlockFace.DOWN);
-				if (block == null || block.getY() < 1 || block.getY() > 255) {
+				if (block.getY() < 1 || block.getY() > 255) {
 					break;
 				}
 				if (isEarthbendable(block)) {
@@ -217,7 +216,7 @@ public class LavaFlux extends LavaAbility implements AddonAbility {
 
 			while (!isTransparent(block.getRelative(BlockFace.UP))) {
 				block = block.getRelative(BlockFace.UP);
-				if (block == null || block.getY() < 1 || block.getY() > 255) {
+				if (block.getY() < 1 || block.getY() > 255) {
 					break;
 				}
 				if (isEarthbendable(block.getRelative(BlockFace.UP))) {
@@ -227,8 +226,6 @@ public class LavaFlux extends LavaAbility implements AddonAbility {
 
 			if (isEarthbendable(block)) {
 				flux.add(block.getLocation());
-			} else {
-				return;
 			}
 		}
 	}
@@ -251,7 +248,6 @@ public class LavaFlux extends LavaAbility implements AddonAbility {
 				return BlockFace.SOUTH_EAST;
 			case SOUTH_EAST:
 				return BlockFace.NORTH_EAST;
-
 			default:
 				return BlockFace.NORTH;
 		}
@@ -298,6 +294,98 @@ public class LavaFlux extends LavaAbility implements AddonAbility {
 		return "* JedCore Addon *\n" + config.getString("Abilities.Earth.LavaFlux.Description");
 	}
 
+	public int getSpeed() {
+		return speed;
+	}
+
+	public void setSpeed(int speed) {
+		this.speed = speed;
+	}
+
+	public int getRange() {
+		return range;
+	}
+
+	public void setRange(int range) {
+		this.range = range;
+	}
+
+	public void setCooldown(long cooldown) {
+		this.cooldown = cooldown;
+	}
+
+	public long getDuration() {
+		return duration;
+	}
+
+	public void setDuration(long duration) {
+		this.duration = duration;
+	}
+
+	public long getCleanup() {
+		return cleanup;
+	}
+
+	public void setCleanup(long cleanup) {
+		this.cleanup = cleanup;
+	}
+
+	public double getDamage() {
+		return damage;
+	}
+
+	public void setDamage(double damage) {
+		this.damage = damage;
+	}
+
+	public boolean isWave() {
+		return wave;
+	}
+
+	public void setWave(boolean wave) {
+		this.wave = wave;
+	}
+
+	public void setLocation(Location location) {
+		this.location = location;
+	}
+
+	public int getStep() {
+		return step;
+	}
+
+	public void setStep(int step) {
+		this.step = step;
+	}
+
+	public int getCounter() {
+		return counter;
+	}
+
+	public void setCounter(int counter) {
+		this.counter = counter;
+	}
+
+	public long getTime() {
+		return time;
+	}
+
+	public void setTime(long time) {
+		this.time = time;
+	}
+
+	public boolean isComplete() {
+		return complete;
+	}
+
+	public void setComplete(boolean complete) {
+		this.complete = complete;
+	}
+
+	public List<Location> getFlux() {
+		return flux;
+	}
+
 	@Override
 	public void load() {
 		ConfigurationSection config = JedCoreConfig.getConfig(this.player);
@@ -307,13 +395,10 @@ public class LavaFlux extends LavaAbility implements AddonAbility {
 			JedCore.plugin.saveConfig();
 			JedCore.plugin.reloadConfig();
 		}
-		return;
 	}
 
 	@Override
-	public void stop() {
-		return;
-	}
+	public void stop() {}
 
 	@Override
 	public boolean isEnabled() {

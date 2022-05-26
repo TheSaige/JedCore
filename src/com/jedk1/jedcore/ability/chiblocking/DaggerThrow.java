@@ -28,12 +28,11 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class DaggerThrow extends ChiAbility implements AddonAbility {
-	private static List<AbilityInteraction> interactions = new ArrayList<>();
+	private static final List<AbilityInteraction> INTERACTIONS = new ArrayList<>();
 	private static boolean particles;
 	private static double damage;
 
-	private Location location;
-	private long time;
+	private long endTime;
 	private int shots = 1;
 	@Attribute(Attribute.COOLDOWN)
 	private long cooldown;
@@ -41,7 +40,7 @@ public class DaggerThrow extends ChiAbility implements AddonAbility {
 	@Attribute("MaxShots")
 	private int maxShots;
 	private int hits = 0;
-	private List<Arrow> arrows = new ArrayList<>();
+	private final List<Arrow> arrows = new ArrayList<>();
 
 	public DaggerThrow(Player player) {
 		super(player);
@@ -65,10 +64,11 @@ public class DaggerThrow extends ChiAbility implements AddonAbility {
 		}
 
 		setFields();
-		
-		time = System.currentTimeMillis() + 500;
+
 		start();
-		shootArrow();
+		if (!isRemoved()) {
+			shootArrow();
+		}
 	}
 	
 	public void setFields() {
@@ -84,14 +84,14 @@ public class DaggerThrow extends ChiAbility implements AddonAbility {
 	}
 
 	private void loadInteractions() {
-		interactions.clear();
+		INTERACTIONS.clear();
 
 		String path = "Abilities.Chi.DaggerThrow.Interactions";
 
 		ConfigurationSection config = JedCoreConfig.getConfig(this.player);
 		ConfigurationSection section = config.getConfigurationSection(path);
 		for (String abilityName : section.getKeys(false)) {
-			interactions.add(new AbilityInteraction(abilityName));
+			INTERACTIONS.add(new AbilityInteraction(abilityName));
 		}
 	}
 
@@ -101,7 +101,7 @@ public class DaggerThrow extends ChiAbility implements AddonAbility {
 			remove();
 			return;
 		}
-		if (System.currentTimeMillis() > time) {
+		if (System.currentTimeMillis() > endTime) {
 			bPlayer.addCooldown(this);
 			remove();
 			return;
@@ -115,7 +115,7 @@ public class DaggerThrow extends ChiAbility implements AddonAbility {
 	private void shootArrow() {
 		if (JCMethods.removeItemFromInventory(player, Material.ARROW, 1)) {
 			shots++;
-			location = player.getEyeLocation();
+			Location location = player.getEyeLocation();
 
 			Vector vector = location.toVector().
 					add(location.getDirection().multiply(2.5)).
@@ -134,12 +134,12 @@ public class DaggerThrow extends ChiAbility implements AddonAbility {
 			}
 
 			arrows.add(arrow);
-			time = System.currentTimeMillis() + 500;
+			endTime = System.currentTimeMillis() + 500;
 			bPlayer.addCooldown("DaggerThrowShot", 100);
 		}
 	}
 
-	public static void damageEntityFromArrow(Player player, LivingEntity entity, Arrow arrow) {
+	public static void damageEntityFromArrow(LivingEntity entity, Arrow arrow) {
 		if (GeneralMethods.isRegionProtectedFromBuild((Player) arrow.getShooter(), "DaggerThrow", arrow.getLocation())) {
 			return;
 		}
@@ -169,7 +169,7 @@ public class DaggerThrow extends ChiAbility implements AddonAbility {
 		Player target = (Player)entity;
 		BendingPlayer bPlayer = BendingPlayer.getBendingPlayer(target);
 
-		for (AbilityInteraction interaction : interactions) {
+		for (AbilityInteraction interaction : INTERACTIONS) {
 			if (!interaction.enabled) continue;
 			if (dt.hits < interaction.hitRequirement) continue;
 
@@ -250,15 +250,67 @@ public class DaggerThrow extends ChiAbility implements AddonAbility {
 		return "* JedCore Addon *\n" + config.getString("Abilities.Chi.DaggerThrow.Description");
 	}
 
-	@Override
-	public void load() {
+	public static boolean hasParticleTrail() {
+		return particles;
+	}
 
+	public static double getDamage() {
+		return damage;
+	}
+
+	public long getEndTime() {
+		return endTime;
+	}
+
+	public void setEndTime(long endTime) {
+		this.endTime = endTime;
+	}
+
+	public int getShots() {
+		return shots;
+	}
+
+	public void setShots(int shots) {
+		this.shots = shots;
+	}
+
+	public void setCooldown(long cooldown) {
+		this.cooldown = cooldown;
+	}
+
+	public boolean isLimitEnabled() {
+		return limitEnabled;
+	}
+
+	public void setLimitEnabled(boolean limitEnabled) {
+		this.limitEnabled = limitEnabled;
+	}
+
+	public int getMaxShots() {
+		return maxShots;
+	}
+
+	public void setMaxShots(int maxShots) {
+		this.maxShots = maxShots;
+	}
+
+	public int getHits() {
+		return hits;
+	}
+
+	public void setHits(int hits) {
+		this.hits = hits;
+	}
+
+	public List<Arrow> getArrows() {
+		return arrows;
 	}
 
 	@Override
-	public void stop() {
+	public void load() {}
 
-	}
+	@Override
+	public void stop() {}
 	
 	@Override
 	public boolean isEnabled() {

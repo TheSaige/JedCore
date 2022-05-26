@@ -23,6 +23,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public class MetalArmor extends EarthAbility implements AddonAbility {
+
 	private static final int GOLD_BLOCK_COLOR = 0xF2F204;
 	private static final List<Integer> METAL_COLORS = Arrays.asList(
 			0xa39d91, 0xf4f4f4, 0xa2a38f, 0xF2F204, 0xb75656, 0xfff4f4
@@ -173,15 +174,35 @@ public class MetalArmor extends EarthAbility implements AddonAbility {
 		return null;
 	}
 
-	@Override
-	public void load() {
+	public boolean isUseIronArmor() {
+		return useIronArmor;
+	}
 
+	public void setUseIronArmor(boolean useIronArmor) {
+		this.useIronArmor = useIronArmor;
+	}
+
+	public int getResistStrength() {
+		return resistStrength;
+	}
+
+	public void setResistStrength(int resistStrength) {
+		this.resistStrength = resistStrength;
+	}
+
+	public int getResistDuration() {
+		return resistDuration;
+	}
+
+	public void setResistDuration(int resistDuration) {
+		this.resistDuration = resistDuration;
 	}
 
 	@Override
-	public void stop() {
+	public void load() {}
 
-	}
+	@Override
+	public void stop() {}
 
 	@Override
 	public boolean isEnabled() {

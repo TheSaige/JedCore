@@ -44,13 +44,13 @@ public class MetalShred extends MetalAbility implements AddonAbility {
 	private long lastExtendTime;
 	private Block source;
 	private Block lastBlock;
-	private List<TempBlock> tblocks = new ArrayList<TempBlock>();
+	private final List<TempBlock> tblocks = new ArrayList<>();
 
 	public MetalShred(Player player) {
 		super(player);
 
 		if (hasAbility(player, MetalShred.class)) {
-			((MetalShred) getAbility(player, MetalShred.class)).remove();
+			getAbility(player, MetalShred.class).remove();
 		}
 
 		if (!bPlayer.canBend(this)) {
@@ -202,22 +202,17 @@ public class MetalShred extends MetalAbility implements AddonAbility {
 
 	public static void startShred(Player player) {
 		if (hasAbility(player, MetalShred.class)) {
-			((MetalShred) getAbility(player, MetalShred.class)).startShred();
+			getAbility(player, MetalShred.class).startShred();
 		}
 	}
 
 	private void startShred() {
-		if (!horizontal) {
-			started = true;
-			return;
-		}
-
 		started = true;
 	}
 
 	public static void extend(Player player) {
 		if (hasAbility(player, MetalShred.class)) {
-			((MetalShred) getAbility(player, MetalShred.class)).extend();
+			getAbility(player, MetalShred.class).extend();
 		}
 	}
 
@@ -266,14 +261,14 @@ public class MetalShred extends MetalAbility implements AddonAbility {
 				peelCoil(b);
 
 				for (Entity e : GeneralMethods.getEntitiesAroundPoint(b.getLocation(), 2)) {
-					if(!(e instanceof LivingEntity) || e.getEntityId() == player.getEntityId()){
+					if (!(e instanceof LivingEntity) || e.getEntityId() == player.getEntityId()) {
 						continue;
 					}
-					if(GeneralMethods.isRegionProtectedFromBuild(this, e.getLocation()) || ((e instanceof Player) && Commands.invincible.contains(((Player) e).getName()))){
+					if (GeneralMethods.isRegionProtectedFromBuild(this, e.getLocation()) || ((e instanceof Player) && Commands.invincible.contains(e.getName()))) {
 						continue;
 					}
 					DamageHandler.damageEntity(e, damage, this);
-					e.setVelocity(e.getVelocity().add(player.getLocation().getDirection().add(new Vector(0, 0.1, 0))));
+					GeneralMethods.setVelocity(this, e, e.getVelocity().add(player.getLocation().getDirection().add(new Vector(0, 0.1, 0))));
 				}
 
 				lastBlock = b;
@@ -298,8 +293,6 @@ public class MetalShred extends MetalAbility implements AddonAbility {
 		if (!isMetal(b)) {
 			if (!ElementalAbility.isAir(b.getType())) {
 				remove();
-				return;
-
 			}
 			return;
 		}
@@ -313,7 +306,6 @@ public class MetalShred extends MetalAbility implements AddonAbility {
 			length++;
 			lastBlock = b;
 		}
-		return;
 	}
 
 	private void revertAll() {
@@ -369,15 +361,120 @@ public class MetalShred extends MetalAbility implements AddonAbility {
 		return "* JedCore Addon *\n" + config.getString("Abilities.Earth.MetalShred.Description");
 	}
 
-	@Override
-	public void load() {
-		return;
+	public int getSelectRange() {
+		return selectRange;
+	}
+
+	public void setSelectRange(int selectRange) {
+		this.selectRange = selectRange;
+	}
+
+	public int getExtendTick() {
+		return extendTick;
+	}
+
+	public void setExtendTick(int extendTick) {
+		this.extendTick = extendTick;
+	}
+
+	public double getDamage() {
+		return damage;
+	}
+
+	public void setDamage(double damage) {
+		this.damage = damage;
+	}
+
+	public boolean isHorizontal() {
+		return horizontal;
+	}
+
+	public void setHorizontal(boolean horizontal) {
+		this.horizontal = horizontal;
 	}
 
 	@Override
-	public void stop() {
-		return;
+	public boolean isStarted() {
+		return started;
 	}
+
+	public void setStarted(boolean started) {
+		this.started = started;
+	}
+
+	public boolean isStop() {
+		return stop;
+	}
+
+	public void setStop(boolean stop) {
+		this.stop = stop;
+	}
+
+	public boolean isStopCoil() {
+		return stopCoil;
+	}
+
+	public void setStopCoil(boolean stopCoil) {
+		this.stopCoil = stopCoil;
+	}
+
+	public boolean isExtending() {
+		return extending;
+	}
+
+	public void setExtending(boolean extending) {
+		this.extending = extending;
+	}
+
+	public int getLength() {
+		return length;
+	}
+
+	public void setLength(int length) {
+		this.length = length;
+	}
+
+	public int getFullLength() {
+		return fullLength;
+	}
+
+	public void setFullLength(int fullLength) {
+		this.fullLength = fullLength;
+	}
+
+	public long getLastExtendTime() {
+		return lastExtendTime;
+	}
+
+	public void setLastExtendTime(long lastExtendTime) {
+		this.lastExtendTime = lastExtendTime;
+	}
+
+	public Block getSource() {
+		return source;
+	}
+
+	public void setSource(Block source) {
+		this.source = source;
+	}
+
+	public Block getLastBlock() {
+		return lastBlock;
+	}
+
+	public void setLastBlock(Block lastBlock) {
+		this.lastBlock = lastBlock;
+	}
+
+	public List<TempBlock> getTblocks() {
+		return tblocks;
+	}
+
+	@Override
+	public void load() {}
+
+	@Override
+	public void stop() {}
 
 	@Override
 	public boolean isEnabled() {

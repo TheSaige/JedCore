@@ -31,11 +31,11 @@ import java.util.Random;
 import static java.util.stream.Collectors.toList;
 
 public class EarthKick extends EarthAbility implements AddonAbility {
-	private List<TempFallingBlock> temps = new ArrayList<>();
+	private final List<TempFallingBlock> temps = new ArrayList<>();
 
 	private BlockData materialData;
 	private Location location;
-	private Random rand = new Random();
+	private final Random rand = new Random();
 
 	@Attribute(Attribute.COOLDOWN)
 	private long cooldown;
@@ -57,7 +57,7 @@ public class EarthKick extends EarthAbility implements AddonAbility {
 		setFields();
 		location = player.getLocation();
 		if ((player.getLocation().getPitch() > -5) && prepare()) {
-			if(GeneralMethods.isRegionProtectedFromBuild(this, block.getLocation())){
+			if (GeneralMethods.isRegionProtectedFromBuild(this, block.getLocation())) {
 				return;
 			}
 			launchBlocks();
@@ -129,7 +129,7 @@ public class EarthKick extends EarthAbility implements AddonAbility {
 		Vector direction = location.getDirection();
 		location.add(direction.clone().multiply(1.0));
 
-		if(!ElementalAbility.isAir(location.getBlock().getType())){
+		if (!ElementalAbility.isAir(location.getBlock().getType())) {
 			location.setY(location.getY() + 1.0);
 		}
 
@@ -235,15 +235,59 @@ public class EarthKick extends EarthAbility implements AddonAbility {
 		return "* JedCore Addon *\n" + config.getString("Abilities.Earth.EarthKick.Description");
 	}
 
-	@Override
-	public void load() {
+	public List<TempFallingBlock> getTemps() {
+		return temps;
+	}
 
+	public BlockData getMaterialData() {
+		return materialData;
+	}
+
+	public void setMaterialData(BlockData materialData) {
+		this.materialData = materialData;
+	}
+
+	public void setLocation(Location location) {
+		this.location = location;
+	}
+
+	public int getEarthBlocksQuantity() {
+		return earthBlocks;
+	}
+
+	public void setEarthBlocksQuantity(int earthBlocks) {
+		this.earthBlocks = earthBlocks;
+	}
+
+	public double getDamage() {
+		return damage;
+	}
+
+	public void setDamage(double damage) {
+		this.damage = damage;
+	}
+
+	public double getEntityCollisionRadius() {
+		return entityCollisionRadius;
+	}
+
+	public void setEntityCollisionRadius(double entityCollisionRadius) {
+		this.entityCollisionRadius = entityCollisionRadius;
+	}
+
+	public Block getBlock() {
+		return block;
+	}
+
+	public void setBlock(Block block) {
+		this.block = block;
 	}
 
 	@Override
-	public void stop() {
+	public void load() {}
 
-	}
+	@Override
+	public void stop() {}
 
 	@Override
 	public boolean isEnabled() {

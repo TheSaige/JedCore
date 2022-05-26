@@ -37,14 +37,13 @@ public class Maelstrom extends WaterAbility implements AddonAbility, ComboAbilit
 	@Attribute(Attribute.DURATION)
 	private long duration;
 
-	private List<Block> pool = new ArrayList<Block>();
-	private List<Block> wave = new ArrayList<Block>();
+	private final List<Block> pool = new ArrayList<>();
+	private final List<Block> wave = new ArrayList<>();
 	private Location origin;
 	private int step;
 	private int levelStep;
 	private int angle;
 	private boolean canRemove;
-	private long start;
 
 	public Maelstrom(Player player) {
 		super(player);
@@ -54,10 +53,12 @@ public class Maelstrom extends WaterAbility implements AddonAbility, ComboAbilit
 		setFields();
 		if (setOrigin()) {
 			start();
-			bPlayer.addCooldown(this);
-			Torrent t = getAbility(player, Torrent.class);
-			if (t != null) {
-				t.remove();
+			if (!isRemoved()) {
+				bPlayer.addCooldown(this);
+				Torrent t = getAbility(player, Torrent.class);
+				if (t != null) {
+					t.remove();
+				}
 			}
 		}
 	}
@@ -70,7 +71,6 @@ public class Maelstrom extends WaterAbility implements AddonAbility, ComboAbilit
 		depth = config.getInt("Abilities.Water.WaterCombo.Maelstrom.MaxDepth");
 		range = config.getInt("Abilities.Water.WaterCombo.Maelstrom.Range");
 		canRemove = true;
-		start = System.currentTimeMillis();
 		
 		applyModifiers();
 	}
@@ -118,7 +118,7 @@ public class Maelstrom extends WaterAbility implements AddonAbility, ComboAbilit
 			remove();
 			return;
 		}
-		if (System.currentTimeMillis() > start + duration) {
+		if (System.currentTimeMillis() > getStartTime() + duration) {
 			remove();
 			return;
 		}
@@ -177,7 +177,7 @@ public class Maelstrom extends WaterAbility implements AddonAbility, ComboAbilit
 		for (int i = 0; i < levelStep; i++) {
 			for (int degree = 0; degree < waves; degree++) {
 				double size = (levelStep - i) - 1;
-				double angle = ((newAngle + (degree * (360/waves))) * Math.PI / 180);
+				double angle = ((newAngle + (degree * (360F / waves))) * Math.PI / 180);
 				double x = size * Math.cos(angle);
 				double z = size * Math.sin(angle);
 				Location loc = origin.clone();
@@ -185,13 +185,13 @@ public class Maelstrom extends WaterAbility implements AddonAbility, ComboAbilit
 				Block b = loc.getBlock();
 				for (int j = 0; j < 2; j++) {
 					wave.add(b.getRelative(BlockFace.DOWN, j));
-					new RegenTempBlock(b.getRelative(BlockFace.DOWN, j), Material.WATER, Material.WATER.createBlockData(bd -> ((Levelled)bd).setLevel(1)), 0);
+					new RegenTempBlock(b.getRelative(BlockFace.DOWN, j), Material.WATER, Material.WATER.createBlockData(bd -> ((Levelled) bd).setLevel(1)), 0);
 					ParticleEffect.WATER_SPLASH.display(loc, 3, Math.random(), Math.random(), Math.random(), 0);
 				}
 			}
-			newAngle+=15;
+			newAngle += 15;
 		}
-		this.angle+=(levelStep*2);
+		this.angle+=(levelStep * 2);
 
 	}
 
@@ -268,15 +268,63 @@ public class Maelstrom extends WaterAbility implements AddonAbility, ComboAbilit
 		return "* JedCore Addon *\n" + config.getString("Abilities.Water.WaterCombo.Maelstrom.Description");
 	}
 
-	@Override
-	public void load() {
-		return;
+	public int getRange() {
+		return range;
+	}
+
+	public void setRange(int range) {
+		this.range = range;
+	}
+
+	public void setCooldown(long cooldown) {
+		this.cooldown = cooldown;
+	}
+
+	public long getDuration() {
+		return duration;
+	}
+
+	public void setDuration(long duration) {
+		this.duration = duration;
+	}
+
+	public List<Block> getPool() {
+		return pool;
+	}
+
+	public List<Block> getWave() {
+		return wave;
+	}
+
+	public Location getOrigin() {
+		return origin;
+	}
+
+	public void setOrigin(Location origin) {
+		this.origin = origin;
+	}
+
+	public int getAngle() {
+		return angle;
+	}
+
+	public void setAngle(int angle) {
+		this.angle = angle;
+	}
+
+	public boolean canRemove() {
+		return canRemove;
+	}
+
+	public void setCanRemove(boolean canRemove) {
+		this.canRemove = canRemove;
 	}
 
 	@Override
-	public void stop() {
-		return;
-	}
+	public void load() {}
+
+	@Override
+	public void stop() {}
 
 	@Override
 	public boolean isEnabled() {

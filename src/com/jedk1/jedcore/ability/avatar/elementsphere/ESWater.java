@@ -48,14 +48,16 @@ public class ESWater extends AvatarAbility implements AddonAbility {
 		if (bPlayer.isOnCooldown("ESWater")) {
 			return;
 		}
-		setFields();
-		if(GeneralMethods.isRegionProtectedFromBuild(this, player.getTargetBlock(getTransparentMaterialSet(), (int)range).getLocation())){
+		if (GeneralMethods.isRegionProtectedFromBuild(this, player.getTargetBlock(getTransparentMaterialSet(), (int) range).getLocation())) {
 			return;
 		}
-		bPlayer.addCooldown("ESWater", getCooldown());
-		currES.setWaterUses(currES.getWaterUses() - 1);
+		setFields();
 		location = player.getEyeLocation().clone().add(player.getEyeLocation().getDirection().multiply(1));
 		start();
+		if (!isRemoved()) {
+			bPlayer.addCooldown("ESWater", getCooldown());
+			currES.setWaterUses(currES.getWaterUses() - 1);
+		}
 	}
 
 	public void setFields() {
@@ -99,7 +101,7 @@ public class ESWater extends AvatarAbility implements AddonAbility {
 			}
 
 			WaterAbility.playWaterbendingSound(location);
-			new RegenTempBlock(location.getBlock(), Material.WATER, Material.WATER.createBlockData(bd -> ((Levelled)bd).setLevel(0)), 100L);
+			new RegenTempBlock(location.getBlock(), Material.WATER, Material.WATER.createBlockData(bd -> ((Levelled) bd).setLevel(0)), 100L);
 
 			for (Entity entity : GeneralMethods.getEntitiesAroundPoint(location, 2.5)) {
 				if (entity instanceof LivingEntity && entity.getEntityId() != player.getEntityId() && !(entity instanceof ArmorStand) && !GeneralMethods.isRegionProtectedFromBuild(this, entity.getLocation()) && !((entity instanceof Player) && Commands.invincible.contains(((Player) entity).getName()))) {
@@ -155,15 +157,51 @@ public class ESWater extends AvatarAbility implements AddonAbility {
 		return null;
 	}
 
-	@Override
-	public void load() {
-		return;
+	public Vector getDirection() {
+		return direction;
+	}
+
+	public void setDirection(Vector direction) {
+		this.direction = direction;
+	}
+
+	public double getDistanceTravelled() {
+		return travelled;
+	}
+
+	public void setDistanceTravelled(double travelled) {
+		this.travelled = travelled;
+	}
+
+	public double getRange() {
+		return range;
+	}
+
+	public void setRange(double range) {
+		this.range = range;
+	}
+
+	public double getDamage() {
+		return damage;
+	}
+
+	public void setDamage(double damage) {
+		this.damage = damage;
+	}
+
+	public int getSpeed() {
+		return speed;
+	}
+
+	public void setSpeed(int speed) {
+		this.speed = speed;
 	}
 
 	@Override
-	public void stop() {
-		return;
-	}
+	public void load() {}
+
+	@Override
+	public void stop() {}
 	
 	@Override
 	public boolean isEnabled() {

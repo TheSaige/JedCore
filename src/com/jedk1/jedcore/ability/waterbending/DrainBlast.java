@@ -26,20 +26,18 @@ public class DrainBlast extends WaterAbility implements AddonAbility {
 	private double travelled;
 
 	@Attribute(Attribute.RANGE)
-	private double blastRange; // 20
+	private final double blastRange; // 20
 	@Attribute(Attribute.DAMAGE)
-	private double blastDamage; // 1.5
+	private final double blastDamage; // 1.5
 	@Attribute(Attribute.SPEED)
-	private double blastSpeed; // 2
-	private int holdRange; // 2
+	private final double blastSpeed; // 2
 
 	public DrainBlast(Player player, double range, double damage, double speed, int holdrange) {
 		super(player);
 		this.blastRange = range;
 		this.blastDamage = damage;
 		this.blastSpeed = speed;
-		this.holdRange = holdrange;
-		location = player.getEyeLocation().clone().add(player.getEyeLocation().getDirection().multiply(holdRange));
+		location = player.getEyeLocation().clone().add(player.getEyeLocation().getDirection().multiply(holdrange));
 		start();
 	}
 
@@ -54,7 +52,6 @@ public class DrainBlast extends WaterAbility implements AddonAbility {
 			return;
 		}
 		advanceAttack();
-		return;
 	}
 
 	private void advanceAttack() {
@@ -72,7 +69,7 @@ public class DrainBlast extends WaterAbility implements AddonAbility {
 			}
 
 			playWaterbendingSound(location);
-			new RegenTempBlock(location.getBlock(), Material.WATER, Material.WATER.createBlockData(bd -> ((Levelled)bd).setLevel(0)), 100L);
+			new RegenTempBlock(location.getBlock(), Material.WATER, Material.WATER.createBlockData(bd -> ((Levelled) bd).setLevel(0)), 100L);
 
 			for (Entity entity : GeneralMethods.getEntitiesAroundPoint(location, 2.5)) {
 				if (entity instanceof LivingEntity && entity.getEntityId() != player.getEntityId() && !(entity instanceof ArmorStand)) {
@@ -90,7 +87,7 @@ public class DrainBlast extends WaterAbility implements AddonAbility {
 
 	@Override
 	public Location getLocation() {
-		return null;
+		return location;
 	}
 
 	@Override
@@ -124,15 +121,43 @@ public class DrainBlast extends WaterAbility implements AddonAbility {
 		return "* JedCore Addon *\n" + config.getString("Abilities.Water.Drain.Description");
 	}
 
-	@Override
-	public void load() {
+	public void setLocation(Location location) {
+		this.location = location;
+	}
 
+	public Vector getDirection() {
+		return direction;
+	}
+
+	public void setDirection(Vector direction) {
+		this.direction = direction;
+	}
+
+	public double getDistanceTravelled() {
+		return travelled;
+	}
+
+	public void setDistanceTravelled(double travelled) {
+		this.travelled = travelled;
+	}
+
+	public double getBlastRange() {
+		return blastRange;
+	}
+
+	public double getBlastDamage() {
+		return blastDamage;
+	}
+
+	public double getBlastSpeed() {
+		return blastSpeed;
 	}
 
 	@Override
-	public void stop() {
+	public void load() {}
 
-	}
+	@Override
+	public void stop() {}
 	
 	@Override
 	public boolean isEnabled() {

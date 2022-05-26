@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Random;
 
 public class WakeFishing extends WaterAbility implements AddonAbility {
+
 	private final static Material[] FISH_TYPES = {
 			Material.COD, Material.PUFFERFISH, Material.TROPICAL_FISH, Material.SALMON
 	};
@@ -37,7 +38,6 @@ public class WakeFishing extends WaterAbility implements AddonAbility {
 	private long duration;
 	@Attribute(Attribute.RANGE)
 	private long range;
-	private long time;
 
 	Random rand = new Random();
 
@@ -48,8 +48,7 @@ public class WakeFishing extends WaterAbility implements AddonAbility {
 		}
 
 		setFields();
-		
-		time = System.currentTimeMillis();
+
 		if (prepare())
 			start();
 	}
@@ -74,7 +73,7 @@ public class WakeFishing extends WaterAbility implements AddonAbility {
 	@SuppressWarnings("deprecation")
 	private boolean prepare() {
 		Block block = BlockSource.getWaterSourceBlock(player, range, ClickType.SHIFT_DOWN, true, false, false);
-		if (block != null && isWater(block) && block.getData() == 0) {
+		if (isWater(block) && block.getData() == 0) {
 			focusedBlock = block;
 			location = focusedBlock.getLocation();
 			return true;
@@ -84,10 +83,7 @@ public class WakeFishing extends WaterAbility implements AddonAbility {
 
 	private boolean isFocused() {
 		Block block = BlockSource.getWaterSourceBlock(player, range, ClickType.SHIFT_DOWN, true, false, false);
-		if (block != null && block.equals(focusedBlock)) {
-			return true;
-		}
-		return false;
+		return block != null && block.equals(focusedBlock);
 	}
 
 	@Override
@@ -101,14 +97,13 @@ public class WakeFishing extends WaterAbility implements AddonAbility {
 			remove();
 			return;
 		}
-		if (System.currentTimeMillis() > time + duration) {
+		if (System.currentTimeMillis() > getStartTime() + duration) {
 			bPlayer.addCooldown(this);
 			remove();
 			return;
 		}
 		displayParticles();
 		spawnFishRandom();
-		return;
 	}
 
 	private void displayParticles() {
@@ -188,15 +183,51 @@ public class WakeFishing extends WaterAbility implements AddonAbility {
 		return "* JedCore Addon *\n" + config.getString("Abilities.Water.WakeFishing.Description");
 	}
 
-	@Override
-	public void load() {
-		return;
+	public Block getFocusedBlock() {
+		return focusedBlock;
+	}
+
+	public void setFocusedBlock(Block focusedBlock) {
+		this.focusedBlock = focusedBlock;
+	}
+
+	public void setLocation(Location location) {
+		this.location = location;
+	}
+
+	public int getPoint() {
+		return point;
+	}
+
+	public void setPoint(int point) {
+		this.point = point;
+	}
+
+	public void setCooldown(long cooldown) {
+		this.cooldown = cooldown;
+	}
+
+	public long getDuration() {
+		return duration;
+	}
+
+	public void setDuration(long duration) {
+		this.duration = duration;
+	}
+
+	public long getRange() {
+		return range;
+	}
+
+	public void setRange(long range) {
+		this.range = range;
 	}
 
 	@Override
-	public void stop() {
-		return;
-	}
+	public void load() {}
+
+	@Override
+	public void stop() {}
 	
 	@Override
 	public boolean isEnabled() {

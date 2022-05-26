@@ -30,14 +30,13 @@ public class SpiritBeam extends AvatarAbility implements AddonAbility {
 	private long cooldown;
 	@Attribute(Attribute.RANGE)
 	private double range;
-	private boolean avataronly;
+	private boolean avatarOnly;
 	@Attribute(Attribute.DAMAGE)
 	private double damage;
-	private boolean blockdamage;
+	private boolean damagesBlocks;
 	private long regen;
 	@Attribute(Attribute.RADIUS)
 	private double radius;
-	private long time;
 
 	public SpiritBeam(Player player) {
 		super(player);
@@ -47,11 +46,10 @@ public class SpiritBeam extends AvatarAbility implements AddonAbility {
 
 		setFields();
 
-		if (avataronly && !bPlayer.isAvatarState()) {
+		if (avatarOnly && !bPlayer.isAvatarState()) {
 			return;
 		}
 
-		time = System.currentTimeMillis();
 		start();
 	}
 
@@ -62,8 +60,8 @@ public class SpiritBeam extends AvatarAbility implements AddonAbility {
 		cooldown = config.getInt("Abilities.Avatar.SpiritBeam.Cooldown");
 		damage = config.getDouble("Abilities.Avatar.SpiritBeam.Damage");
 		range = config.getInt("Abilities.Avatar.SpiritBeam.Range");
-		avataronly = config.getBoolean("Abilities.Avatar.SpiritBeam.AvatarStateOnly");
-		blockdamage = config.getBoolean("Abilities.Avatar.SpiritBeam.BlockDamage.Enabled");
+		avatarOnly = config.getBoolean("Abilities.Avatar.SpiritBeam.AvatarStateOnly");
+		damagesBlocks = config.getBoolean("Abilities.Avatar.SpiritBeam.BlockDamage.Enabled");
 		regen = config.getLong("Abilities.Avatar.SpiritBeam.BlockDamage.Regen");
 		radius = config.getDouble("Abilities.Avatar.SpiritBeam.BlockDamage.Radius");
 	}
@@ -79,7 +77,7 @@ public class SpiritBeam extends AvatarAbility implements AddonAbility {
 			remove();
 			return;
 		}
-		if (System.currentTimeMillis() > time + duration) {
+		if (System.currentTimeMillis() > getStartTime() + duration) {
 			bPlayer.addCooldown(this);
 			remove();
 			return;
@@ -89,7 +87,7 @@ public class SpiritBeam extends AvatarAbility implements AddonAbility {
 			remove();
 			return;
 		}
-		if (avataronly && !bPlayer.isAvatarState()) {
+		if (avatarOnly && !bPlayer.isAvatarState()) {
 			bPlayer.addCooldown(this);
 			remove();
 			return;
@@ -121,7 +119,7 @@ public class SpiritBeam extends AvatarAbility implements AddonAbility {
 
 			if (location.getBlock().getType().isSolid()) {
 				location.getWorld().createExplosion(location, 0F);
-				if (blockdamage) {
+				if (damagesBlocks) {
 					//new TempExplosion(player, location.getBlock(), "SpiritBeam", radius, regen, damage, false);
 					for (Location loc : GeneralMethods.getCircle(location, (int) radius, 0, false, true, 0)) {
 						if (JCMethods.isUnbreakable(loc.getBlock())) continue;
@@ -174,15 +172,75 @@ public class SpiritBeam extends AvatarAbility implements AddonAbility {
 		return "* JedCore Addon *\n" + config.getString("Abilities.Avatar.SpiritBeam.Description");
 	}
 
-	@Override
-	public void load() {
-		return;
+	public Vector getDirection() {
+		return direction;
+	}
+
+	public void setDirection(Vector direction) {
+		this.direction = direction;
+	}
+
+	public long getDuration() {
+		return duration;
+	}
+
+	public void setDuration(long duration) {
+		this.duration = duration;
+	}
+
+	public double getRange() {
+		return range;
+	}
+
+	public void setRange(double range) {
+		this.range = range;
+	}
+
+	public boolean isAvatarOnly() {
+		return avatarOnly;
+	}
+
+	public void setAvatarOnly(boolean avatarOnly) {
+		this.avatarOnly = avatarOnly;
+	}
+
+	public double getDamage() {
+		return damage;
+	}
+
+	public void setDamage(double damage) {
+		this.damage = damage;
+	}
+
+	public boolean damagesBlocks() {
+		return damagesBlocks;
+	}
+
+	public void setDamagesBlocks(boolean blockdamage) {
+		this.damagesBlocks = blockdamage;
+	}
+
+	public long getRegen() {
+		return regen;
+	}
+
+	public void setRegen(long regen) {
+		this.regen = regen;
+	}
+
+	public double getRadius() {
+		return radius;
+	}
+
+	public void setRadius(double radius) {
+		this.radius = radius;
 	}
 
 	@Override
-	public void stop() {
-		return;
-	}
+	public void load() {}
+
+	@Override
+	public void stop() {}
 
 	@Override
 	public boolean isEnabled() {

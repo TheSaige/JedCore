@@ -36,11 +36,11 @@ import java.util.stream.Collectors;
 public class MagmaBlast extends LavaAbility implements AddonAbility, ComboAbility {
 	private static final int PARTICLE_COUNT = 20;
 	private static final int RAISE_HEIGHT = 3;
-	private static Random rand = new Random();
+	private static final Random rand = new Random();
 
-	private Set<TempFallingBlock> sources = new HashSet<>();
-	private List<TempBlock> blocks = new ArrayList<>();
-	private List<TempFallingBlock> firedBlocks = new ArrayList<>();
+	private final Set<TempFallingBlock> sources = new HashSet<>();
+	private final List<TempBlock> blocks = new ArrayList<>();
+	private final List<TempFallingBlock> firedBlocks = new ArrayList<>();
 
 	@Attribute(Attribute.COOLDOWN)
 	private long cooldown;
@@ -96,7 +96,7 @@ public class MagmaBlast extends LavaAbility implements AddonAbility, ComboAbilit
 		playerCollisions = config.getBoolean("Abilities.Earth.EarthCombo.MagmaBlast.PlayerCollisions");
 		entitySelection = config.getBoolean("Abilities.Earth.EarthCombo.MagmaBlast.EntitySelection");
 		selectRange = config.getDouble("Abilities.Earth.EarthCombo.MagmaBlast.SelectRange");
-		explosionRadius = (float)config.getDouble("Abilities.Earth.EarthCombo.MagmaBlast.ExplosionRadius");
+		explosionRadius = (float) config.getDouble("Abilities.Earth.EarthCombo.MagmaBlast.ExplosionRadius");
 		fireSpeed = config.getDouble("Abilities.Earth.EarthCombo.MagmaBlast.FireSpeed");
 		maxDuration = config.getLong("Abilities.Earth.EarthCombo.MagmaBlast.MaxDuration");
 		maxDistanceFromSources = config.getLong("Abilities.Earth.EarthCombo.MagmaBlast.MaxDistanceFromSources");
@@ -271,7 +271,7 @@ public class MagmaBlast extends LavaAbility implements AddonAbility, ComboAbilit
 	}
 
 	private Location getOffsetLocation(Location loc, double offset) {
-		return loc.clone().add((float) ((Math.random() - 0.5)*offset), (float) ((Math.random() - 0.5)*offset), (float) ((Math.random() - 0.5)*offset));
+		return loc.clone().add((float) ((Math.random() - 0.5) * offset), (float) ((Math.random() - 0.5) * offset), (float) ((Math.random() - 0.5) * offset));
 	}
 
 	public static void performAction(Player player) {
@@ -292,7 +292,7 @@ public class MagmaBlast extends LavaAbility implements AddonAbility, ComboAbilit
 		if (entitySelection) {
 			Entity targetEntity = GeneralMethods.getTargetedEntity(player, selectRange);
 
-			if (targetEntity != null && targetEntity instanceof LivingEntity) {
+			if (targetEntity instanceof LivingEntity) {
 				target = ((LivingEntity) targetEntity).getEyeLocation();
 			}
 		}
@@ -334,8 +334,8 @@ public class MagmaBlast extends LavaAbility implements AddonAbility, ComboAbilit
 		return closest;
 	}
 
-	public static boolean blast(TempFallingBlock tfb) {
-		return blast(tfb, false);
+	public static void blast(TempFallingBlock tfb) {
+		blast(tfb, false);
 	}
 
 	public static boolean blast(TempFallingBlock tfb, boolean entityCollision) {
@@ -462,13 +462,135 @@ public class MagmaBlast extends LavaAbility implements AddonAbility, ComboAbilit
 		return JedCore.version;
 	}
 
-	@Override
-	public void load() {
+	public Set<TempFallingBlock> getSources() {
+		return sources;
+	}
+
+	public List<TempBlock> getBlocks() {
+		return blocks;
+	}
+
+	public List<TempFallingBlock> getFiredBlocks() {
+		return firedBlocks;
+	}
+
+	public long getMaxDuration() {
+		return maxDuration;
+	}
+
+	public void setMaxDuration(long maxDuration) {
+		this.maxDuration = maxDuration;
+	}
+
+	public long getShotCooldown() {
+		return shotCooldown;
+	}
+
+	public void setShotCooldown(long shotCooldown) {
+		this.shotCooldown = shotCooldown;
+	}
+
+	public int getMaxSources() {
+		return maxSources;
+	}
+
+	public void setMaxSources(int maxSources) {
+		this.maxSources = maxSources;
+	}
+
+	public int getSourceRange() {
+		return sourceRange;
+	}
+
+	public void setSourceRange(int sourceRange) {
+		this.sourceRange = sourceRange;
+	}
+
+	public double getSelectRange() {
+		return selectRange;
+	}
+
+	public void setSelectRange(double selectRange) {
+		this.selectRange = selectRange;
+	}
+
+	public double getFireSpeed() {
+		return fireSpeed;
+	}
+
+	public void setFireSpeed(double fireSpeed) {
+		this.fireSpeed = fireSpeed;
+	}
+
+	public double getMaxDistanceFromSources() {
+		return maxDistanceFromSources;
+	}
+
+	public void setMaxDistanceFromSources(double maxDistanceFromSources) {
+		this.maxDistanceFromSources = maxDistanceFromSources;
+	}
+
+	public float getExplosionRadius() {
+		return explosionRadius;
+	}
+
+	public void setExplosionRadius(float explosionRadius) {
+		this.explosionRadius = explosionRadius;
+	}
+
+	public boolean isRequireLavaFlow() {
+		return requireLavaFlow;
+	}
+
+	public void setRequireLavaFlow(boolean requireLavaFlow) {
+		this.requireLavaFlow = requireLavaFlow;
+	}
+
+	public boolean isPlayerCollisions() {
+		return playerCollisions;
+	}
+
+	public void setPlayerCollisions(boolean playerCollisions) {
+		this.playerCollisions = playerCollisions;
+	}
+
+	public boolean isEntitySelection() {
+		return entitySelection;
+	}
+
+	public void setEntitySelection(boolean entitySelection) {
+		this.entitySelection = entitySelection;
+	}
+
+	public Location getOrigin() {
+		return origin;
+	}
+
+	public void setOrigin(Location origin) {
+		this.origin = origin;
+	}
+
+	public long getCanLavaFlowTime() {
+		return canLavaFlowTime;
+	}
+
+	public void setCanLavaFlowTime(long canLavaFlowTime) {
+		this.canLavaFlowTime = canLavaFlowTime;
+	}
+
+	public long getLastShotTime() {
+		return lastShot;
+	}
+
+	public void setLastShotTime(long lastShot) {
+		this.lastShot = lastShot;
 	}
 
 	@Override
-	public void stop() {
-	}
+	public void load() {}
+
+	@Override
+	public void stop() {}
 
 	@Override
 	public boolean isEnabled() {

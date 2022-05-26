@@ -17,6 +17,7 @@ import com.projectkorra.projectkorra.util.ParticleEffect;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
+import org.bukkit.SoundCategory;
 import org.bukkit.block.BlockState;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Entity;
@@ -26,6 +27,7 @@ import org.bukkit.util.Vector;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Random;
 
 public class FireComet extends FireAbility implements AddonAbility {
@@ -52,10 +54,11 @@ public class FireComet extends FireAbility implements AddonAbility {
 
 	private boolean fire;
 	private long time;
+	private boolean charged;
 
 	private int point;
 
-	private Random rand = new Random();
+	private final Random rand = new Random();
 
 	public FireComet(Player player) {
 		super(player);
@@ -126,6 +129,11 @@ public class FireComet extends FireAbility implements AddonAbility {
 			if (GeneralMethods.isRegionProtectedFromBuild(this, player.getLocation())) {
 				remove();
 				return;
+			}
+
+			if (!charged) {
+				charged = true;
+				Objects.requireNonNull(location.getWorld()).playSound(location, Sound.ENTITY_GENERIC_EXPLODE, 2F, 0.8F);
 			}
 
 			if (!isFired()) {
@@ -212,8 +220,8 @@ public class FireComet extends FireAbility implements AddonAbility {
 		playFirebendingParticles(location, 20, Math.random(), Math.random(), Math.random());
 		ParticleEffect.FIREWORKS_SPARK.display(location, 20,  Math.random(), Math.random(), Math.random(), 0.5);
 
-		location.getWorld().playSound(location, (rand.nextBoolean()) ? Sound.ENTITY_FIREWORK_ROCKET_BLAST : Sound.ENTITY_FIREWORK_ROCKET_BLAST_FAR, 5f, 1f);
-		location.getWorld().playSound(location, Sound.ENTITY_GENERIC_EXPLODE, 5f, 0.8f);
+		location.getWorld().playSound(location, (rand.nextBoolean()) ? Sound.ENTITY_FIREWORK_ROCKET_BLAST : Sound.ENTITY_FIREWORK_ROCKET_BLAST_FAR, 5F, 1F);
+		location.getWorld().playSound(location, Sound.ENTITY_GENERIC_EXPLODE, 5F, 0.8F);
 
 		int i = 0;
 		for (BlockState block : blocks) {
@@ -245,33 +253,36 @@ public class FireComet extends FireAbility implements AddonAbility {
 		rotateAroundAxisX(v1, -xRotation);
 		rotateAroundAxisY(v1, -((location.getYaw() * Math.PI / 180) - 1.575));
 
-		if (bPlayer.canUseSubElement(SubElement.BLUE_FIRE)) {
-			ParticleEffect.SOUL_FIRE_FLAME.display(location.clone().add(v), 1, 0, 0, 0, 0.02);
-			ParticleEffect.SMOKE_LARGE.display(location.clone().add(v), 1, 0, 0, 0, 0.02);
-			ParticleEffect.SOUL_FIRE_FLAME.display(location.clone().add(v1), 1, 0, 0, 0, 0.01);
-			ParticleEffect.SMOKE_LARGE.display(location.clone().add(v1), 1, 0, 0, 0, 0.02);
-		} else {
-			ParticleEffect.FLAME.display(location.clone().add(v), 1, 0, 0, 0, 0.02);
-			ParticleEffect.SMOKE_LARGE.display(location.clone().add(v), 1, 0, 0, 0, 0.02);
-			ParticleEffect.FLAME.display(location.clone().add(v1), 1, 0, 0, 0, 0.01);
-			ParticleEffect.SMOKE_LARGE.display(location.clone().add(v1), 1, 0, 0, 0, 0.02);
-		}
+//		if (bPlayer.canUseSubElement(SubElement.BLUE_FIRE)) {
+//			ParticleEffect.SOUL_FIRE_FLAME.display(location.clone().add(v), 1, 0, 0, 0, 0.02);
+//			ParticleEffect.SMOKE_LARGE.display(location.clone().add(v), 1, 0, 0, 0, 0.02);
+//			ParticleEffect.SOUL_FIRE_FLAME.display(location.clone().add(v1), 1, 0, 0, 0, 0.01);
+//		} else {
+//			ParticleEffect.FLAME.display(location.clone().add(v), 1, 0, 0, 0, 0.02);
+//			ParticleEffect.SMOKE_LARGE.display(location.clone().add(v), 1, 0, 0, 0, 0.02);
+//			ParticleEffect.FLAME.display(location.clone().add(v1), 1, 0, 0, 0, 0.01);
+//		}
+		playFirebendingParticles(location.clone().add(v), 1, 0, 0, 0);
+		playFirebendingParticles(location.clone().add(v1), 1, 0, 0, 0);
+		ParticleEffect.SMOKE_LARGE.display(location.clone().add(v), 1, 0, 0, 0, 0.02);
+		ParticleEffect.SMOKE_LARGE.display(location.clone().add(v1), 1, 0, 0, 0, 0.02);
 
 		if (this.angle == 360) {
 			this.angle = 0;
 		}
 
 		long init = getTime() + getCharge();
-		int percentage = (int) (((init - System.currentTimeMillis()) * 100)/getCharge());
-		double size = (1-(percentage/100.0f)) * 1.5;
+		int percentage = (int) (((init - System.currentTimeMillis()) * 100) / getCharge());
+		double size = (1 - (percentage / 100.0F)) * 1.5;
 
 		for (int i = 0; i < 360; i += 45) {
 			for (Location l : JCMethods.getVerticalCirclePoints(location.clone().subtract(0, size, 0), 45, size, i)) {
-				if (bPlayer.canUseSubElement(SubElement.BLUE_FIRE)) {
-					ParticleEffect.SOUL_FIRE_FLAME.display(l, 1, 0, 0, 0, 0.02);
-				} else {
-					ParticleEffect.FLAME.display(l, 1, 0, 0, 0, 0.02);
-				}
+//				if (bPlayer.canUseSubElement(SubElement.BLUE_FIRE)) {
+//					ParticleEffect.SOUL_FIRE_FLAME.display(l, 1, 0, 0, 0, 0.02);
+//				} else {
+//					ParticleEffect.FLAME.display(l, 1, 0, 0, 0, 0.02);
+//				}
+				playFirebendingParticles(l, 1, 0, 0, 0);
 			}
 		}
 
@@ -281,13 +292,14 @@ public class FireComet extends FireAbility implements AddonAbility {
 	}
 
 	public void displayComet() {
-		for (int angle = 0; angle < 360; angle+=45) {
+		for (int angle = 0; angle < 360; angle += 45) {
 			for (Location l : JCMethods.getVerticalCirclePoints(location.clone().subtract(0, 1.5, 0), 45, 1.5, angle)) {
-				if (bPlayer.canUseSubElement(SubElement.BLUE_FIRE)) {
-					ParticleEffect.SOUL_FIRE_FLAME.display(l, 1, 0, 0, 0, 0.05);
-				} else {
-					ParticleEffect.FLAME.display(l, 1, 0, 0, 0, 0.05);
-				}
+//				if (bPlayer.canUseSubElement(SubElement.BLUE_FIRE)) {
+//					ParticleEffect.SOUL_FIRE_FLAME.display(l, 1, 0, 0, 0, 0.05);
+//				} else {
+//					ParticleEffect.FLAME.display(l, 1, 0, 0, 0, 0.05);
+//				}
+				playFirebendingParticles(l, 1, 0, 0, 0);
 			}
 		}
 
@@ -305,17 +317,19 @@ public class FireComet extends FireAbility implements AddonAbility {
 			rotateAroundAxisX(v1, -xRotation);
 			rotateAroundAxisY(v1, -((location.getYaw() * Math.PI / 180) - 1.575));
 
-			if (bPlayer.canUseSubElement(SubElement.BLUE_FIRE)) {
-				ParticleEffect.SOUL_FIRE_FLAME.display(location.clone().add(v), 1, 0, 0, 0, 0.02);
-				ParticleEffect.SMOKE_LARGE.display(location.clone().add(v), 1, 0, 0, 0, 0.02);
-				ParticleEffect.SOUL_FIRE_FLAME.display(location.clone().add(v1), 1, 0, 0, 0, 0.01);
-				ParticleEffect.SMOKE_LARGE.display(location.clone().add(v1), 1, 0, 0, 0, 0.02);
-			} else {
-				ParticleEffect.FLAME.display(location.clone().add(v), 1, 0, 0, 0, 0.02);
-				ParticleEffect.SMOKE_LARGE.display(location.clone().add(v), 1, 0, 0, 0, 0.02);
-				ParticleEffect.FLAME.display(location.clone().add(v1), 1, 0, 0, 0, 0.01);
-				ParticleEffect.SMOKE_LARGE.display(location.clone().add(v1), 1, 0, 0, 0, 0.02);
-			}
+//			if (bPlayer.canUseSubElement(SubElement.BLUE_FIRE)) {
+//				ParticleEffect.SOUL_FIRE_FLAME.display(location.clone().add(v), 1, 0, 0, 0, 0.02);
+//				ParticleEffect.SMOKE_LARGE.display(location.clone().add(v), 1, 0, 0, 0, 0.02);
+//				ParticleEffect.SOUL_FIRE_FLAME.display(location.clone().add(v1), 1, 0, 0, 0, 0.01);
+//			} else {
+//				ParticleEffect.FLAME.display(location.clone().add(v), 1, 0, 0, 0, 0.02);
+//				ParticleEffect.SMOKE_LARGE.display(location.clone().add(v), 1, 0, 0, 0, 0.02);
+//				ParticleEffect.FLAME.display(location.clone().add(v1), 1, 0, 0, 0, 0.01);
+//			}
+			playFirebendingParticles(location.clone().add(v), 1, 0, 0, 0);
+			playFirebendingParticles(location.clone().add(v1), 1, 0, 0, 0);
+			ParticleEffect.SMOKE_LARGE.display(location.clone().add(v), 1, 0, 0, 0, 0.02);
+			ParticleEffect.SMOKE_LARGE.display(location.clone().add(v1), 1, 0, 0, 0, 0.02);
 		}
 
 		if (point == 360) {
@@ -323,22 +337,22 @@ public class FireComet extends FireAbility implements AddonAbility {
 		}
 	}
 
-	private Vector rotateAroundAxisX(Vector v, double angle) {
+	private void rotateAroundAxisX(Vector v, double angle) {
 		double cos = Math.cos(angle);
 		double sin = Math.sin(angle);
 		double y = v.getY() * cos - v.getZ() * sin;
 		double z = v.getY() * sin + v.getZ() * cos;
 
-		return v.setY(y).setZ(z);
+		v.setY(y).setZ(z);
 	}
 
-	private Vector rotateAroundAxisY(Vector v, double angle) {
+	private void rotateAroundAxisY(Vector v, double angle) {
 		double cos = Math.cos(angle);
 		double sin = Math.sin(angle);
 		double x = v.getX() * cos + v.getZ() * sin;
 		double z = v.getX() * -sin + v.getZ() * cos;
 
-		return v.setX(x).setZ(z);
+		v.setX(x).setZ(z);
 	}
 
 	@Override
@@ -428,14 +442,10 @@ public class FireComet extends FireAbility implements AddonAbility {
 	}
 
 	@Override
-	public void load() {
-
-	}
+	public void load() {}
 
 	@Override
-	public void stop() {
-
-	}
+	public void stop() {}
 
 	@Override
 	public boolean isEnabled() {

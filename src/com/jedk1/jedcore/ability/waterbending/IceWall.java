@@ -1,6 +1,7 @@
 package com.jedk1.jedcore.ability.waterbending;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Random;
@@ -35,7 +36,7 @@ import com.projectkorra.projectkorra.waterbending.ice.IceBlast;
 
 public class IceWall extends IceAbility implements AddonAbility {
 
-	public static List<IceWall> instances = new ArrayList<IceWall>();
+	public static List<IceWall> instances = new ArrayList<>();
 	@Attribute(Attribute.HEIGHT)
 	private int maxHeight;
 	private int minHeight;
@@ -57,24 +58,24 @@ public class IceWall extends IceAbility implements AddonAbility {
 
 	public int torrentDamage;
 	public int torrentFreezeDamage;
-	public int iceblastDamage;
-	public int fireblastDamage;
-	public int fireblastChargedDamage;
+	public int iceBlastDamage;
+	public int fireBlastDamage;
+	public int fireBlastChargedDamage;
 	public int lightningDamage;
 	public int combustionDamage;
 	public int earthSmashDamage;
 	public int airBlastDamage;
 
 	public boolean isWallDoneFor = false;
-	public List<Block> affectedBlocks = new ArrayList<Block>();
+	public List<Block> affectedBlocks = new ArrayList<>();
 
 	private boolean rising = false;
 	private long lastDamageTime = 0;
 	private long lifetime = 0;
 	private int wallHealth;
 	private int tankedDamage;
-	private List<Block> lastBlocks = new ArrayList<Block>();
-	private List<TempBlock> tempBlocks = new ArrayList<TempBlock>();
+	private final List<Block> lastBlocks = new ArrayList<>();
+	private final List<TempBlock> tempBlocks = new ArrayList<>();
 
 	Random rand = new Random();
 
@@ -127,9 +128,9 @@ public class IceWall extends IceAbility implements AddonAbility {
 		lifetimeTime = config.getLong("Abilities.Water.IceWall.LifeTime.Duration");
 		torrentDamage = config.getInt("Abilities.Water.IceWall.WallDamage.Torrent");
 		torrentFreezeDamage = config.getInt("Abilities.Water.IceWall.WallDamage.TorrentFreeze");
-		iceblastDamage = config.getInt("Abilities.Water.IceWall.WallDamage.IceBlast");
-		fireblastDamage = config.getInt("Abilities.Water.IceWall.WallDamage.Fireblast");
-		fireblastChargedDamage = config.getInt("Abilities.Water.IceWall.WallDamage.FireblastCharged");
+		iceBlastDamage = config.getInt("Abilities.Water.IceWall.WallDamage.IceBlast");
+		fireBlastDamage = config.getInt("Abilities.Water.IceWall.WallDamage.Fireblast");
+		fireBlastChargedDamage = config.getInt("Abilities.Water.IceWall.WallDamage.FireblastCharged");
 		lightningDamage = config.getInt("Abilities.Water.IceWall.WallDamage.Lightning");
 		combustionDamage = config.getInt("Abilities.Water.IceWall.WallDamage.Combustion");
 		earthSmashDamage = config.getInt("Abilities.Water.IceWall.WallDamage.EarthSmash");
@@ -152,12 +153,9 @@ public class IceWall extends IceAbility implements AddonAbility {
 	}
 
 	public boolean isBendable(Block b) {
-		if (b.getType() == Material.WATER || b.getType() == Material.ICE || b.getType() == Material.PACKED_ICE
+		return b.getType() == Material.WATER || b.getType() == Material.ICE || b.getType() == Material.PACKED_ICE
 				//|| b.getType() == Material.SNOW
-				|| b.getType() == Material.SNOW_BLOCK)
-			return true;
-
-		return false;
+				|| b.getType() == Material.SNOW_BLOCK;
 	}
 
 	public void loadAffectedBlocks(Player player, Block block) {
@@ -242,7 +240,7 @@ public class IceWall extends IceAbility implements AddonAbility {
 				return;
 			}
 
-			List<Block> theseBlocks = new ArrayList<Block>(lastBlocks);
+			List<Block> theseBlocks = new ArrayList<>(lastBlocks);
 
 			lastBlocks.clear();
 
@@ -370,9 +368,10 @@ public class IceWall extends IceAbility implements AddonAbility {
 	}
 
 	public static void removeAll() {
-		for (int i = 0; i < instances.size(); i++) {
-			IceWall iw = instances.get(i);
-			iw.remove();
+		Iterator<IceWall> it = instances.iterator();
+		while (it.hasNext()) {
+			it.next().remove();
+			it.remove();
 		}
 	}
 
@@ -413,7 +412,7 @@ public class IceWall extends IceAbility implements AddonAbility {
 						break;
 
 					if (ice.getLocation().getWorld() == ib.source.getLocation().getWorld() && ice.getLocation().distance(ib.source.getLocation()) <= 2) {
-						iw.damageWall(ib.getPlayer(), (int) (iw.iceblastDamage * getNightFactor(ice.getWorld())));
+						iw.damageWall(ib.getPlayer(), (int) (iw.iceBlastDamage * getNightFactor(ice.getWorld())));
 
 						if (!iw.isWallDoneFor)
 							ib.remove();
@@ -425,7 +424,7 @@ public class IceWall extends IceAbility implements AddonAbility {
 				if (fb.getLocation() == null) continue;
 				for (Block ice : iw.affectedBlocks) { 
 					if (ice.getLocation().getWorld() == fb.getLocation().getWorld() && fb.getLocation().distance(ice.getLocation()) <= 1.5) {
-						iw.damageWall(fb.getPlayer(), iw.fireblastChargedDamage);
+						iw.damageWall(fb.getPlayer(), iw.fireBlastChargedDamage);
 
 						if (!iw.isWallDoneFor) fb.remove();; 
 					} 
@@ -436,7 +435,7 @@ public class IceWall extends IceAbility implements AddonAbility {
 				if (fb.getLocation() == null) continue;
 				for (Block ice : iw.affectedBlocks) { 
 					if (ice.getLocation().getWorld() == fb.getLocation().getWorld() && fb.getLocation().distance(ice.getLocation()) <= 1.5) {
-						iw.damageWall(fb.getPlayer(), iw.fireblastDamage);
+						iw.damageWall(fb.getPlayer(), iw.fireBlastDamage);
 
 						if (!iw.isWallDoneFor) fb.remove();; 
 					} 
@@ -547,20 +546,88 @@ public class IceWall extends IceAbility implements AddonAbility {
 		return "* JedCore Addon *\n" + config.getString("Abilities.Water.IceWall.Description");
 	}
 
-	@Override
-	public void load() {
-		return;
+	public int getRange() {
+		return range;
 	}
 
-	@Override
-	public void stop() {
-		return;
+	public void setRange(int range) {
+		this.range = range;
 	}
 
-	@Override
-	public boolean isEnabled() {
-		ConfigurationSection config = JedCoreConfig.getConfig(this.player);
-		return config.getBoolean("Abilities.Water.IceWall.Enabled");
+	public int getMaxHealth() {
+		return maxHealth;
+	}
+
+	public void setMaxHealth(int maxHealth) {
+		this.maxHealth = maxHealth;
+	}
+
+	public int getMinHealth() {
+		return minHealth;
+	}
+
+	public void setMinHealth(int minHealth) {
+		this.minHealth = minHealth;
+	}
+
+	public double getDamage() {
+		return damage;
+	}
+
+	public void setDamage(double damage) {
+		this.damage = damage;
+	}
+
+	public void setCooldown(long cooldown) {
+		this.cooldown = cooldown;
+	}
+
+	public boolean isRising() {
+		return rising;
+	}
+
+	public void setRising(boolean rising) {
+		this.rising = rising;
+	}
+
+	public long getLastDamageTime() {
+		return lastDamageTime;
+	}
+
+	public void setLastDamageTime(long lastDamageTime) {
+		this.lastDamageTime = lastDamageTime;
+	}
+
+	public long getLifetime() {
+		return lifetime;
+	}
+
+	public void setLifetime(long lifetime) {
+		this.lifetime = lifetime;
+	}
+
+	public int getWallHealth() {
+		return wallHealth;
+	}
+
+	public void setWallHealth(int wallHealth) {
+		this.wallHealth = wallHealth;
+	}
+
+	public int getTankedDamage() {
+		return tankedDamage;
+	}
+
+	public void setTankedDamage(int tankedDamage) {
+		this.tankedDamage = tankedDamage;
+	}
+
+	public List<Block> getLastBlocks() {
+		return lastBlocks;
+	}
+
+	public List<TempBlock> getTempBlocks() {
+		return tempBlocks;
 	}
 
 	public int getMaxHeight() {
@@ -585,5 +652,17 @@ public class IceWall extends IceAbility implements AddonAbility {
 
 	public void setWidth(int width) {
 		this.width = width;
+	}
+
+	@Override
+	public void load() {}
+
+	@Override
+	public void stop() {}
+
+	@Override
+	public boolean isEnabled() {
+		ConfigurationSection config = JedCoreConfig.getConfig(this.player);
+		return config.getBoolean("Abilities.Water.IceWall.Enabled");
 	}
 }

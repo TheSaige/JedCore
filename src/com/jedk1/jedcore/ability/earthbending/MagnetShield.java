@@ -29,7 +29,7 @@ public class MagnetShield extends MetalAbility implements AddonAbility {
 		}
 		
 		if (hasAbility(player, MagnetShield.class)) {
-			((MagnetShield) getAbility(player, MagnetShield.class)).remove();
+			getAbility(player, MagnetShield.class).remove();
 			return;
 		}
 
@@ -71,7 +71,6 @@ public class MagnetShield extends MetalAbility implements AddonAbility {
 				}
 			}
 		}
-		return;
 	}
 	
 	@Override
@@ -81,7 +80,7 @@ public class MagnetShield extends MetalAbility implements AddonAbility {
 
 	@Override
 	public Location getLocation() {
-		return null;
+		return player.getLocation();
 	}
 
 	@Override
@@ -116,14 +115,10 @@ public class MagnetShield extends MetalAbility implements AddonAbility {
 	}
 
 	@Override
-	public void load() {
-		return;
-	}
+	public void load() {}
 
 	@Override
-	public void stop() {
-		return;
-	}
+	public void stop() {}
 
 	@Override
 	public boolean isEnabled() {

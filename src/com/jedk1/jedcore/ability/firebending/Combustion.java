@@ -35,6 +35,7 @@ import java.util.List;
 import java.util.Random;
 
 public class Combustion extends CombustionAbility implements AddonAbility {
+
 	private State state;
 	private Location location;
 	@Attribute(Attribute.COOLDOWN)
@@ -150,14 +151,10 @@ public class Combustion extends CombustionAbility implements AddonAbility {
 	}
 
 	@Override
-	public void load() {
-
-	}
+	public void load() {}
 
 	@Override
-	public void stop() {
-
-	}
+	public void stop() {}
 
 	@Override
 	public boolean isEnabled() {
@@ -174,11 +171,11 @@ public class Combustion extends CombustionAbility implements AddonAbility {
 	// This state transitions to TravelState if the player stops sneaking after charging is done.
 	// This state transitions to CombustState if the player takes damage while charging.
 	private class ChargeState implements State {
-		private long startTime;
+		private final long startTime;
 		private int currPoint;
-		private long warmup;
-		private double playerStartHealth;
-		private boolean instantExplodeIfHit;
+		private final long warmup;
+		private final double playerStartHealth;
+		private final boolean instantExplodeIfHit;
 
 		public ChargeState() {
 			this.startTime = System.currentTimeMillis();
@@ -247,9 +244,9 @@ public class Combustion extends CombustionAbility implements AddonAbility {
 	private class TravelState implements State {
 		private Vector direction;
 		private int ticks;
-		private int range;
-		private boolean explodeOnDeath;
-		private double entityCollisionRadius;
+		private final int range;
+		private final boolean explodeOnDeath;
+		private final double entityCollisionRadius;
 
 		public TravelState() {
 			removalPolicy.removePolicyType(SwappedSlotsRemovalPolicy.class);
@@ -358,8 +355,8 @@ public class Combustion extends CombustionAbility implements AddonAbility {
 	// ChargeState can transition to this state if the player takes damage while charging.
 	// TravelState can transition to this state if the projectile collides with terrain, entity, or collidable ability.
 	private class CombustState implements State {
-		private long startTime;
-		private long regenTime;
+		private final long startTime;
+		private final long regenTime;
 		private boolean waitForRegen;
 
 		public CombustState(Location location) {
@@ -434,8 +431,8 @@ public class Combustion extends CombustionAbility implements AddonAbility {
 				Material.DISPENSER, Material.HOPPER, Material.BEACON, Material.BARRIER, Material.SPAWNER
 		);
 
-		private boolean destroy;
-		private Random rand = new Random();
+		private final boolean destroy;
+		private final Random rand = new Random();
 
 		public AbstractExplosionMethod(boolean destroy) {
 			this.destroy = destroy;
@@ -520,7 +517,7 @@ public class Combustion extends CombustionAbility implements AddonAbility {
 	}
 
 	private class RegenExplosionMethod extends AbstractExplosionMethod {
-		private long regenTime;
+		private final long regenTime;
 
 		public RegenExplosionMethod(boolean destroy, long regenTime) {
 			super(destroy);

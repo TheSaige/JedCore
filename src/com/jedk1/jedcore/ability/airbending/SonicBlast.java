@@ -22,7 +22,6 @@ import org.bukkit.util.Vector;
 
 public class SonicBlast extends AirAbility implements AddonAbility {
 
-	private long time;
 	private Location location;
 	private Vector direction;
 	private boolean isCharged;
@@ -64,7 +63,6 @@ public class SonicBlast extends AirAbility implements AddonAbility {
 		chargeSwapping = config.getBoolean("Abilities.Air.SonicBlast.ChargeSwapping");
 		nauseaDur = config.getInt("Abilities.Air.SonicBlast.Effects.NauseaDuration");
 		blindDur = config.getInt("Abilities.Air.SonicBlast.Effects.BlindnessDuration");
-		time = System.currentTimeMillis();
 	}
 
 	@Override
@@ -86,7 +84,7 @@ public class SonicBlast extends AirAbility implements AddonAbility {
 
 			if (isCharged) {
 				playAirbendingParticles(player.getLocation().add(0, 1, 0), 5, (float) Math.random(), (float) Math.random(), (float) Math.random());
-			} else if (System.currentTimeMillis() > time + warmup) {
+			} else if (System.currentTimeMillis() > getStartTime() + warmup) {
 				isCharged = true;
 			}
 		} else {
@@ -198,14 +196,10 @@ public class SonicBlast extends AirAbility implements AddonAbility {
 	}
 
 	@Override
-	public void load() {
-
-	}
+	public void load() {}
 
 	@Override
-	public void stop() {
-
-	}
+	public void stop() {}
 	
 	@Override
 	public boolean isEnabled() {

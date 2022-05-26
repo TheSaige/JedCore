@@ -30,6 +30,7 @@ import com.projectkorra.projectkorra.util.ParticleEffect;
 import com.projectkorra.projectkorra.util.TempBlock;
 
 public class FrostBreath extends IceAbility implements AddonAbility {
+
 	private static final List<Material> INVALID_MATERIALS = Arrays.asList(
 			Material.ICE,
 			Material.LAVA,
@@ -56,7 +57,7 @@ public class FrostBreath extends IceAbility implements AddonAbility {
 	public Config config;
 
 	private State state;
-	private List<FrozenBlock> frozenBlocks = new ArrayList<>();
+	private final List<FrozenBlock> frozenBlocks = new ArrayList<>();
 
 	public FrostBreath(Player player) {
 		super(player);
@@ -148,15 +149,31 @@ public class FrostBreath extends IceAbility implements AddonAbility {
 		return "* JedCore Addon *\n" + config.getString("Abilities.Water.FrostBreath.Description");
 	}
 
-	@Override
-	public void load() {
+	public static List<Material> getInvalidMaterials() {
+		return INVALID_MATERIALS;
+	}
 
+	public static List<Biome> getInvalidBiomes() {
+		return INVALID_BIOMES;
+	}
+
+	public State getState() {
+		return state;
+	}
+
+	public void setState(State state) {
+		this.state = state;
+	}
+
+	public List<FrozenBlock> getFrozenBlocks() {
+		return frozenBlocks;
 	}
 
 	@Override
-	public void stop() {
+	public void load() {}
 
-	}
+	@Override
+	public void stop() {}
 
 	@Override
 	public boolean isEnabled() {
@@ -234,18 +251,18 @@ public class FrostBreath extends IceAbility implements AddonAbility {
 			double step = 1;
 			double size = 0;
 			double offset = 0;
-			double damageregion = 1.5;
+			double damageRegion = 1.5;
 
 			for (double i = 0; i < config.range; i += step) {
 				loc = loc.add(dir.clone().multiply(step));
 				size += 0.005;
 				offset += 0.3;
-				damageregion += 0.01;
+				damageRegion += 0.01;
 
 				if (!isLocationSafe(loc))
 					return;
 
-				for (Entity entity : GeneralMethods.getEntitiesAroundPoint(loc, damageregion)) {
+				for (Entity entity : GeneralMethods.getEntitiesAroundPoint(loc, damageRegion)) {
 					if (entity instanceof LivingEntity && entity.getEntityId() != player.getEntityId()) {
 						for (Location cageLocation : createCage(entity.getLocation())) {
 							if (isFreezable(cageLocation, entity)) {

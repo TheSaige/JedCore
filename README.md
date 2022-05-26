@@ -5,6 +5,15 @@ Join our [Discord](https://discord.gg/gh9MfDmwZm) to discuss the plugin, suggest
 
 ## Changelog
 
+### 2.9.7
+- Used World#getMinHeight and World#getMaxHeight instead of hard-coded Y-values for certain abilities' cancellations (for 1.18 world height changes)
+- Added getters and setters to almost all abilities for improved data accessibility
+- Fixed many warnings and instances of poor style
+- Made almost all abilities adhere to standards concerning the possible cancellation of the AbilityStartEvent, so no irreversible changes take place if the event is cancelled
+- Converted all instances of Entity#setVelocity to the new GeneralMethods#setVelocity, which calls its own event
+- Removed unnecessary "time" variables that can be replaced with getStartTime() calls
+- Made FirePunch not static
+
 ### 2.9.6.2
 - Started using jitpack for ProjectKorra dependency
 
