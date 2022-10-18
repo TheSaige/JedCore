@@ -39,6 +39,7 @@ public class FrostBreath extends IceAbility implements AddonAbility {
 			Material.CAVE_AIR,
 			Material.LIGHT
 	);
+	@Deprecated
 	private static final List<Biome> INVALID_BIOMES = Arrays.asList(
 		Biome.DESERT,
 		Biome.BASALT_DELTAS,
@@ -53,6 +54,10 @@ public class FrostBreath extends IceAbility implements AddonAbility {
 		Biome.SAVANNA_PLATEAU,
 		Biome.WINDSWEPT_SAVANNA
 	);
+
+	//Savannas are 1.0 temp with 0 humidity. Deserts are 2.0 temp with 0 humidity.
+	private static float MAX_TEMP = 1.0F;
+	private static float MIN_HUMIDITY = 0.01F;
 
 	public Config config;
 
@@ -69,9 +74,10 @@ public class FrostBreath extends IceAbility implements AddonAbility {
 		this.config = new Config(player);
 		this.state = new BeamState();
 
-		Biome biome = player.getLocation().getBlock().getBiome();
+		double temp = player.getLocation().getWorld().getTemperature(player.getLocation().getBlockX(), player.getLocation().getBlockY(), player.getLocation().getBlockZ());
+		double humidity = player.getLocation().getWorld().getHumidity(player.getLocation().getBlockX(), player.getLocation().getBlockY(), player.getLocation().getBlockZ());
 
-		if (config.restrictBiomes && INVALID_BIOMES.contains(biome)) {
+		if (config.restrictBiomes && (temp >= MAX_TEMP || humidity <= MIN_HUMIDITY)) {
 			return;
 		}
 
@@ -153,6 +159,7 @@ public class FrostBreath extends IceAbility implements AddonAbility {
 		return INVALID_MATERIALS;
 	}
 
+	@Deprecated
 	public static List<Biome> getInvalidBiomes() {
 		return INVALID_BIOMES;
 	}

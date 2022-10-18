@@ -14,7 +14,6 @@ import com.jedk1.jedcore.ability.waterbending.IceClaws;
 import com.jedk1.jedcore.ability.waterbending.IceWall;
 import com.jedk1.jedcore.scoreboard.BendingBoard;
 import com.jedk1.jedcore.util.RegenTempBlock;
-import com.jedk1.jedcore.util.TempFallingBlock;
 import com.projectkorra.projectkorra.ProjectKorra;
 import com.projectkorra.projectkorra.ability.CoreAbility;
 import com.projectkorra.projectkorra.ability.IceAbility;
@@ -179,24 +178,6 @@ public class JCListener implements Listener {
 					event.setCancelled(true);
 					arrow.removeMetadata("metalhook", JedCore.plugin);
 				}
-			}
-		}
-	}
-
-	@EventHandler(priority = EventPriority.NORMAL)
-	public void EntityChangeBlockEvent(EntityChangeBlockEvent event) {
-		if (event.getEntityType() == EntityType.FALLING_BLOCK) {
-			FallingBlock fb = (FallingBlock) event.getEntity();
-			if (TempFallingBlock.isTempFallingBlock(fb)) {
-				TempFallingBlock tfb = TempFallingBlock.get(fb);
-				if (tfb.getAbility() instanceof ESEarth) {
-					ESEarth.explodeEarth(tfb);
-				}
-				if (tfb.getAbility() instanceof MagmaBlast) {
-					MagmaBlast.blast(tfb);
-				}
-				tfb.remove();
-				event.setCancelled(true);
 			}
 		}
 	}

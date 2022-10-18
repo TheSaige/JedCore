@@ -99,7 +99,6 @@ public class JedCore extends JavaPlugin {
 	
 	public void onDisable() {
 		RegenTempBlock.revertAll();
-		TempFallingBlock.removeAllFallingBlocks();
 	}
 
 	public static void logDebug(String message) {

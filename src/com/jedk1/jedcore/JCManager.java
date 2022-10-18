@@ -6,9 +6,8 @@
  import com.jedk1.jedcore.ability.waterbending.HealingWaters;
  import com.jedk1.jedcore.ability.waterbending.IcePassive;
  import com.jedk1.jedcore.util.RegenTempBlock;
- import com.jedk1.jedcore.util.TempFallingBlock;
 
-public class JCManager implements Runnable {
+ public class JCManager implements Runnable {
 
 	public JedCore plugin;
 	
@@ -24,6 +23,5 @@ public class JCManager implements Runnable {
 //		IceWall.progressAll();
 		
 		RegenTempBlock.manage();
-		TempFallingBlock.manage();
 	}
 }

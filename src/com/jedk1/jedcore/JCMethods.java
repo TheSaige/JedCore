@@ -334,7 +334,6 @@ public class JCMethods {
 		registerDisabledWorlds();
 		registerCombos();
 		RegenTempBlock.revertAll();
-		TempFallingBlock.removeAllFallingBlocks();
 		BendingBoard.setFields();
 		BendingBoard.updateOnline();
 		JedCore.plugin.initializeCollisions();
