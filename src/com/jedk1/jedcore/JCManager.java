@@ -1,13 +1,13 @@
- package com.jedk1.jedcore;
+package com.jedk1.jedcore;
 
- import org.bukkit.Bukkit;
+import org.bukkit.Bukkit;
 
  import com.jedk1.jedcore.ability.firebending.LightningBurst;
  import com.jedk1.jedcore.ability.waterbending.HealingWaters;
  import com.jedk1.jedcore.ability.waterbending.IcePassive;
  import com.jedk1.jedcore.util.RegenTempBlock;
 
- public class JCManager implements Runnable {
+public class JCManager implements Runnable {
 
 	public JedCore plugin;
 	

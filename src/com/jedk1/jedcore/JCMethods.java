@@ -338,7 +338,6 @@ public class JCMethods {
 		BendingBoard.updateOnline();
 		JedCore.plugin.initializeCollisions();
 		FireTick.loadMethod();
-		CooldownEnforcer.onConfigReload();
 
 		BendingBoard.loadOtherCooldowns();
 	}

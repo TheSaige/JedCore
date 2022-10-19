@@ -107,7 +107,7 @@ public class BendingBoard {
 
 	public static void toggle(Player player) {
 		if (!enabled) return;
-		List<String> uuids = new ArrayList<String>();
+		List<String> uuids = new ArrayList<>();
 		uuids.addAll(toggled.getConfig().getStringList("Players"));
 		if (uuids.contains(player.getUniqueId().toString())) {
 			uuids.remove(player.getUniqueId().toString());

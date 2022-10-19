@@ -133,7 +133,7 @@ public class JCListener implements Listener {
 	@EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
 	public void onEntityDamageByEntity(EntityDamageByEntityEvent event) {
 		if (event.getDamager() instanceof Player && event.getEntity() instanceof LivingEntity) {
-			if (event.getCause() == DamageCause.ENTITY_ATTACK) {
+			if (event.getCause() == DamageCause.ENTITY_ATTACK && event.getDamager().getWorld().equals(event.getEntity().getWorld())) {
 				double distSq = event.getDamager().getLocation().distanceSquared(event.getEntity().getLocation());
 
 				// Only activate these in melee range
