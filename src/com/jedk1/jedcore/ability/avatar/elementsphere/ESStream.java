@@ -10,6 +10,7 @@ import com.projectkorra.projectkorra.ability.AddonAbility;
 import com.projectkorra.projectkorra.ability.AvatarAbility;
 import com.projectkorra.projectkorra.attribute.Attribute;
 import com.projectkorra.projectkorra.command.Commands;
+import com.projectkorra.projectkorra.region.RegionProtection;
 import com.projectkorra.projectkorra.util.DamageHandler;
 import com.projectkorra.projectkorra.util.ParticleEffect;
 
@@ -74,7 +75,7 @@ public class ESStream extends AvatarAbility implements AddonAbility {
 			return;
 		}
 
-		if (GeneralMethods.isRegionProtectedFromBuild(this, player.getTargetBlock(getTransparentMaterialSet(), (int) range).getLocation())) {
+		if (RegionProtection.isRegionProtected(this, player.getTargetBlock(getTransparentMaterialSet(), (int) range).getLocation())) {
 			return;
 		}
 		
@@ -123,7 +124,7 @@ public class ESStream extends AvatarAbility implements AddonAbility {
 			return;
 		}
 
-		if (GeneralMethods.isRegionProtectedFromBuild(player, "ElementSphere", stream)) {
+		if (RegionProtection.isRegionProtected(player, stream, this)) {
 			remove();
 			return;
 		}
@@ -149,7 +150,7 @@ public class ESStream extends AvatarAbility implements AddonAbility {
 			List<BlockState> blocks = new ArrayList<>();
 			for (Location loc : GeneralMethods.getCircle(stream, (int) radius, 0, false, true, 0)) {
 				if (JCMethods.isUnbreakable(loc.getBlock())) continue;
-				if (GeneralMethods.isRegionProtectedFromBuild(this, loc)) continue;
+				if (RegionProtection.isRegionProtected(this, loc)) continue;
 				blocks.add(loc.getBlock().getState());
 				new RegenTempBlock(loc.getBlock(), Material.AIR, Material.AIR.createBlockData(), regen, false);
 			}
@@ -157,7 +158,7 @@ public class ESStream extends AvatarAbility implements AddonAbility {
 				if (e instanceof Player && e == player) {
 					continue;
 				}
-				if (GeneralMethods.isRegionProtectedFromBuild(this, e.getLocation()) || ((e instanceof Player) && Commands.invincible.contains(((Player) e).getName()))){
+				if (RegionProtection.isRegionProtected(this, e.getLocation()) || ((e instanceof Player) && Commands.invincible.contains(((Player) e).getName()))){
 					continue;
 				}
 				GeneralMethods.setVelocity(this, e, dir.normalize().multiply(knockback));
@@ -240,7 +241,7 @@ public class ESStream extends AvatarAbility implements AddonAbility {
 
 	@Override
 	public String getName() {
-		return "ElementSphere Stream";
+		return "ElementSphereStream";
 	}
 	
 	@Override

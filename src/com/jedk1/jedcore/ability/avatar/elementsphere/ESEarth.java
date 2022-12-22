@@ -10,6 +10,7 @@ import com.projectkorra.projectkorra.ability.EarthAbility;
 import com.projectkorra.projectkorra.ability.ElementalAbility;
 import com.projectkorra.projectkorra.attribute.Attribute;
 import com.projectkorra.projectkorra.command.Commands;
+import com.projectkorra.projectkorra.region.RegionProtection;
 import com.projectkorra.projectkorra.util.DamageHandler;
 import com.projectkorra.projectkorra.util.ParticleEffect;
 
@@ -54,7 +55,7 @@ public class ESEarth extends AvatarAbility implements AddonAbility {
 		if (bPlayer.isOnCooldown("ESEarth")) {
 			return;
 		}
-		if (GeneralMethods.isRegionProtectedFromBuild(this, player.getTargetBlock(getTransparentMaterialSet(), 40).getLocation())) {
+		if (RegionProtection.isRegionProtected(this, player.getTargetBlock(getTransparentMaterialSet(), 40).getLocation())) {
 			return;
 		}
 		setFields();
@@ -86,7 +87,7 @@ public class ESEarth extends AvatarAbility implements AddonAbility {
 			remove();
 			return;
 		}
-		if (GeneralMethods.isRegionProtectedFromBuild(this, tfb.getLocation())){
+		if (RegionProtection.isRegionProtected(this, tfb.getLocation())){
 			remove();
 			return;
 		}
@@ -94,7 +95,7 @@ public class ESEarth extends AvatarAbility implements AddonAbility {
 		EarthAbility.playEarthbendingSound(tfb.getLocation());
 
 		for (Entity entity : GeneralMethods.getEntitiesAroundPoint(tfb.getLocation(), 2.5)) {
-			if (entity instanceof LivingEntity && !(entity instanceof ArmorStand) && entity.getEntityId() != player.getEntityId() && !GeneralMethods.isRegionProtectedFromBuild(this, entity.getLocation()) && !((entity instanceof Player) && Commands.invincible.contains(((Player) entity).getName()))) {
+			if (entity instanceof LivingEntity && !(entity instanceof ArmorStand) && entity.getEntityId() != player.getEntityId() && !RegionProtection.isRegionProtected(this, entity.getLocation()) && !((entity instanceof Player) && Commands.invincible.contains(((Player) entity).getName()))) {
 				//explodeEarth(fb);
 				DamageHandler.damageEntity(entity, damage, this);
 			}
@@ -114,7 +115,7 @@ public class ESEarth extends AvatarAbility implements AddonAbility {
 			//	TempBlock.revertBlock(l.getBlock(), Material.AIR);
 			//	TempBlock.removeBlock(l.getBlock());
 			//}
-			if (isBreakable(l.getBlock()) && !GeneralMethods.isRegionProtectedFromBuild(player, "ElementSphere", l) && EarthAbility.isEarthbendable(player, l.getBlock())) {
+			if (isBreakable(l.getBlock()) && !RegionProtection.isRegionProtected(player, l, "ElementSphere") && EarthAbility.isEarthbendable(player, l.getBlock())) {
 				ParticleEffect.SMOKE_LARGE.display(l, 0, 0, 0, 0.1F, 2);
 				//new RegenTempBlock(l.getBlock(), Material.AIR, (byte) 0, (long) rand.nextInt((int) es.revertDelay - (int) (es.revertDelay - 1000)) + (es.revertDelay - 1000));
 				new RegenTempBlock(l.getBlock(), Material.AIR, Material.AIR.createBlockData(), (long) rand.nextInt((int) es.revertDelay - (int) (es.revertDelay - 1000)) + (es.revertDelay - 1000), false);
@@ -148,7 +149,7 @@ public class ESEarth extends AvatarAbility implements AddonAbility {
 
 	@Override
 	public String getName() {
-		return "ElementSphere Earth";
+		return "ElementSphereEarth";
 	}
 	
 	@Override

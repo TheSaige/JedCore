@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.projectkorra.projectkorra.util.ChatUtil;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
@@ -59,11 +60,11 @@ public class BendingBoard {
 
 	public static void setFields() {
 		enabled = JedCoreConfig.board.getConfig().getBoolean("Settings.Enabled");
-		title = ChatColor.translateAlternateColorCodes('&', JedCoreConfig.board.getConfig().getString("Settings.Title"));
-		empty = ChatColor.translateAlternateColorCodes('&', JedCoreConfig.board.getConfig().getString("Settings.EmptySlot"));
-		combo = ChatColor.translateAlternateColorCodes('&', JedCoreConfig.board.getConfig().getString("Settings.Combos"));
-		toggleOn = ChatColor.translateAlternateColorCodes('&', JedCoreConfig.board.getConfig().getString("Settings.Toggle.On"));
-		toggleOff = ChatColor.translateAlternateColorCodes('&', JedCoreConfig.board.getConfig().getString("Settings.Toggle.Off"));
+		title = ChatUtil.color(JedCoreConfig.board.getConfig().getString("Settings.Title"));
+		empty = ChatUtil.color(JedCoreConfig.board.getConfig().getString("Settings.EmptySlot"));
+		combo = ChatUtil.color(JedCoreConfig.board.getConfig().getString("Settings.Combos"));
+		toggleOn = ChatUtil.color(JedCoreConfig.board.getConfig().getString("Settings.Toggle.On"));
+		toggleOff = ChatUtil.color(JedCoreConfig.board.getConfig().getString("Settings.Toggle.Off"));
 		disabledworlds = JedCoreConfig.board.getConfig().getBoolean("Settings.Display.DisabledWorlds");
 	}
 
@@ -89,7 +90,7 @@ public class BendingBoard {
 			ChatColor color = null;
 
 			if (colorString != null) {
-				color = ChatColor.valueOf(colorString);
+				color = ChatColor.of(colorString);
 			}
 
 			otherAbilities.put(ability, color);

@@ -6,12 +6,12 @@ import com.jedk1.jedcore.collision.CollisionDetector;
 import com.jedk1.jedcore.collision.CollisionUtil;
 import com.jedk1.jedcore.configuration.JedCoreConfig;
 import com.jedk1.jedcore.util.BlockUtil;
-import com.projectkorra.projectkorra.GeneralMethods;
 import com.projectkorra.projectkorra.ability.AddonAbility;
 import com.projectkorra.projectkorra.ability.EarthAbility;
 import com.projectkorra.projectkorra.ability.ElementalAbility;
 import com.projectkorra.projectkorra.ability.util.Collision;
 import com.projectkorra.projectkorra.attribute.Attribute;
+import com.projectkorra.projectkorra.region.RegionProtection;
 import com.projectkorra.projectkorra.util.*;
 
 import org.bukkit.Location;
@@ -56,7 +56,7 @@ public class EarthKick extends EarthAbility implements AddonAbility {
 		setFields();
 		location = player.getLocation();
 		if ((player.getLocation().getPitch() > -5) && prepare()) {
-			if (GeneralMethods.isRegionProtectedFromBuild(this, block.getLocation())) {
+			if (RegionProtection.isRegionProtected(this, block.getLocation())) {
 				return;
 			}
 			launchBlocks();

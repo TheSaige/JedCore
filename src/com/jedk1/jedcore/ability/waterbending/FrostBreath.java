@@ -6,11 +6,10 @@ import java.util.List;
 
 import com.jedk1.jedcore.configuration.JedCoreConfig;
 import com.projectkorra.projectkorra.command.Commands;
+import com.projectkorra.projectkorra.region.RegionProtection;
 import com.projectkorra.projectkorra.waterbending.ice.PhaseChange;
-import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.Particle;
 import org.bukkit.block.Biome;
 import org.bukkit.block.Block;
 import org.bukkit.configuration.ConfigurationSection;
@@ -233,7 +232,7 @@ public class FrostBreath extends IceAbility implements AddonAbility {
 		private boolean isLocationSafe(Location loc) {
 			Block block = loc.getBlock();
 
-			if (GeneralMethods.isRegionProtectedFromBuild(player, "FrostBreath", loc)) {
+			if (RegionProtection.isRegionProtected(player, loc, FrostBreath.this)) {
 				return false;
 			}
 
@@ -241,7 +240,7 @@ public class FrostBreath extends IceAbility implements AddonAbility {
 		}
 
 		private boolean isFreezable(Location location, Entity entity) {
-			if (GeneralMethods.isRegionProtectedFromBuild(FrostBreath.this, location)) {
+			if (RegionProtection.isRegionProtected(FrostBreath.this, location)) {
 				return false;
 			}
 
@@ -309,7 +308,7 @@ public class FrostBreath extends IceAbility implements AddonAbility {
 
 		private void freezeGround(Location loc) {
 			for (Location l : GeneralMethods.getCircle(loc, 2, 2, false, true, 0)) {
-				if (!GeneralMethods.isRegionProtectedFromBuild(player, "FrostBreath", l)) {
+				if (!RegionProtection.isRegionProtected(player, l, FrostBreath.this)) {
 					Block block = l.getBlock();
 
 					if (isWater(l.getBlock())) {
@@ -325,7 +324,7 @@ public class FrostBreath extends IceAbility implements AddonAbility {
 								current.revertBlock();
 							}
 
-							TempBlock tempBlock = new TempBlock(block, Material.SNOW, Material.SNOW.createBlockData());
+							TempBlock tempBlock = new TempBlock(block, Material.SNOW.createBlockData());
 							tempBlock.setRevertTime(config.snowDuration);
 						}
 					}
@@ -350,7 +349,7 @@ public class FrostBreath extends IceAbility implements AddonAbility {
 				}
 			}
 
-			TempBlock tempBlock = new TempBlock(block, type, type.createBlockData());
+			TempBlock tempBlock = new TempBlock(block, type.createBlockData());
 
 			frozenBlocks.add(new FrozenBlock(tempBlock, System.currentTimeMillis() + duration));
 

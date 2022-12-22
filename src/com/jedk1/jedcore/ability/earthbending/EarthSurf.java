@@ -10,6 +10,7 @@ import com.projectkorra.projectkorra.ability.EarthAbility;
 import com.projectkorra.projectkorra.ability.ElementalAbility;
 import com.projectkorra.projectkorra.attribute.Attribute;
 import com.projectkorra.projectkorra.earthbending.passive.DensityShift;
+import com.projectkorra.projectkorra.region.RegionProtection;
 import com.projectkorra.projectkorra.util.TempBlock;
 
 import com.projectkorra.projectkorra.util.TempFallingBlock;
@@ -190,7 +191,6 @@ public class EarthSurf extends EarthAbility implements AddonAbility {
 		return l.getBlock();
 	}
 
-	@SuppressWarnings("deprecation")
 	private void rideWave() {
 		for (int i = 0; i < 3; i++) {
 			Location loc = location.clone();
@@ -208,7 +208,7 @@ public class EarthSurf extends EarthAbility implements AddonAbility {
 				Block block = loc.clone().add(0, -3.9, 0).toVector().add(location.clone().getDirection().multiply(distOffset - 0.5)).toLocation(player.getWorld()).getBlock();
 				Location temp = loc.clone().add(0, -2.9, 0).toVector().add(location.clone().getDirection().multiply(distOffset)).toLocation(player.getWorld());
 
-				if (GeneralMethods.isRegionProtectedFromBuild(this, block.getLocation())) {
+				if (RegionProtection.isRegionProtected(this, block.getLocation())) {
 					continue;
 				}
 				// Don't render blocks above the player because it looks bad.
@@ -221,12 +221,12 @@ public class EarthSurf extends EarthAbility implements AddonAbility {
 					DensityShift.revertSand(block);
 				}
 
-				if (!GeneralMethods.isSolid(block.getLocation().add(0, 1, 0).getBlock()) && block.getLocation().add(0, 1, 0).getBlock().getType() != null && !ElementalAbility.isAir(block.getLocation().add(0, 1, 0).getBlock().getType())) {
+				if (!GeneralMethods.isSolid(block.getLocation().add(0, 1, 0).getBlock()) && !ElementalAbility.isAir(block.getLocation().add(0, 1, 0).getBlock().getType())) {
 					if (DensityShift.isPassiveSand(block.getRelative(BlockFace.UP))) {
 						DensityShift.revertSand(block.getRelative(BlockFace.UP));
 					}
 
-					new TempBlock(block.getRelative(BlockFace.UP), Material.AIR, Material.AIR.createBlockData());
+					new TempBlock(block.getRelative(BlockFace.UP), Material.AIR.createBlockData());
 				}
 
 				if (GeneralMethods.isSolid(block)) {

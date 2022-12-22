@@ -12,6 +12,7 @@ import com.projectkorra.projectkorra.ability.FireAbility;
 import com.projectkorra.projectkorra.attribute.Attribute;
 import com.projectkorra.projectkorra.command.Commands;
 import com.projectkorra.projectkorra.firebending.BlazeArc;
+import com.projectkorra.projectkorra.region.RegionProtection;
 import com.projectkorra.projectkorra.util.DamageHandler;
 import com.projectkorra.projectkorra.util.ParticleEffect;
 
@@ -55,7 +56,7 @@ public class ESFire extends AvatarAbility implements AddonAbility {
 		if (bPlayer.isOnCooldown("ESFire")) {
 			return;
 		}
-		if (GeneralMethods.isRegionProtectedFromBuild(this, player.getTargetBlock(getTransparentMaterialSet(), (int) range).getLocation())) {
+		if (RegionProtection.isRegionProtected(this, player.getTargetBlock(getTransparentMaterialSet(), (int) range).getLocation())) {
 			return;
 		}
 		setFields();
@@ -112,7 +113,7 @@ public class ESFire extends AvatarAbility implements AddonAbility {
 				direction = GeneralMethods.getDirection(player.getLocation(), GeneralMethods.getTargetedLocation(player, range, Material.WATER)).normalize();
 
 			location = location.add(direction.clone().multiply(1));
-			if (GeneralMethods.isRegionProtectedFromBuild(this, location)) {
+			if (RegionProtection.isRegionProtected(this, location)) {
 				travelled = range;
 				return;
 			}
@@ -129,7 +130,7 @@ public class ESFire extends AvatarAbility implements AddonAbility {
 			placeFire();
 
 			for (Entity entity : GeneralMethods.getEntitiesAroundPoint(location, 2.5)) {
-				if (entity instanceof LivingEntity && entity.getEntityId() != player.getEntityId() && !(entity instanceof ArmorStand) && !GeneralMethods.isRegionProtectedFromBuild(this, entity.getLocation()) && !((entity instanceof Player) && Commands.invincible.contains(((Player) entity).getName()))) {
+				if (entity instanceof LivingEntity && entity.getEntityId() != player.getEntityId() && !(entity instanceof ArmorStand) && !RegionProtection.isRegionProtected(this, entity.getLocation()) && !((entity instanceof Player) && Commands.invincible.contains(((Player) entity).getName()))) {
 					DamageHandler.damageEntity(entity, damage, this);
 					entity.setFireTicks(Math.round(burnTime / 50F));
 					travelled = range;
@@ -157,7 +158,7 @@ public class ESFire extends AvatarAbility implements AddonAbility {
 
 	@Override
 	public String getName() {
-		return "ElementSphere Fire";
+		return "ElementSphereFire";
 	}
 	
 	@Override

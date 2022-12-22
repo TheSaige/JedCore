@@ -78,7 +78,7 @@ public class FirePunch extends FireAbility implements AddonAbility {
 		DamageHandler.damageEntity(target, damage, this);
 		FireTick.set(target, fireTicks / 50);
 		if (cooldown > fireTicks) {
-			new FireDamageTimer(target, player);
+			new FireDamageTimer(target, player, this);
 		}
 		bPlayer.addCooldown(this);
 	}

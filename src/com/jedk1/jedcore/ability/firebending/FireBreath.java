@@ -1,15 +1,18 @@
 package com.jedk1.jedcore.ability.firebending;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
-import java.util.Set;
 import java.util.UUID;
 
 import com.jedk1.jedcore.JCMethods;
 import com.jedk1.jedcore.configuration.JedCoreConfig;
+import com.jedk1.jedcore.listener.CommandListener;
 import com.jedk1.jedcore.util.FireTick;
 import com.projectkorra.projectkorra.attribute.Attribute;
+import com.projectkorra.projectkorra.region.RegionProtection;
+import com.projectkorra.projectkorra.util.ChatUtil;
 import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Particle;
@@ -36,10 +39,6 @@ import com.projectkorra.projectkorra.waterbending.ice.PhaseChange;
 public class FireBreath extends FireAbility implements AddonAbility {
 
 	public static List<UUID> rainbowPlayer = new ArrayList<>();
-	private static boolean easterEgg;
-	private static String bindMsg;
-	private static String unbindMsg;
-	private static String deniedMsg;
 
 	private int ticks;
 	Random rand = new Random();
@@ -97,10 +96,6 @@ public class FireBreath extends FireAbility implements AddonAbility {
 		spawnFire = config.getBoolean("Abilities.Fire.FireBreath.Avatar.FireEnabled");
 		meltEnabled = config.getBoolean("Abilities.Fire.FireBreath.Melt.Enabled");
 		meltChance = config.getInt("Abilities.Fire.FireBreath.Melt.Chance");
-		easterEgg = config.getBoolean("Abilities.Fire.FireBreath.RainbowBreath.Enabled");
-		bindMsg = config.getString("Abilities.Fire.FireBreath.RainbowBreath.EnabledMessage");
-		unbindMsg = config.getString("Abilities.Fire.FireBreath.RainbowBreath.DisabledMessage");
-		deniedMsg = config.getString("Abilities.Fire.FireBreath.RainbowBreath.NoAccess");
 		
 		applyModifiers();
 	}
@@ -147,7 +142,7 @@ public class FireBreath extends FireAbility implements AddonAbility {
 
 	private boolean isLocationSafe(Location loc) {
 		Block block = loc.getBlock();
-		if (GeneralMethods.isRegionProtectedFromBuild(player, "FireBreath", loc)) {
+		if (RegionProtection.isRegionProtected(player, loc, this)) {
 			return false;
 		}
 		if (!isTransparent(block)) {
@@ -253,22 +248,27 @@ public class FireBreath extends FireAbility implements AddonAbility {
 	}
 
 	public static void toggleRainbowBreath(Player player, boolean activate) {
+		ConfigurationSection config = JedCoreConfig.getConfig(player);
+
+		boolean easterEgg = config.getBoolean("Abilities.Fire.FireBreath.RainbowBreath.Enabled");
+		String bindMsg = ChatUtil.color(config.getString("Abilities.Fire.FireBreath.RainbowBreath.EnabledMessage", ""));
+		String unbindMsg = ChatUtil.color(config.getString("Abilities.Fire.FireBreath.RainbowBreath.DisabledMessage", ""));
+		String deniedMsg = ChatUtil.color(config.getString("Abilities.Fire.FireBreath.RainbowBreath.NoAccess", ""));
+
 		if (easterEgg && (player.hasPermission("bending.ability.FireBreath.RainbowBreath") 
-				|| player.getUniqueId().equals(UUID.fromString("4eb6315e-9dd1-49f7-b582-c1170e497ab0"))
-				|| player.getUniqueId().equals(UUID.fromString("d57565a5-e6b0-44e3-a026-979d5de10c4d"))
-				|| player.getUniqueId().equals(UUID.fromString("e98a2f7d-d571-4900-a625-483cbe6774fe")))) {
+				|| Arrays.asList(CommandListener.developers).contains(player.getUniqueId().toString()))) {
 			if (activate) {
 				if (!rainbowPlayer.contains(player.getUniqueId())) {
 					rainbowPlayer.add(player.getUniqueId());
-					player.sendMessage(Element.FIRE.getColor() + bindMsg);
+					if (!bindMsg.equals("")) player.sendMessage(Element.FIRE.getColor() + bindMsg);
 				}
 			} else {
 				if (rainbowPlayer.contains(player.getUniqueId())) {
 					rainbowPlayer.remove(player.getUniqueId());
-					player.sendMessage(Element.FIRE.getColor() + unbindMsg);
+					if (!unbindMsg.equals("")) player.sendMessage(Element.FIRE.getColor() + unbindMsg);
 				}
 			}
-		} else {
+		} else if (!deniedMsg.equals("")) {
 			player.sendMessage(Element.FIRE.getColor() + deniedMsg);
 		}
 	}
@@ -409,38 +409,6 @@ public class FireBreath extends FireAbility implements AddonAbility {
 
 	public void setMeltChance(int meltChance) {
 		this.meltChance = meltChance;
-	}
-
-	public static boolean isEasterEgg() {
-		return easterEgg;
-	}
-
-	public static void setEasterEgg(boolean easterEgg) {
-		FireBreath.easterEgg = easterEgg;
-	}
-
-	public static String getBindMsg() {
-		return bindMsg;
-	}
-
-	public static void setBindMsg(String bindMsg) {
-		FireBreath.bindMsg = bindMsg;
-	}
-
-	public static String getUnbindMsg() {
-		return unbindMsg;
-	}
-
-	public static void setUnbindMsg(String unbindMsg) {
-		FireBreath.unbindMsg = unbindMsg;
-	}
-
-	public static String getDeniedMsg() {
-		return deniedMsg;
-	}
-
-	public static void setDeniedMsg(String deniedMsg) {
-		FireBreath.deniedMsg = deniedMsg;
 	}
 
 	@Override

@@ -9,6 +9,7 @@ import com.projectkorra.projectkorra.ability.SandAbility;
 import com.projectkorra.projectkorra.ability.util.Collision;
 import com.projectkorra.projectkorra.attribute.Attribute;
 import com.projectkorra.projectkorra.earthbending.passive.DensityShift;
+import com.projectkorra.projectkorra.region.RegionProtection;
 import com.projectkorra.projectkorra.util.BlockSource;
 import com.projectkorra.projectkorra.util.ClickType;
 import com.projectkorra.projectkorra.util.DamageHandler;
@@ -97,7 +98,7 @@ public class SandBlast extends SandAbility implements AddonAbility {
 				if (DensityShift.isPassiveSand(source)) {
 					DensityShift.revertSand(source);
 				}
-				tempBlock = new TempBlock(source, Material.SANDSTONE, Material.SANDSTONE.createBlockData());
+				tempBlock = new TempBlock(source, Material.SANDSTONE.createBlockData());
 				return true;
 			}
 		}
@@ -185,7 +186,7 @@ public class SandBlast extends SandAbility implements AddonAbility {
 				continue;
 			}
 
-			if (GeneralMethods.isRegionProtectedFromBuild(player, "SandBlast", fblock.getLocation())) {
+			if (RegionProtection.isRegionProtected(player, fblock.getLocation(), this)) {
 				tfb.remove();
 				continue;
 			}

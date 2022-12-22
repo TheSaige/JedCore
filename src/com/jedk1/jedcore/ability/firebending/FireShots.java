@@ -143,7 +143,7 @@ public class FireShots extends FireAbility implements AddonAbility {
 				boolean hit = CollisionDetector.checkEntityCollisions(player, collider, (entity) -> {
 					DamageHandler.damageEntity(entity, damage, ability);
 					FireTick.set(entity, Math.round(fireTicks / 50F));
-					new FireDamageTimer(entity, player);
+					new FireDamageTimer(entity, player, FireShots.this);
 					return true;
 				});
 

@@ -11,6 +11,7 @@ import com.projectkorra.projectkorra.ability.util.ComboManager.AbilityInformatio
 import com.projectkorra.projectkorra.attribute.Attribute;
 import com.projectkorra.projectkorra.command.Commands;
 import com.projectkorra.projectkorra.object.HorizontalVelocityTracker;
+import com.projectkorra.projectkorra.region.RegionProtection;
 import com.projectkorra.projectkorra.util.ClickType;
 
 import org.bukkit.Location;
@@ -44,7 +45,7 @@ public class AirSlam extends AirAbility implements AddonAbility, ComboAbility {
 
 		Entity target = GeneralMethods.getTargetedEntity(player, range, new ArrayList<>());
 		if (!(target instanceof LivingEntity)
-				|| GeneralMethods.isRegionProtectedFromBuild(this, target.getLocation())
+				|| RegionProtection.isRegionProtected(this, target.getLocation())
 				|| ((target instanceof Player) && Commands.invincible.contains(target.getName())))
 			return;
 		this.target = (LivingEntity) target;

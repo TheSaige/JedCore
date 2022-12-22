@@ -16,6 +16,7 @@ import com.projectkorra.projectkorra.ability.CombustionAbility;
 import com.projectkorra.projectkorra.ability.WaterAbility;
 import com.projectkorra.projectkorra.ability.util.Collision;
 import com.projectkorra.projectkorra.attribute.Attribute;
+import com.projectkorra.projectkorra.region.RegionProtection;
 import com.projectkorra.projectkorra.util.DamageHandler;
 import com.projectkorra.projectkorra.util.ParticleEffect;
 import com.projectkorra.projectkorra.util.TempBlock;
@@ -278,7 +279,7 @@ public class Combustion extends CombustionAbility implements AddonAbility {
 			// when explodeOnDeath is true. This stops players from firing Combustion and then walking into a
 			// protected area.
 			if (explodeOnDeath) {
-				if (GeneralMethods.isRegionProtectedFromBuild(Combustion.this, player.getLocation())) {
+				if (RegionProtection.isRegionProtected(Combustion.this, player.getLocation())) {
 					remove();
 					return;
 				}
@@ -470,7 +471,7 @@ public class Combustion extends CombustionAbility implements AddonAbility {
 			int count = 0;
 
 			for (Location l : GeneralMethods.getCircle(location, size, size, false, true, 0)) {
-				if (!GeneralMethods.isRegionProtectedFromBuild(Combustion.this, l)) {
+				if (!RegionProtection.isRegionProtected(Combustion.this, l)) {
 					if (destroyBlock(l)) {
 						++count;
 					}
@@ -483,7 +484,7 @@ public class Combustion extends CombustionAbility implements AddonAbility {
 		private void damageEntities(Location location, double size, double damage, int fireTick) {
 			for (Entity e : GeneralMethods.getEntitiesAroundPoint(location, size)) {
 				if (e instanceof LivingEntity) {
-					if (!GeneralMethods.isRegionProtectedFromBuild(Combustion.this, e.getLocation())) {
+					if (!RegionProtection.isRegionProtected(Combustion.this, e.getLocation())) {
 						DamageHandler.damageEntity(e, damage, Combustion.this);
 						FireTick.set(e, fireTick);
 					}

@@ -59,7 +59,7 @@ public class RegenTempBlock {
 				TempBlock.get(block).revertBlock();
 			}
 			if (temp) {
-				TempBlock tb = new TempBlock(block, material, data.clone());
+				TempBlock tb = new TempBlock(block, data.clone());
 				temps.put(block, tb);
 			} else {
 				states.put(block, block.getState());
@@ -76,7 +76,7 @@ public class RegenTempBlock {
 	public static void manage() {
 		Iterator<Map.Entry<Block, RegenBlockData>> iterator = blocks.entrySet().iterator();
 
-		for (; iterator.hasNext();) {
+		while (iterator.hasNext()) {
 			Map.Entry<Block, RegenBlockData> entry = iterator.next();
 
 			Block b = entry.getKey();

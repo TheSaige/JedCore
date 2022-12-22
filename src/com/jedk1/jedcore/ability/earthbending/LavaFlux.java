@@ -1,17 +1,23 @@
 package com.jedk1.jedcore.ability.earthbending;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 import com.jedk1.jedcore.configuration.JedCoreConfig;
 import com.projectkorra.projectkorra.ability.EarthAbility;
 import com.projectkorra.projectkorra.attribute.Attribute;
+import com.projectkorra.projectkorra.region.RegionProtection;
 import com.projectkorra.projectkorra.util.Information;
+import com.projectkorra.projectkorra.util.TempBlock;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.block.data.Bisected;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.Levelled;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Entity;
@@ -52,7 +58,12 @@ public class LavaFlux extends LavaAbility implements AddonAbility {
 
 	Random rand = new Random();
 
+	private static final BlockData LAVA = Material.LAVA.createBlockData(bd -> ((Levelled)bd).setLevel(1));
+
 	private final List<Location> flux = new ArrayList<>();
+
+	private Map<Block, TempBlock> blocks = new HashMap<>();
+	private Map<Block, TempBlock> above = new HashMap<>();
 
 	public LavaFlux(Player player) {
 		super(player);
@@ -104,8 +115,8 @@ public class LavaFlux extends LavaAbility implements AddonAbility {
 			}
 		} else {
 			if (System.currentTimeMillis() > time + duration) {
-				for (Location location : flux) {
-					new RegenTempBlock(location.getBlock(), Material.STONE, Material.STONE.createBlockData(), cleanup + rand.nextInt(1000));
+				for (TempBlock tb : blocks.values()) {
+					tb.setType(Material.STONE);
 				}
 				remove();
 			}
@@ -123,7 +134,7 @@ public class LavaFlux extends LavaAbility implements AddonAbility {
 			while (bi.hasNext()) {
 				Block b = bi.next();
 
-				if (b.getY() > b.getWorld().getMinHeight() && b.getY() < b.getWorld().getMaxHeight() && !GeneralMethods.isRegionProtectedFromBuild(this, b.getLocation()) && !EarthAbility.getMovedEarth().containsKey(b)) {
+				if (b.getY() > b.getWorld().getMinHeight() && b.getY() < b.getWorld().getMaxHeight() && !RegionProtection.isRegionProtected(this, b.getLocation()) && !EarthAbility.getMovedEarth().containsKey(b)) {
 					if (isWater(b)) break;
 					while (!isEarthbendable(player, b)) {
 						b = b.getRelative(BlockFace.DOWN);
@@ -164,16 +175,29 @@ public class LavaFlux extends LavaAbility implements AddonAbility {
 	private void progressFlux() {
 		for (Location location : flux) {
 			if (flux.indexOf(location) <= step) {
-				new RegenTempBlock(location.getBlock(), Material.LAVA, Material.LAVA.createBlockData(bd -> ((Levelled)bd).setLevel(1)), duration + cleanup);
+				if (!blocks.containsKey(location.getBlock())) { //Make a new temp block if we haven't made one there before
+					blocks.put(location.getBlock(), new TempBlock(location.getBlock(), LAVA, duration + cleanup));
+				}
+
+				//new RegenTempBlock(location.getBlock(), Material.LAVA, LAVA, duration + cleanup);
 				this.location = location;
 				if (flux.indexOf(location) == step) {
 					Block above = location.getBlock().getRelative(BlockFace.UP);
 					ParticleEffect.LAVA.display(above.getLocation(), 2, Math.random(), Math.random(), Math.random(), 0);
 					applyDamageFromWave(above.getLocation());
-					if (wave) {
-						if (isTransparent(above)) {
-							new RegenTempBlock(location.getBlock().getRelative(BlockFace.UP), Material.LAVA, Material.LAVA.createBlockData(bd -> ((Levelled)bd).setLevel(1)), (speed * 150));
+
+					if (isPlant(above) || isSnow(above)) {
+						final Block above2 = above.getRelative(BlockFace.UP);
+						if (isPlant(above) || isSnow(above)) {
+							TempBlock tb = new TempBlock(above, Material.AIR.createBlockData(), duration + cleanup);
+							this.above.put(above, tb);
+							if (isPlant(above2) && above2.getBlockData() instanceof Bisected) {
+								TempBlock tb2 = new TempBlock(above2, Material.AIR.createBlockData(), duration + cleanup + 30_000);
+								tb.addAttachedBlock(tb2);
+							}
 						}
+					} else if (wave && isTransparent(above)) {
+						new TempBlock(location.getBlock().getRelative(BlockFace.UP), LAVA, speed * 150L);
 					}
 				}
 			}
@@ -182,6 +206,15 @@ public class LavaFlux extends LavaAbility implements AddonAbility {
 			wave = false;
 			complete = true;
 			time = System.currentTimeMillis();
+
+			for (TempBlock tb : blocks.values()) { //Make sure they all revert at the same time because it looks nice
+				long time = duration + cleanup + rand.nextInt(1000);
+				tb.setRevertTime(time);
+
+				if (this.above.containsKey(tb.getBlock().getRelative(BlockFace.UP))) {
+					this.above.get(tb.getBlock().getRelative(BlockFace.UP)).setRevertTime(time);
+				}
+			}
 		}
 	}
 	
@@ -189,13 +222,13 @@ public class LavaFlux extends LavaAbility implements AddonAbility {
 		for (Entity entity : GeneralMethods.getEntitiesAroundPoint(location, 1.5)) {
 			if (entity instanceof LivingEntity && entity.getEntityId() != player.getEntityId()) {
 				DamageHandler.damageEntity(entity, damage, this);
-				new FireDamageTimer(entity, player);
+				new FireDamageTimer(entity, player, this);
 			}
 		}
 	}
 
 	private void expand(Block block) {
-		if (block != null && block.getY() > 1 && block.getY() < 255 && !GeneralMethods.isRegionProtectedFromBuild(this, block.getLocation())) {
+		if (block != null && block.getY() > 1 && block.getY() < 255 && !RegionProtection.isRegionProtected(this, block.getLocation())) {
 			if (EarthAbility.getMovedEarth().containsKey(block)){
 				Information info = EarthAbility.getMovedEarth().get(block);
 				if(!info.getBlock().equals(block)) {

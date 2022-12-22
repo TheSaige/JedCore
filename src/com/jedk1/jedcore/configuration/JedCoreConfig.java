@@ -2,6 +2,7 @@ package com.jedk1.jedcore.configuration;
 
 import com.jedk1.jedcore.JedCore;
 
+import com.projectkorra.projectkorra.configuration.ConfigManager;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
@@ -21,6 +22,7 @@ public class JedCoreConfig {
 		board = new Config(new File("board.yml"));
 		loadConfigBoard();
 		loadConfigCore();
+		addDeathMessages();
 	}
 	
 	private void loadConfigBoard() {
@@ -882,6 +884,59 @@ public class JedCoreConfig {
 		
 		config.options().copyDefaults(true);
 		plugin.saveConfig();
+	}
+
+	private void addDeathMessages() {
+		FileConfiguration lang = ConfigManager.languageConfig.get();
+
+		//Fire
+		lang.addDefault("Abilities.Fire.FireComet.DeathMessage", "{victim} was squashed under the pressure of {attacker}'s {ability}");
+		lang.addDefault("Abilities.Fire.FireBall.DeathMessage", "{victim} burst from {attacker}'s {ability}");
+		lang.addDefault("Abilities.Fire.FireBreath.DeathMessage", "{victim} was consumed {attacker}'s {ability}");
+		lang.addDefault("Abilities.Fire.Discharge.DeathMessage", "{victim} couldn't take {attacker}'s {ability}");
+		lang.addDefault("Abilities.Fire.FirePunch.DeathMessage", "{victim} punched out from {attacker}'s {ability}");
+		lang.addDefault("Abilities.Fire.FireShots.DeathMessage", "{victim} was shot by {attacker}'s {ability}");
+		lang.addDefault("Abilities.Fire.LightningBurst.DeathMessage", "{victim} crackled out of existence from {attacker}'s {ability}");
+
+		//Water
+		lang.addDefault("Abilities.Water.Drain.DeathMessage", "{victim} was blasted by {attacker}'s {ability}");
+		lang.addDefault("Abilities.Water.FrostBreath.DeathMessage", "{victim} shattered from {attacker}'s {ability}");
+		lang.addDefault("Abilities.Water.IceClaws.DeathMessage", "{victim} was ripped to shreds by {attacker}'s {ability}");
+		lang.addDefault("Abilities.Water.IceWall.DeathMessage", "{victim} was collateral to {attacker}'s exploding {ability}");
+		lang.addDefault("Abilities.Water.WaterBlast.DeathMessage", "{victim} was blasted by {attacker}'s {ability}");
+		lang.addDefault("Abilities.Water.Combo.WaterGimbal.DeathMessage", "{victim} was ripped apart by {attacker}'s {ability}");
+
+		//Earth
+		lang.addDefault("Abilities.Earth.EarthKick.DeathMessage", "{victim} got too much dirt in their eye from {attacker}'s {ability}");
+		lang.addDefault("Abilities.Earth.EarthLine.DeathMessage", "{victim} lost their footing from {attacker}'s {ability}");
+		lang.addDefault("Abilities.Earth.EarthShard.DeathMessage", "{victim} got blasted apart {attacker}'s {ability}");
+		lang.addDefault("Abilities.Earth.LavaDisc.DeathMessage", "{victim} sliced in half by {attacker}'s {ability}");
+		lang.addDefault("Abilities.Earth.LavaFlux.DeathMessage", "{victim} couldn't take the heat from {attacker}'s {ability}");
+		lang.addDefault("Abilities.Earth.LavaThrow.DeathMessage", "{victim} melted from {attacker}'s {ability}");
+		lang.addDefault("Abilities.Earth.MetalFragments.DeathMessage", "{victim} was shredded apart from {attacker}'s {ability}");
+		lang.addDefault("Abilities.Earth.MetalShred.DeathMessage", "{victim} was in the way of {attacker}'s {ability}");
+		lang.addDefault("Abilities.Earth.MudSurge.DeathMessage", "{victim} drowned in mud from {attacker}'s {ability}");
+		lang.addDefault("Abilities.Earth.SandBlast.DeathMessage", "{victim} was sandblasted to oblivion from {attacker}'s {ability}");
+		lang.addDefault("Abilities.Earth.Combo.MagmaBlast.DeathMessage", "{victim} was obliterated by {attacker}'s {ability}");
+
+		//Air
+		lang.addDefault("Abilities.Air.AirBlade.DeathMessage", "{victim} was sliced in two by {attacker}'s {ability}");
+		lang.addDefault("Abilities.Air.AirPunch.DeathMessage", "{victim} was exploded from {attacker}'s {ability}");
+		lang.addDefault("Abilities.Air.SonicBlast.DeathMessage", "{victim}'s ears burst from {attacker}'s {ability}");
+
+		//Chi
+		lang.addDefault("Abilities.Chi.DaggerThrow.DeathMessage", "{victim} got stabbed too many times from {attacker}'s {ability}");
+		lang.addDefault("Abilities.Chi.Backstab.DeathMessage", "{victim} fell victim to {attacker}'s {ability}");
+
+		//Avatar
+		lang.addDefault("Abilities.Avatar.SpiritBeam.DeathMessage", "{victim} was erased from existence by {attacker}'s {ability}");
+		lang.addDefault("Abilities.Avatar.ElementSphereAir.DeathMessage", "{victim} was blasted apart by {attacker}'s \u00A75ElementSphere");
+		lang.addDefault("Abilities.Avatar.ElementSphereFire.DeathMessage", "{victim} was burnt to cinders by {attacker}'s \u00A75ElementSphere");
+		lang.addDefault("Abilities.Avatar.ElementSphereEarth.DeathMessage", "{victim} was crushed by {attacker}'s \u00A75ElementSphere");
+		lang.addDefault("Abilities.Avatar.ElementSphereWater.DeathMessage", "{victim} was sliced apart by {attacker}'s \u00A75ElementSphere");
+		lang.addDefault("Abilities.Avatar.ElementSphereStream.DeathMessage", "{victim} took the full force of {attacker}'s \u00A75ElementSphere");
+
+		ConfigManager.languageConfig.save();
 	}
 
 	public static ConfigurationSection getConfig(Player player) {

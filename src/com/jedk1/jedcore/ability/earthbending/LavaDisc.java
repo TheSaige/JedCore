@@ -10,6 +10,7 @@ import com.projectkorra.projectkorra.ability.CoreAbility;
 import com.projectkorra.projectkorra.ability.ElementalAbility;
 import com.projectkorra.projectkorra.attribute.Attribute;
 import com.projectkorra.projectkorra.earthbending.passive.DensityShift;
+import com.projectkorra.projectkorra.region.RegionProtection;
 import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -181,7 +182,7 @@ public class LavaDisc extends LavaAbility implements AddonAbility {
 	private void doDamage(Entity entity) {
 		DamageHandler.damageEntity(entity, damage, this);
 		entity.setFireTicks(20);
-		new FireDamageTimer(entity, player);
+		new FireDamageTimer(entity, player, this);
 		ParticleEffect.LAVA.display(entity.getLocation(), 15, Math.random(), Math.random(), Math.random(), 0.1);
 	}
 	
@@ -530,7 +531,7 @@ public class LavaDisc extends LavaAbility implements AddonAbility {
 		}
 
 		private void damageBlocks(Location l) {
-			if (!GeneralMethods.isRegionProtectedFromBuild(player, "LavaDisc", l)) {
+			if (!RegionProtection.isRegionProtected(player, l, LavaDisc.this)) {
 				if (!TempBlock.isTempBlock(l.getBlock()) && (isEarthbendable(player, l.getBlock()) || isMetal(l.getBlock()) || meltable.contains(l.getBlock().getType().name()))) {
 					if (DensityShift.isPassiveSand(l.getBlock())) {
 						DensityShift.revertSand(l.getBlock());

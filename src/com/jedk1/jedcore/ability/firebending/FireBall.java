@@ -9,6 +9,7 @@ import com.projectkorra.projectkorra.ability.CoreAbility;
 import com.projectkorra.projectkorra.ability.util.Collision;
 import com.projectkorra.projectkorra.airbending.AirShield;
 import com.projectkorra.projectkorra.attribute.Attribute;
+import com.projectkorra.projectkorra.region.RegionProtection;
 import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Entity;
@@ -103,7 +104,7 @@ public class FireBall extends FireAbility implements AddonAbility {
 			return;
 		}
 
-		if (GeneralMethods.isRegionProtectedFromBuild(player, "FireBall", location)) {
+		if (RegionProtection.isRegionProtected(player, location, this)) {
 			remove();
 			return;
 		}
@@ -154,7 +155,7 @@ public class FireBall extends FireAbility implements AddonAbility {
 		DamageHandler.damageEntity(entity, damage, this);
 
 		FireTick.set(entity, Math.round(fireTicks / 50F));
-		new FireDamageTimer(entity, player);
+		new FireDamageTimer(entity, player, this);
 		return false;
 	}
 	

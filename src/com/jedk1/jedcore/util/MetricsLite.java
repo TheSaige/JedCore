@@ -49,6 +49,7 @@ import java.net.Proxy;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.UUID;
 import java.util.logging.Level;
@@ -203,12 +204,7 @@ public class MetricsLite {
             try {
                 // Reload the metrics file
                 configuration.load(getConfigFile());
-            } catch (IOException ex) {
-                if (debug) {
-                    Bukkit.getLogger().log(Level.INFO, "[Metrics] " + ex.getMessage());
-                }
-                return true;
-            } catch (InvalidConfigurationException ex) {
+            } catch (IOException | InvalidConfigurationException ex) {
                 if (debug) {
                     Bukkit.getLogger().log(Level.INFO, "[Metrics] " + ex.getMessage());
                 }
@@ -419,7 +415,7 @@ public class MetricsLite {
 
         try {
             gzos = new GZIPOutputStream(baos);
-            gzos.write(input.getBytes("UTF-8"));
+            gzos.write(input.getBytes(StandardCharsets.UTF_8));
         } catch (IOException e) {
             e.printStackTrace();
         } finally {

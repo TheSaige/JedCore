@@ -5,6 +5,7 @@ import java.util.*;
 import com.jedk1.jedcore.configuration.JedCoreConfig;
 import com.projectkorra.projectkorra.ability.ElementalAbility;
 import com.projectkorra.projectkorra.attribute.Attribute;
+import com.projectkorra.projectkorra.region.RegionProtection;
 import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.*;
@@ -135,7 +136,7 @@ public class BloodPuppet extends BloodAbility implements AddonAbility {
 		if ((e instanceof Player) && !canBeBloodbent((Player) e)) {
 			return false;
 		}
-		if (GeneralMethods.isRegionProtectedFromBuild(player, "BloodPuppet", e.getLocation())) {
+		if (RegionProtection.isRegionProtected(player, e.getLocation(), this)) {
 			return false;
 		}
 

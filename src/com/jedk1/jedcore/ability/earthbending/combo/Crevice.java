@@ -9,6 +9,7 @@ import com.projectkorra.projectkorra.ability.ComboAbility;
 import com.projectkorra.projectkorra.ability.EarthAbility;
 import com.projectkorra.projectkorra.ability.util.ComboManager.AbilityInformation;
 import com.projectkorra.projectkorra.attribute.Attribute;
+import com.projectkorra.projectkorra.region.RegionProtection;
 import com.projectkorra.projectkorra.util.ClickType;
 
 import com.projectkorra.projectkorra.util.TempBlock;
@@ -24,7 +25,6 @@ import org.bukkit.util.Vector;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Random;
@@ -161,7 +161,7 @@ public class Crevice extends EarthAbility implements AddonAbility, ComboAbility 
 		if (travelled >= range)
 			return;
 
-		if (GeneralMethods.isRegionProtectedFromBuild(player, "RaiseEarth", location)) {
+		if (RegionProtection.isRegionProtected(player, location, "RaiseEarth")) {
 			return;
 		}
 
@@ -196,7 +196,7 @@ public class Crevice extends EarthAbility implements AddonAbility, ComboAbility 
 			if (tempLoc.getY() < Objects.requireNonNull(tempLoc.getWorld()).getMinHeight() || tempLoc.getY() > tempLoc.getWorld().getMaxHeight()) {
 				break;
 			}
-			if (GeneralMethods.isRegionProtectedFromBuild(player, "Crevice", tempLoc)) {
+			if (RegionProtection.isRegionProtected(player, tempLoc, this)) {
 				continue;
 			}
 			if (i == 0 && !isTransparent(tempLoc.getBlock())) {
@@ -211,7 +211,7 @@ public class Crevice extends EarthAbility implements AddonAbility, ComboAbility 
 			}
 
 
-			blocks.add(new TempBlock(tempLoc.getBlock(), Material.AIR, Material.AIR.createBlockData()));
+			blocks.add(new TempBlock(tempLoc.getBlock(), Material.AIR.createBlockData()));
 			tempLoc.subtract(0, 1, 0);
 		}
 

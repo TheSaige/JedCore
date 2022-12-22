@@ -10,6 +10,7 @@ import com.projectkorra.projectkorra.ability.AddonAbility;
 import com.projectkorra.projectkorra.ability.BlueFireAbility;
 import com.projectkorra.projectkorra.ability.FireAbility;
 import com.projectkorra.projectkorra.attribute.Attribute;
+import com.projectkorra.projectkorra.region.RegionProtection;
 import com.projectkorra.projectkorra.util.DamageHandler;
 import com.projectkorra.projectkorra.util.ParticleEffect;
 
@@ -125,7 +126,7 @@ public class FireComet extends FireAbility implements AddonAbility {
 		}
 
 		if (System.currentTimeMillis() > getTime() + getCharge()) {
-			if (GeneralMethods.isRegionProtectedFromBuild(this, player.getLocation())) {
+			if (RegionProtection.isRegionProtected(this, player.getLocation())) {
 				remove();
 				return;
 			}
@@ -196,7 +197,7 @@ public class FireComet extends FireAbility implements AddonAbility {
 
 		for (Location loc : GeneralMethods.getCircle(location, (int) blastRadius, 0, false, true, 0)) {
 			if (JCMethods.isUnbreakable(loc.getBlock())) continue;
-			if (GeneralMethods.isRegionProtectedFromBuild(this, loc)) continue;
+			if (RegionProtection.isRegionProtected(this, loc)) continue;
 
 			blocks.add(loc.getBlock().getState());
 			new RegenTempBlock(loc.getBlock(), Material.AIR, Material.AIR.createBlockData(), getRegenDelay(), false);
@@ -207,7 +208,7 @@ public class FireComet extends FireAbility implements AddonAbility {
 				continue;
 			}
 
-			if (GeneralMethods.isRegionProtectedFromBuild(this, e.getLocation())) {
+			if (RegionProtection.isRegionProtected(this, e.getLocation())) {
 				continue;
 			}
 

@@ -144,7 +144,7 @@ public class EarthShard extends EarthAbility implements AddonAbility {
 
 			Location loc = block.getLocation().add(0.5, 0, 0.5);
 			new TempFallingBlock(loc, material.createBlockData(), new Vector(0, 0.8, 0), this);
-			TempBlock tb = new TempBlock(block, Material.AIR, Material.AIR.createBlockData());
+			TempBlock tb = new TempBlock(block, Material.AIR.createBlockData());
 			tblockTracker.add(tb);
 		}
 	}
@@ -187,7 +187,7 @@ public class EarthShard extends EarthAbility implements AddonAbility {
 				FallingBlock fb = tfb.getFallingBlock();
 
 				if (fb.isDead() || fb.getLocation().getBlockY() == origin.getBlockY() + 2) {
-					TempBlock tb = new TempBlock(fb.getLocation().getBlock(), fb.getBlockData().getMaterial(), fb.getBlockData());
+					TempBlock tb = new TempBlock(fb.getLocation().getBlock(), fb.getBlockData());
 					readyBlocksTracker.add(tb);
 					tfb.remove();
 				}

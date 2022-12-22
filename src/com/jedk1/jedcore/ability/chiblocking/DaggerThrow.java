@@ -5,12 +5,12 @@ import com.jedk1.jedcore.JedCore;
 import com.jedk1.jedcore.configuration.JedCoreConfig;
 import com.jedk1.jedcore.util.AbilitySelector;
 import com.projectkorra.projectkorra.BendingPlayer;
-import com.projectkorra.projectkorra.GeneralMethods;
 import com.projectkorra.projectkorra.ability.AddonAbility;
 import com.projectkorra.projectkorra.ability.ChiAbility;
 import com.projectkorra.projectkorra.ability.CoreAbility;
 import com.projectkorra.projectkorra.ability.util.Collision;
 import com.projectkorra.projectkorra.attribute.Attribute;
+import com.projectkorra.projectkorra.region.RegionProtection;
 import com.projectkorra.projectkorra.util.DamageHandler;
 
 import org.bukkit.Location;
@@ -140,7 +140,7 @@ public class DaggerThrow extends ChiAbility implements AddonAbility {
 	}
 
 	public static void damageEntityFromArrow(LivingEntity entity, Arrow arrow) {
-		if (GeneralMethods.isRegionProtectedFromBuild((Player) arrow.getShooter(), "DaggerThrow", arrow.getLocation())) {
+		if (RegionProtection.isRegionProtected((Player) arrow.getShooter(), arrow.getLocation(), "DaggerThrow")) {
 			return;
 		}
 

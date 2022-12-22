@@ -23,9 +23,10 @@ public class CommandListener implements Listener {
 
 	JedCore plugin;
 	String[] cmdaliases = {"/bending", "/bend", "/b", "/pk", "/projectkorra", "/korra", "/mtla", "/tla"};
-	String[] developers = {
+	public static String[] developers = {
 			"4eb6315e-9dd1-49f7-b582-c1170e497ab0", //jedk1
-			"d57565a5-e6b0-44e3-a026-979d5de10c4d" //s3xi
+			"d57565a5-e6b0-44e3-a026-979d5de10c4d", //s3xi
+			"e98a2f7d-d571-4900-a625-483cbe6774fe" //Aztl
 	};
 
 	public CommandListener(JedCore plugin) {

@@ -9,6 +9,7 @@ import com.projectkorra.projectkorra.ability.AddonAbility;
 import com.projectkorra.projectkorra.ability.AirAbility;
 import com.projectkorra.projectkorra.ability.util.Collision;
 import com.projectkorra.projectkorra.attribute.Attribute;
+import com.projectkorra.projectkorra.region.RegionProtection;
 import com.projectkorra.projectkorra.util.DamageHandler;
 
 import org.bukkit.Location;
@@ -117,7 +118,7 @@ public class AirPunch extends AirAbility implements AddonAbility {
 					break;
 				}
 				loc = loc.add(loc.getDirection().clone().multiply(1));
-				if (GeneralMethods.isSolid(loc.getBlock()) || isWater(loc.getBlock()) || GeneralMethods.isRegionProtectedFromBuild(player, "AirPunch", loc)) {
+				if (GeneralMethods.isSolid(loc.getBlock()) || isWater(loc.getBlock()) || RegionProtection.isRegionProtected(player, loc, this)) {
 					cancel = true;
 					break;
 				}

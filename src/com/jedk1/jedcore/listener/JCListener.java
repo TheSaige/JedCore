@@ -2,7 +2,6 @@ package com.jedk1.jedcore.listener;
 
 import com.jedk1.jedcore.JCMethods;
 import com.jedk1.jedcore.JedCore;
-import com.jedk1.jedcore.ability.avatar.elementsphere.ESEarth;
 import com.jedk1.jedcore.ability.chiblocking.Backstab;
 import com.jedk1.jedcore.ability.chiblocking.DaggerThrow;
 import com.jedk1.jedcore.ability.earthbending.*;
@@ -20,6 +19,7 @@ import com.projectkorra.projectkorra.ability.IceAbility;
 import com.projectkorra.projectkorra.earthbending.lava.LavaFlow;
 import com.projectkorra.projectkorra.event.*;
 
+import com.projectkorra.projectkorra.util.DamageHandler;
 import com.projectkorra.projectkorra.util.TempBlock;
 import com.projectkorra.projectkorra.waterbending.plant.PlantRegrowth;
 import org.bukkit.ChatColor;
@@ -32,7 +32,6 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockFromToEvent;
-import org.bukkit.event.entity.EntityChangeBlockEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
@@ -146,7 +145,9 @@ public class JCListener implements Listener {
 					}
 
 					if (Backstab.punch((Player) event.getDamager(), (LivingEntity) event.getEntity())) {
-						event.setDamage(Backstab.getDamage(event.getDamager().getWorld()));
+						event.setCancelled(true);
+						double damage = Backstab.getDamage(event.getDamager().getWorld());
+						DamageHandler.damageEntity(event.getEntity(), (Player) event.getDamager(), damage, CoreAbility.getAbility("BackStab"));
 						return;
 					}
 				}
@@ -257,7 +258,6 @@ public class JCListener implements Listener {
 	
 	@EventHandler(priority = EventPriority.NORMAL)
 	public void onWorldChange(PlayerChangedWorldEvent event){
-		if (event.getPlayer() == null) return;
 		new BukkitRunnable() {
 			public void run() {
 				BendingBoard.update(event.getPlayer());

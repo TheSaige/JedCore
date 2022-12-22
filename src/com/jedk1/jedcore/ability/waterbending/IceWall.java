@@ -245,7 +245,7 @@ public class IceWall extends IceAbility implements AddonAbility {
 			lastBlocks.clear();
 
 			for (Block b : theseBlocks) {
-				TempBlock tb = new TempBlock(b, Material.ICE, Material.ICE.createBlockData());
+				TempBlock tb = new TempBlock(b, Material.ICE.createBlockData());
 				tempBlocks.add(tb);
 
 				playIcebendingSound(b.getLocation());
@@ -426,7 +426,7 @@ public class IceWall extends IceAbility implements AddonAbility {
 					if (ice.getLocation().getWorld() == fb.getLocation().getWorld() && fb.getLocation().distance(ice.getLocation()) <= 1.5) {
 						iw.damageWall(fb.getPlayer(), iw.fireBlastChargedDamage);
 
-						if (!iw.isWallDoneFor) fb.remove();; 
+						if (!iw.isWallDoneFor) fb.remove();
 					} 
 				}
 			}
@@ -437,7 +437,7 @@ public class IceWall extends IceAbility implements AddonAbility {
 					if (ice.getLocation().getWorld() == fb.getLocation().getWorld() && fb.getLocation().distance(ice.getLocation()) <= 1.5) {
 						iw.damageWall(fb.getPlayer(), iw.fireBlastDamage);
 
-						if (!iw.isWallDoneFor) fb.remove();; 
+						if (!iw.isWallDoneFor) fb.remove();
 					} 
 				}
 			}

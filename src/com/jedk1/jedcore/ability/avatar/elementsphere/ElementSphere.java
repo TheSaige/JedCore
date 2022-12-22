@@ -10,6 +10,7 @@ import com.projectkorra.projectkorra.ability.MultiAbility;
 import com.projectkorra.projectkorra.ability.util.MultiAbilityManager;
 import com.projectkorra.projectkorra.ability.util.MultiAbilityManager.MultiAbilityInfoSub;
 import com.projectkorra.projectkorra.attribute.Attribute;
+import com.projectkorra.projectkorra.region.RegionProtection;
 import com.projectkorra.projectkorra.util.ParticleEffect;
 
 import org.bukkit.ChatColor;
@@ -178,7 +179,7 @@ public class ElementSphere extends AvatarAbility implements AddonAbility, MultiA
 		}
 
 		for (Entity entity : GeneralMethods.getEntitiesAroundPoint(location, 2.5)) {
-			if (!GeneralMethods.isRegionProtectedFromBuild(player, "ElementSphere", entity.getLocation())) {
+			if (!RegionProtection.isRegionProtected(player, entity.getLocation(), this)) {
 				if (entity instanceof LivingEntity && entity.getEntityId() != player.getEntityId() && !(entity instanceof ArmorStand)) {
 					entity.setVelocity(entity.getLocation().toVector().subtract(player.getLocation().toVector()).multiply(1));
 				}

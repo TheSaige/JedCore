@@ -8,6 +8,7 @@ import com.projectkorra.projectkorra.ability.AddonAbility;
 import com.projectkorra.projectkorra.ability.LavaAbility;
 import com.projectkorra.projectkorra.attribute.Attribute;
 import com.projectkorra.projectkorra.command.Commands;
+import com.projectkorra.projectkorra.region.RegionProtection;
 import com.projectkorra.projectkorra.util.DamageHandler;
 import com.projectkorra.projectkorra.util.ParticleEffect;
 
@@ -155,7 +156,7 @@ public class LavaThrow extends LavaAbility implements AddonAbility {
 				continue;
 			}
 
-			if(GeneralMethods.isRegionProtectedFromBuild(this, l)){
+			if(RegionProtection.isRegionProtected(this, l)){
 				blasts.remove(l);
 				continue;
 			}
@@ -172,7 +173,7 @@ public class LavaThrow extends LavaAbility implements AddonAbility {
 			boolean hit = false;
 
 			for(Entity entity : GeneralMethods.getEntitiesAroundPoint(l, 2.0D)){
-				if(entity instanceof LivingEntity && entity.getEntityId() != player.getEntityId() && !GeneralMethods.isRegionProtectedFromBuild(this, entity.getLocation()) && !((entity instanceof Player) && Commands.invincible.contains(((Player) entity).getName()))){
+				if(entity instanceof LivingEntity && entity.getEntityId() != player.getEntityId() && !RegionProtection.isRegionProtected(this, entity.getLocation()) && !((entity instanceof Player) && Commands.invincible.contains(((Player) entity).getName()))){
 					DamageHandler.damageEntity(entity, damage, this);
 					blasts.remove(l);
 

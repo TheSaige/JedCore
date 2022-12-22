@@ -1,9 +1,9 @@
 package com.jedk1.jedcore.util;
 
 import org.bukkit.Material;
+import org.bukkit.Tag;
 import org.bukkit.block.Block;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -19,33 +19,8 @@ public class MaterialUtil {
             Material.LARGE_FERN, Material.ROSE_BUSH, Material.PEONY, Material.LIGHT
     );
 
-    private static List<Material> signMaterials = new ArrayList<>();
-
-    static {
-        List<String> potentialSigns = Arrays.asList(
-            "SIGN", "WALL_SIGN",
-            "ACACIA_SIGN", "ACACIA_WALL_SIGN",
-            "BIRCH_SIGN", "BIRCH_WALL_SIGN",
-            "DARK_OAK_SIGN", "DARK_OAK_WALL_SIGN",
-            "JUNGLE_SIGN", "JUNGLE_WALL_SIGN",
-            "OAK_SIGN", "OAK_WALL_SIGN",
-            "SPRUCE_SIGN", "SPRUCE_WALL_SIGN"
-        );
-
-        // Load up the potential sign types
-        for (String signType : potentialSigns) {
-            try {
-                Material signMaterial = Material.valueOf(signType);
-
-                signMaterials.add(signMaterial);
-            } catch (IllegalArgumentException e) {
-                // pass
-            }
-        }
-    }
-
     public static boolean isSign(Material material) {
-        return signMaterials.contains(material);
+        return Tag.SIGNS.isTagged(material);
     }
 
     public static boolean isSign(Block block) {

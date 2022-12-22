@@ -10,6 +10,7 @@ import com.projectkorra.projectkorra.ability.AddonAbility;
 import com.projectkorra.projectkorra.ability.LightningAbility;
 import com.projectkorra.projectkorra.attribute.Attribute;
 import com.projectkorra.projectkorra.command.Commands;
+import com.projectkorra.projectkorra.region.RegionProtection;
 import com.projectkorra.projectkorra.util.DamageHandler;
 
 import org.bukkit.Location;
@@ -20,7 +21,6 @@ import org.bukkit.util.Vector;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 
@@ -144,7 +144,7 @@ public class Discharge extends LightningAbility implements AddonAbility {
 					Vector vec = l.toVector();
 
 					hit = CollisionDetector.checkEntityCollisions(player, new Sphere(l.toVector(), entityCollisionRadius), (entity) -> {
-						if (GeneralMethods.isRegionProtectedFromBuild(this, entity.getLocation()) || ((entity instanceof Player) && Commands.invincible.contains(entity.getName()))) {
+						if (RegionProtection.isRegionProtected(this, entity.getLocation()) || ((entity instanceof Player) && Commands.invincible.contains(entity.getName()))) {
 							return true;
 						}
 						Vector knockbackVector = entity.getLocation().toVector().subtract(vec).normalize().multiply(0.8);

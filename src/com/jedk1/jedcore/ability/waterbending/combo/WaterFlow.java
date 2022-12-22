@@ -12,6 +12,7 @@ import com.projectkorra.projectkorra.airbending.AirSpout;
 import com.projectkorra.projectkorra.attribute.Attribute;
 import com.projectkorra.projectkorra.command.Commands;
 import com.projectkorra.projectkorra.earthbending.Catapult;
+import com.projectkorra.projectkorra.region.RegionProtection;
 import com.projectkorra.projectkorra.util.BlockSource;
 import com.projectkorra.projectkorra.util.ClickType;
 import com.projectkorra.projectkorra.util.TempBlock;
@@ -237,7 +238,7 @@ public class WaterFlow extends WaterAbility implements AddonAbility, ComboAbilit
 			remove();
 			return;
 		}
-		if (GeneralMethods.isRegionProtectedFromBuild(player, "Torrent", head)) {
+		if (RegionProtection.isRegionProtected(player, head, this)) {
 			remove();
 			return;
 		}
@@ -292,7 +293,7 @@ public class WaterFlow extends WaterAbility implements AddonAbility, ComboAbilit
 						continue;
 					}
 				}
-				if (GeneralMethods.isRegionProtectedFromBuild(this, entity.getLocation()) || (isPlayer && Commands.invincible.contains(entity.getName()))) {
+				if (RegionProtection.isRegionProtected(this, entity.getLocation()) || (isPlayer && Commands.invincible.contains(entity.getName()))) {
 					continue;
 				}
 				Location temp = directions.get(block);
@@ -301,7 +302,7 @@ public class WaterFlow extends WaterAbility implements AddonAbility, ComboAbilit
 				entity.setFallDistance(0f);
 			}
 
-			if (!MaterialUtil.isTransparent(block) || GeneralMethods.isRegionProtectedFromBuild(player, "Torrent", block.getLocation())) {
+			if (!MaterialUtil.isTransparent(block) || RegionProtection.isRegionProtected(player, block.getLocation(), "Torrent")) {
 				blocks.remove(block);
 				directions.remove(block);
 				if (TempBlock.isTempBlock(block)) {
@@ -309,7 +310,7 @@ public class WaterFlow extends WaterAbility implements AddonAbility, ComboAbilit
 				}
 			} else {
 				if (!isWater(block)) {
-					new TempBlock(block, Material.WATER, Material.WATER.createBlockData(bd -> ((Levelled) bd).setLevel(0)));
+					new TempBlock(block, Material.WATER.createBlockData(bd -> ((Levelled) bd).setLevel(0)));
 				}
 			}
 			pos++;
@@ -332,7 +333,7 @@ public class WaterFlow extends WaterAbility implements AddonAbility, ComboAbilit
 	}
 
 	private void moveWater() {
-		if (!MaterialUtil.isTransparent(head.getBlock()) || GeneralMethods.isRegionProtectedFromBuild(player, "Torrent", head)) {
+		if (!MaterialUtil.isTransparent(head.getBlock()) || RegionProtection.isRegionProtected(player, head, "Torrent")) {
 			range -= 2;
 		}
 		Vector direction = GeneralMethods.getDirection(head, GeneralMethods.getTargetedLocation(player, range, Material.WATER)).normalize();

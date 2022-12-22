@@ -4,6 +4,7 @@ import java.util.*;
 
 import com.jedk1.jedcore.util.*;
 import com.projectkorra.projectkorra.ability.ElementalAbility;
+import com.projectkorra.projectkorra.region.RegionProtection;
 import org.bukkit.Effect;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -226,22 +227,21 @@ public class JCMethods {
 
 	private static byte full = 0x0;
 
-	@SuppressWarnings("deprecation")
 	public static void extinguishBlocks(Player player, String ability, int range, int radius, boolean fire, boolean lava){
 		for (Block block : GeneralMethods.getBlocksAroundPoint(player.getTargetBlock((HashSet<Material>) null, (int) range).getLocation(), 2)) {
 
 			Material mat = block.getType();
-			if(mat != Material.FIRE && mat != Material.LAVA)
+			if(mat != Material.FIRE && mat != Material.LAVA && mat != Material.SOUL_FIRE)
 				continue;
-			if (GeneralMethods.isRegionProtectedFromBuild(player, ability, block.getLocation()))
+			if (RegionProtection.isRegionProtected(player, block.getLocation(), ability))
 				continue;
-			if (block.getType() == Material.FIRE && fire) {
+			if ((mat == Material.FIRE || mat == Material.SOUL_FIRE) && fire) {
 				block.setType(Material.AIR);
 				block.getWorld().playEffect(block.getLocation(), Effect.EXTINGUISH, 0);
-			} else if (lava && block.getType() == Material.LAVA && isLiquidSource(block)) {
+			} else if (lava && mat == Material.LAVA && isLiquidSource(block)) {
 				block.setType(Material.OBSIDIAN);
 				block.getWorld().playEffect(block.getLocation(), Effect.EXTINGUISH, 0);
-			} else if (block.getType() == Material.LAVA && lava) {
+			} else if (mat == Material.LAVA && lava) {
 				if (block.getData() == full) {
 					block.setType(Material.OBSIDIAN);
 				} else {

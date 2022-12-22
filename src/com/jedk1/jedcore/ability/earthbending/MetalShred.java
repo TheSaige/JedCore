@@ -8,6 +8,7 @@ import com.projectkorra.projectkorra.ability.ElementalAbility;
 import com.projectkorra.projectkorra.ability.MetalAbility;
 import com.projectkorra.projectkorra.attribute.Attribute;
 import com.projectkorra.projectkorra.command.Commands;
+import com.projectkorra.projectkorra.region.RegionProtection;
 import com.projectkorra.projectkorra.util.BlockSource;
 import com.projectkorra.projectkorra.util.ClickType;
 import com.projectkorra.projectkorra.util.DamageHandler;
@@ -93,7 +94,6 @@ public class MetalShred extends MetalAbility implements AddonAbility {
 		return true;
 	}
 
-	@SuppressWarnings("deprecation")
 	public void raiseBlock(Block b, Vector d) {
 		Block up = b.getRelative(BlockFace.UP);
 		Block away = b.getRelative(GeneralMethods.getCardinalDirection(d));
@@ -107,39 +107,38 @@ public class MetalShred extends MetalAbility implements AddonAbility {
 		}
 
 		if (!up.getType().isSolid()) {
-			TempBlock tbu = new TempBlock(up, b.getType(), b.getBlockData());
+			TempBlock tbu = new TempBlock(up, b.getBlockData());
 			tblocks.add(tbu);
 		}
 
 		if (!awayup.getType().isSolid()) {
-			TempBlock tbau = new TempBlock(awayup, away.getType(), away.getBlockData());
+			TempBlock tbau = new TempBlock(awayup, away.getBlockData());
 			tblocks.add(tbau);
 		}
 
 		if (isMetal(b)) {
-			TempBlock tbd = new TempBlock(b, Material.AIR, Material.AIR.createBlockData());
+			TempBlock tbd = new TempBlock(b, Material.AIR.createBlockData());
 			tblocks.add(tbd);
 		}
 
 		if (isMetal(away)) {
-			TempBlock tba = new TempBlock(away, Material.AIR, Material.AIR.createBlockData());
+			TempBlock tba = new TempBlock(away, Material.AIR.createBlockData());
 			tblocks.add(tba);
 		}
 
 		if (isMetal(deeperb)) {
-			TempBlock tbdb = new TempBlock(deeperb, Material.AIR, Material.AIR.createBlockData());
+			TempBlock tbdb = new TempBlock(deeperb, Material.AIR.createBlockData());
 			tblocks.add(tbdb);
 		}
 
 		if (isMetal(deepera)) {
-			TempBlock tbda = new TempBlock(deepera, Material.AIR, Material.AIR.createBlockData());
+			TempBlock tbda = new TempBlock(deepera, Material.AIR.createBlockData());
 			tblocks.add(tbda);
 		}
 
 		playMetalbendingSound(b.getLocation());
 	}
 
-	@SuppressWarnings("deprecation")
 	public void shiftBlock(Block b, Vector d) {
 		Block under = b.getRelative(BlockFace.DOWN);
 		Block side = b.getRelative(GeneralMethods.getCardinalDirection(d).getOppositeFace());
@@ -151,22 +150,22 @@ public class MetalShred extends MetalAbility implements AddonAbility {
 		}
 
 		if (!side.getType().isSolid()) {
-			TempBlock tbs = new TempBlock(side, b.getType(), b.getBlockData());
+			TempBlock tbs = new TempBlock(side, b.getBlockData());
 			tblocks.add(tbs);
 		}
 
 		if (!underside.getType().isSolid()) {
-			TempBlock tbus = new TempBlock(underside, under.getType(), under.getBlockData());
+			TempBlock tbus = new TempBlock(underside, under.getBlockData());
 			tblocks.add(tbus);
 		}
 
 		if (isMetal(b)) {
-			TempBlock tb1 = new TempBlock(b, Material.AIR, Material.AIR.createBlockData());
+			TempBlock tb1 = new TempBlock(b, Material.AIR.createBlockData());
 			tblocks.add(tb1);
 		}
 
 		if (isMetal(under)) {
-			TempBlock tb2 = new TempBlock(under, Material.AIR, Material.AIR.createBlockData());
+			TempBlock tb2 = new TempBlock(under, Material.AIR.createBlockData());
 			tblocks.add(tb2);
 		}
 
@@ -180,7 +179,7 @@ public class MetalShred extends MetalAbility implements AddonAbility {
 			return;
 
 		if (!b.getType().isSolid()) {
-			TempBlock tbb = new TempBlock(b, Material.IRON_BLOCK, Material.IRON_BLOCK.createBlockData());
+			TempBlock tbb = new TempBlock(b, Material.IRON_BLOCK.createBlockData());
 			tblocks.add(tbb);
 		}
 
@@ -188,7 +187,7 @@ public class MetalShred extends MetalAbility implements AddonAbility {
 			stopCoil = true;
 
 		if (!under.getType().isSolid()) {
-			TempBlock tbu = new TempBlock(under, Material.IRON_BLOCK, Material.IRON_BLOCK.createBlockData());
+			TempBlock tbu = new TempBlock(under, Material.IRON_BLOCK.createBlockData());
 			tblocks.add(tbu);
 		}
 
@@ -264,7 +263,7 @@ public class MetalShred extends MetalAbility implements AddonAbility {
 					if (!(e instanceof LivingEntity) || e.getEntityId() == player.getEntityId()) {
 						continue;
 					}
-					if (GeneralMethods.isRegionProtectedFromBuild(this, e.getLocation()) || ((e instanceof Player) && Commands.invincible.contains(e.getName()))) {
+					if (RegionProtection.isRegionProtected(this, e.getLocation()) || ((e instanceof Player) && Commands.invincible.contains(e.getName()))) {
 						continue;
 					}
 					DamageHandler.damageEntity(e, damage, this);

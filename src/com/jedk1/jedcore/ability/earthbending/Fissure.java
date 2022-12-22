@@ -9,6 +9,7 @@ import com.projectkorra.projectkorra.ability.EarthAbility;
 import com.projectkorra.projectkorra.ability.LavaAbility;
 import com.projectkorra.projectkorra.attribute.Attribute;
 import com.projectkorra.projectkorra.earthbending.passive.DensityShift;
+import com.projectkorra.projectkorra.region.RegionProtection;
 import com.projectkorra.projectkorra.util.Information;
 import com.projectkorra.projectkorra.util.ParticleEffect;
 import com.projectkorra.projectkorra.util.TempBlock;
@@ -114,7 +115,7 @@ public class Fissure extends LavaAbility implements AddonAbility {
 			while (bi.hasNext()) {
 				Block b = bi.next();
 
-				if (b.getY() > 1 && b.getY() < 255 && !GeneralMethods.isRegionProtectedFromBuild(this, b.getLocation())) {
+				if (b.getY() > 1 && b.getY() < 255 && !RegionProtection.isRegionProtected(this, b.getLocation())) {
 					if (EarthAbility.getMovedEarth().containsKey(b)){
 						Information info = EarthAbility.getMovedEarth().get(b);
 						if(!info.getBlock().equals(b)) {
@@ -194,7 +195,7 @@ public class Fissure extends LavaAbility implements AddonAbility {
 	}
 
 	private void expand(Block block) {
-		if (block != null && block.getY() > 1 && block.getY() < 255 && !GeneralMethods.isRegionProtectedFromBuild(this, block.getLocation())) {
+		if (block != null && block.getY() > 1 && block.getY() < 255 && !RegionProtection.isRegionProtected(this, block.getLocation())) {
 			if (EarthAbility.getMovedEarth().containsKey(block)){
 				Information info = EarthAbility.getMovedEarth().get(block);
 				if(!info.getBlock().equals(block)) {
@@ -234,7 +235,7 @@ public class Fissure extends LavaAbility implements AddonAbility {
 		if (DensityShift.isPassiveSand(block)) {
             DensityShift.revertSand(block);
 		}
-		new TempBlock(block, material, material.createBlockData());
+		new TempBlock(block, material.createBlockData());
 		blocks.add(block);
 	}
 

@@ -7,6 +7,7 @@ import com.projectkorra.projectkorra.GeneralMethods;
 import com.projectkorra.projectkorra.ability.AddonAbility;
 import com.projectkorra.projectkorra.ability.LightningAbility;
 import com.projectkorra.projectkorra.attribute.Attribute;
+import com.projectkorra.projectkorra.region.RegionProtection;
 import com.projectkorra.projectkorra.util.DamageHandler;
 
 import org.bukkit.Location;
@@ -73,7 +74,7 @@ public class LightningBurst extends LightningAbility implements AddonAbility {
 			remove();
 			return;
 		}
-		if (GeneralMethods.isRegionProtectedFromBuild(player, "LightningBurst", player.getLocation())) {
+		if (RegionProtection.isRegionProtected(player, player.getLocation(), this)) {
 			remove();
 			return;
 		}
@@ -274,7 +275,7 @@ public class LightningBurst extends LightningAbility implements AddonAbility {
 				BOLTS.remove(id);
 				return;
 			}
-			if (GeneralMethods.isRegionProtectedFromBuild(player, "LightningBurst", location) || !isTransparent(location.getBlock())) {
+			if (RegionProtection.isRegionProtected(player, location, LightningBurst.this) || !isTransparent(location.getBlock())) {
 				BOLTS.remove(id);
 				return;
 			}

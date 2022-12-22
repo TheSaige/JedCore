@@ -6,6 +6,7 @@ import com.projectkorra.projectkorra.GeneralMethods;
 import com.projectkorra.projectkorra.ability.AddonAbility;
 import com.projectkorra.projectkorra.ability.MetalAbility;
 import com.projectkorra.projectkorra.attribute.Attribute;
+import com.projectkorra.projectkorra.region.RegionProtection;
 import com.projectkorra.projectkorra.util.BlockSource;
 import com.projectkorra.projectkorra.util.ClickType;
 import com.projectkorra.projectkorra.util.DamageHandler;
@@ -67,7 +68,7 @@ public class MetalFragments extends MetalAbility implements AddonAbility {
 
 		if (prepare()) {
 			Block b = selectSource();
-			if (GeneralMethods.isRegionProtectedFromBuild(player, "MetalFragments", b.getLocation())) {
+			if (RegionProtection.isRegionProtected(player, b.getLocation(), this)) {
 				return;
 			}
 
@@ -233,7 +234,7 @@ public class MetalFragments extends MetalAbility implements AddonAbility {
 			FallingBlock fb = tfb.getFallingBlock();
 			if (fb.getLocation().getY() >= player.getEyeLocation().getY() + 1) {
 				Block block = fb.getLocation().getBlock();
-				TempBlock tb = new TempBlock(block, block.getType(), fb.getBlockData());
+				TempBlock tb = new TempBlock(block, fb.getBlockData());
 
 				tblockTracker.add(tb);
 				sources.add(tb.getBlock());

@@ -10,6 +10,7 @@ import com.projectkorra.projectkorra.ability.Ability;
 import com.projectkorra.projectkorra.ability.AddonAbility;
 import com.projectkorra.projectkorra.ability.WaterAbility;
 import com.projectkorra.projectkorra.attribute.Attribute;
+import com.projectkorra.projectkorra.region.RegionProtection;
 import com.projectkorra.projectkorra.util.DamageHandler;
 
 import org.bukkit.Location;
@@ -111,7 +112,7 @@ public class WaterBlast extends WaterAbility implements AddonAbility {
 				}
 			}
 
-			if (!isTransparent(location.getBlock()) || GeneralMethods.isRegionProtectedFromBuild(this, location)) {
+			if (!isTransparent(location.getBlock()) || RegionProtection.isRegionProtected(this, location)) {
 				return false;
 			}
 

@@ -12,17 +12,16 @@ import com.projectkorra.projectkorra.ability.ElementalAbility;
 import com.projectkorra.projectkorra.attribute.Attribute;
 import com.projectkorra.projectkorra.command.Commands;
 import com.projectkorra.projectkorra.object.HorizontalVelocityTracker;
+import com.projectkorra.projectkorra.region.RegionProtection;
 import com.projectkorra.projectkorra.util.DamageHandler;
 
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.*;
 import org.bukkit.util.Vector;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 
 public class Bloodbending extends BloodAbility implements AddonAbility {
@@ -132,7 +131,7 @@ public class Bloodbending extends BloodAbility implements AddonAbility {
 		if ((e instanceof Player) && !canBeBloodbent((Player) e)) {
 			return false;
 		}
-		if (GeneralMethods.isRegionProtectedFromBuild(player, "Bloodbending", e.getLocation())) {
+		if (RegionProtection.isRegionProtected(player, e.getLocation(), this)) {
 			return false;
 		}
 		for (Bloodbending bb : getAbilities(Bloodbending.class)) {

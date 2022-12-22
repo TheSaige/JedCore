@@ -8,6 +8,7 @@ import com.projectkorra.projectkorra.ability.AddonAbility;
 import com.projectkorra.projectkorra.ability.AirAbility;
 import com.projectkorra.projectkorra.ability.HealingAbility;
 import com.projectkorra.projectkorra.chiblocking.Smokescreen;
+import com.projectkorra.projectkorra.region.RegionProtection;
 import com.projectkorra.projectkorra.util.ParticleEffect;
 import com.projectkorra.projectkorra.util.TempBlock;
 
@@ -159,7 +160,7 @@ public class HealingWaters extends HealingAbility implements AddonAbility {
 
 	@SuppressWarnings("deprecation")
 	private static void applyHealing(Player player) {
-		if (!GeneralMethods.isRegionProtectedFromBuild(player, "HealingWaters", player.getLocation()))
+		if (!RegionProtection.isRegionProtected(player, player.getLocation(), "HealingWaters"))
 			if(player.getHealth() < player.getMaxHealth()) {
 				player.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 70, getPower(player)));
 				AirAbility.breakBreathbendingHold(player);

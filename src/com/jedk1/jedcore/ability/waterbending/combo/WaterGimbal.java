@@ -173,7 +173,7 @@ public class WaterGimbal extends WaterAbility implements AddonAbility, ComboAbil
 					source.revertBlock();
 				}
 				if (isTransparent(sourceLoc.getBlock())) {
-					source = new TempBlock(sourceLoc.getBlock(), Material.WATER, Material.WATER.createBlockData(bd -> ((Levelled) bd).setLevel(0)));
+					source = new TempBlock(sourceLoc.getBlock(), Material.WATER.createBlockData(bd -> ((Levelled) bd).setLevel(0)));
 				}
 			}
 

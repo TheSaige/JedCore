@@ -8,6 +8,7 @@ import com.projectkorra.projectkorra.ability.AddonAbility;
 import com.projectkorra.projectkorra.ability.AirAbility;
 import com.projectkorra.projectkorra.attribute.Attribute;
 import com.projectkorra.projectkorra.command.Commands;
+import com.projectkorra.projectkorra.region.RegionProtection;
 import com.projectkorra.projectkorra.util.DamageHandler;
 import com.projectkorra.projectkorra.util.ParticleEffect;
 
@@ -118,7 +119,7 @@ public class AirBreath extends AirAbility implements AddonAbility {
 
 	private boolean isLocationSafe(Location loc) {
 		Block block = loc.getBlock();
-		if (GeneralMethods.isRegionProtectedFromBuild(player, "AirBreath", loc)) {
+		if (RegionProtection.isRegionProtected(player, loc, this)) {
 			return false;
 		}
 		return isTransparent(block);
@@ -147,7 +148,7 @@ public class AirBreath extends AirAbility implements AddonAbility {
 
 			for (Entity entity : GeneralMethods.getEntitiesAroundPoint(loc, damageregion)) {
 				if (entity.getEntityId() != player.getEntityId() && !(entity instanceof ArmorStand)) {
-					if (GeneralMethods.isRegionProtectedFromBuild(this, entity.getLocation()) || ((entity instanceof Player) && Commands.invincible.contains(entity.getName()))){
+					if (RegionProtection.isRegionProtected(this, entity.getLocation()) || ((entity instanceof Player) && Commands.invincible.contains(entity.getName()))){
 						continue;
 					}
 					if (entity instanceof LivingEntity) {

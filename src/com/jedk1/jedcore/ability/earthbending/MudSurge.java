@@ -14,6 +14,7 @@ import com.projectkorra.projectkorra.ability.ElementalAbility;
 import com.projectkorra.projectkorra.ability.util.Collision;
 import com.projectkorra.projectkorra.attribute.Attribute;
 import com.projectkorra.projectkorra.command.Commands;
+import com.projectkorra.projectkorra.region.RegionProtection;
 import com.projectkorra.projectkorra.util.DamageHandler;
 import com.projectkorra.projectkorra.util.TempBlock;
 
@@ -175,7 +176,7 @@ public class MudSurge extends EarthAbility implements AddonAbility {
 
 				if (water) {
 					this.source = block;
-					this.sourceTB = new TempBlock(this.source, Material.BROWN_TERRACOTTA, Material.BROWN_TERRACOTTA.createBlockData());
+					this.sourceTB = new TempBlock(this.source, Material.BROWN_TERRACOTTA.createBlockData());
 					return true;
 				}
 			}
@@ -247,7 +248,7 @@ public class MudSurge extends EarthAbility implements AddonAbility {
 
 		for (int i = 0; i <= range; i++) {
 			Block block = loc.clone().add(dir.clone().multiply(i == 0 ? 1 : i)).getBlock();
-			if (GeneralMethods.isRegionProtectedFromBuild(player, "MudSurge", block.getLocation()))
+			if (RegionProtection.isRegionProtected(player, block.getLocation(), this))
 				continue;
 
 			if (isMud(block))
@@ -267,7 +268,7 @@ public class MudSurge extends EarthAbility implements AddonAbility {
 	}
 
 	private void createMud(Block block) {
-		mudBlocks.add(new TempBlock(block, Material.BROWN_TERRACOTTA, Material.BROWN_TERRACOTTA.createBlockData()));
+		mudBlocks.add(new TempBlock(block, Material.BROWN_TERRACOTTA.createBlockData()));
 	}
 
 	private void loadMudPool() {
@@ -361,7 +362,7 @@ public class MudSurge extends EarthAbility implements AddonAbility {
 					tfb.remove();
 					continue;
 				}
-				if (GeneralMethods.isRegionProtectedFromBuild(this, e.getLocation()) || ((e instanceof Player) && Commands.invincible.contains(e.getName()))){
+				if (RegionProtection.isRegionProtected(this, e.getLocation()) || ((e instanceof Player) && Commands.invincible.contains(e.getName()))){
 					continue;
 				}
 

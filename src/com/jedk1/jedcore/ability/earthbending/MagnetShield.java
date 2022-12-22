@@ -15,11 +15,21 @@ import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+
+import static org.bukkit.Material.*;
 
 public class MagnetShield extends MetalAbility implements AddonAbility {
 
-	private final static Material[] METAL = { Material.IRON_INGOT, Material.IRON_HELMET, Material.IRON_CHESTPLATE, Material.IRON_LEGGINGS, Material.IRON_BOOTS, Material.IRON_BLOCK, Material.IRON_AXE, Material.IRON_PICKAXE, Material.IRON_SWORD, Material.IRON_HOE, Material.IRON_SHOVEL, Material.IRON_DOOR };
+	private final static Material[] METAL = { RAW_IRON, IRON_INGOT, IRON_HELMET, IRON_CHESTPLATE, IRON_LEGGINGS, IRON_BOOTS,
+			IRON_BLOCK, RAW_IRON_BLOCK, IRON_AXE, IRON_PICKAXE, IRON_SWORD, IRON_HOE, IRON_SHOVEL, IRON_DOOR, IRON_NUGGET, IRON_BARS,
+	IRON_HORSE_ARMOR, IRON_TRAPDOOR, HEAVY_WEIGHTED_PRESSURE_PLATE, RAW_GOLD, GOLD_INGOT, GOLDEN_HELMET, GOLDEN_CHESTPLATE,
+	GOLDEN_LEGGINGS, GOLDEN_BOOTS, GOLD_BLOCK, GOLD_NUGGET, RAW_GOLD_BLOCK, GOLDEN_AXE, GOLDEN_PICKAXE, GOLDEN_SHOVEL, GOLDEN_SWORD,
+	GOLDEN_HOE, GOLDEN_HORSE_ARMOR, LIGHT_WEIGHTED_PRESSURE_PLATE, CLOCK, COMPASS};
+
+	private static final List<Material> METAL_LIST = new ArrayList<>(Arrays.asList(METAL));
 
 	public MagnetShield(Player player) {
 		super(player);
@@ -55,7 +65,7 @@ public class MagnetShield extends MetalAbility implements AddonAbility {
 			if (e instanceof Item) {
 				Item i = (Item) e;
 
-				if (Arrays.asList(METAL).contains(i.getItemStack().getType())) {
+				if (METAL_LIST.contains(i.getItemStack().getType())) {
 					Vector direction = GeneralMethods.getDirection(player.getLocation(), i.getLocation()).multiply(0.1);
 					i.setVelocity(direction);
 				}
@@ -64,7 +74,7 @@ public class MagnetShield extends MetalAbility implements AddonAbility {
 			else if (e instanceof FallingBlock) {
 				FallingBlock fb = (FallingBlock) e;
 
-				if (Arrays.asList(METAL).contains(fb.getMaterial())) {
+				if (METAL_LIST.contains(fb.getBlockData().getMaterial())) {
 					Vector direction = GeneralMethods.getDirection(player.getLocation(), fb.getLocation()).multiply(0.1);
 					fb.setVelocity(direction);
 					fb.setDropItem(false);
@@ -124,5 +134,9 @@ public class MagnetShield extends MetalAbility implements AddonAbility {
 	public boolean isEnabled() {
 		ConfigurationSection config = JedCoreConfig.getConfig(this.player);
 		return config.getBoolean("Abilities.Earth.MagnetShield.Enabled");
+	}
+
+	public static List<Material> getMetal() {
+		return METAL_LIST;
 	}
 }

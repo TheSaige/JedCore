@@ -8,6 +8,7 @@ import com.projectkorra.projectkorra.GeneralMethods;
 import com.projectkorra.projectkorra.ability.AddonAbility;
 import com.projectkorra.projectkorra.ability.AvatarAbility;
 import com.projectkorra.projectkorra.attribute.Attribute;
+import com.projectkorra.projectkorra.region.RegionProtection;
 import com.projectkorra.projectkorra.util.DamageHandler;
 import com.projectkorra.projectkorra.util.ParticleEffect;
 
@@ -101,7 +102,7 @@ public class SpiritBeam extends AvatarAbility implements AddonAbility {
 		for (double i = 0; i < range; i += 0.5) {
 			location = location.add(direction.multiply(0.5).normalize());
 
-			if (GeneralMethods.isRegionProtectedFromBuild(player, "SpiritBeam", location)) {
+			if (RegionProtection.isRegionProtected(player, location, this)) {
 				return;
 			}
 

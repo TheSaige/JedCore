@@ -9,6 +9,7 @@ import com.projectkorra.projectkorra.ability.AvatarAbility;
 import com.projectkorra.projectkorra.ability.WaterAbility;
 import com.projectkorra.projectkorra.attribute.Attribute;
 import com.projectkorra.projectkorra.command.Commands;
+import com.projectkorra.projectkorra.region.RegionProtection;
 import com.projectkorra.projectkorra.util.DamageHandler;
 
 import org.bukkit.Location;
@@ -48,7 +49,7 @@ public class ESWater extends AvatarAbility implements AddonAbility {
 		if (bPlayer.isOnCooldown("ESWater")) {
 			return;
 		}
-		if (GeneralMethods.isRegionProtectedFromBuild(this, player.getTargetBlock(getTransparentMaterialSet(), (int) range).getLocation())) {
+		if (RegionProtection.isRegionProtected(this, player.getTargetBlock(getTransparentMaterialSet(), (int) range).getLocation())) {
 			return;
 		}
 		setFields();
@@ -91,7 +92,7 @@ public class ESWater extends AvatarAbility implements AddonAbility {
 			if (!player.isDead())
 				direction = GeneralMethods.getDirection(player.getLocation(), GeneralMethods.getTargetedLocation(player, range, Material.WATER)).normalize();
 			location = location.add(direction.clone().multiply(1));
-			if(GeneralMethods.isRegionProtectedFromBuild(this, location)){
+			if(RegionProtection.isRegionProtected(this, location)){
 				travelled = range;
 				return;
 			}
@@ -104,7 +105,7 @@ public class ESWater extends AvatarAbility implements AddonAbility {
 			new RegenTempBlock(location.getBlock(), Material.WATER, Material.WATER.createBlockData(bd -> ((Levelled) bd).setLevel(0)), 100L);
 
 			for (Entity entity : GeneralMethods.getEntitiesAroundPoint(location, 2.5)) {
-				if (entity instanceof LivingEntity && entity.getEntityId() != player.getEntityId() && !(entity instanceof ArmorStand) && !GeneralMethods.isRegionProtectedFromBuild(this, entity.getLocation()) && !((entity instanceof Player) && Commands.invincible.contains(((Player) entity).getName()))) {
+				if (entity instanceof LivingEntity && entity.getEntityId() != player.getEntityId() && !(entity instanceof ArmorStand) && !RegionProtection.isRegionProtected(this, entity.getLocation()) && !((entity instanceof Player) && Commands.invincible.contains(((Player) entity).getName()))) {
 					DamageHandler.damageEntity(entity, damage, this);
 					travelled = range;
 				}
@@ -124,7 +125,7 @@ public class ESWater extends AvatarAbility implements AddonAbility {
 
 	@Override
 	public String getName() {
-		return "ElementSphere Water";
+		return "ElementSphereWater";
 	}
 	
 	@Override

@@ -4,10 +4,10 @@ import com.jedk1.jedcore.JedCore;
 import com.jedk1.jedcore.collision.CollisionDetector;
 import com.jedk1.jedcore.collision.Sphere;
 import com.jedk1.jedcore.configuration.JedCoreConfig;
-import com.projectkorra.projectkorra.GeneralMethods;
 import com.projectkorra.projectkorra.ability.AddonAbility;
 import com.projectkorra.projectkorra.ability.AirAbility;
 import com.projectkorra.projectkorra.attribute.Attribute;
+import com.projectkorra.projectkorra.region.RegionProtection;
 import com.projectkorra.projectkorra.util.DamageHandler;
 
 import org.bukkit.Location;
@@ -91,7 +91,7 @@ public class AirBlade extends AirAbility implements AddonAbility {
 				return;
 			}
 
-			if (GeneralMethods.isRegionProtectedFromBuild(player, "AirBlade", player.getLocation())) {
+			if (RegionProtection.isRegionProtected(player, player.getLocation(), this)) {
 				remove();
 				return;
 			}

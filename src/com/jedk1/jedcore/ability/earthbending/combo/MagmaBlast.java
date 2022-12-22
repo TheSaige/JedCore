@@ -203,7 +203,7 @@ public class MagmaBlast extends LavaAbility implements AddonAbility, ComboAbilit
 			TempFallingBlock tfb = iter.next();
 
 			if (tfb.getLocation().getBlockY() >= (origin.getBlockY() + RAISE_HEIGHT)) {
-				blocks.add(new TempBlock(tfb.getLocation().getBlock(), Material.NETHERRACK, Material.NETHERRACK.createBlockData()));
+				blocks.add(new TempBlock(tfb.getLocation().getBlock(), Material.NETHERRACK.createBlockData()));
 				iter.remove();
 				tfb.remove();
 			}
