@@ -8,6 +8,7 @@ import com.jedk1.jedcore.util.RegenTempBlock;
 import com.projectkorra.projectkorra.GeneralMethods;
 import com.projectkorra.projectkorra.ability.*;
 import com.projectkorra.projectkorra.ability.util.ComboManager.AbilityInformation;
+import com.projectkorra.projectkorra.ability.util.ComboUtil;
 import com.projectkorra.projectkorra.airbending.AirSpout;
 import com.projectkorra.projectkorra.attribute.Attribute;
 import com.projectkorra.projectkorra.command.Commands;
@@ -437,19 +438,12 @@ public class WaterFlow extends WaterAbility implements AddonAbility, ComboAbilit
 
 	@Override
 	public ArrayList<AbilityInformation> getCombination() {
-		ArrayList<AbilityInformation> combination = new ArrayList<>();
-		combination.add(new AbilityInformation("WaterManipulation", ClickType.SHIFT_DOWN));
-		combination.add(new AbilityInformation("WaterManipulation", ClickType.SHIFT_UP));
-		combination.add(new AbilityInformation("Torrent", ClickType.SHIFT_DOWN));
-		combination.add(new AbilityInformation("Torrent", ClickType.SHIFT_UP));
-		combination.add(new AbilityInformation("Torrent", ClickType.SHIFT_DOWN));
-		combination.add(new AbilityInformation("WaterManipulation", ClickType.SHIFT_UP));
-		return combination;
+		return ComboUtil.generateCombinationFromList(this, JedCoreConfig.getConfig(player).getStringList("Abilities.Water.WaterCombo.WaterFlow.Combination"));
 	}
 
 	@Override
 	public String getInstructions() {
-		return "WaterManipulation (Tap Shift) > Torrent (Tap Shift) > Torrent (Hold Shift) > WaterManipulation (Release Shift)";
+		return JedCoreConfig.getConfig(player).getString("Abilities.Water.WaterCombo.WaterGimbal.Instructions");
 	}
 
 	@Override

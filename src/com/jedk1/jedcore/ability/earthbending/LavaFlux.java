@@ -228,7 +228,7 @@ public class LavaFlux extends LavaAbility implements AddonAbility {
 	}
 
 	private void expand(Block block) {
-		if (block != null && block.getY() > 1 && block.getY() < 255 && !RegionProtection.isRegionProtected(this, block.getLocation())) {
+		if (block != null && block.getY() > block.getWorld().getMinHeight() && block.getY() < block.getWorld().getMaxHeight() && !RegionProtection.isRegionProtected(this, block.getLocation())) {
 			if (EarthAbility.getMovedEarth().containsKey(block)){
 				Information info = EarthAbility.getMovedEarth().get(block);
 				if(!info.getBlock().equals(block)) {
@@ -239,7 +239,7 @@ public class LavaFlux extends LavaAbility implements AddonAbility {
 			if (isWater(block)) return;
 			while (!isEarthbendable(block)) {
 				block = block.getRelative(BlockFace.DOWN);
-				if (block.getY() < 1 || block.getY() > 255) {
+				if (block.getY() < block.getWorld().getMinHeight() || block.getY() > block.getWorld().getMaxHeight()) {
 					break;
 				}
 				if (isEarthbendable(block)) {
@@ -249,7 +249,7 @@ public class LavaFlux extends LavaAbility implements AddonAbility {
 
 			while (!isTransparent(block.getRelative(BlockFace.UP))) {
 				block = block.getRelative(BlockFace.UP);
-				if (block.getY() < 1 || block.getY() > 255) {
+				if (block.getY() < block.getWorld().getMinHeight() || block.getY() > block.getWorld().getMaxHeight()) {
 					break;
 				}
 				if (isEarthbendable(block.getRelative(BlockFace.UP))) {
@@ -271,8 +271,6 @@ public class LavaFlux extends LavaAbility implements AddonAbility {
 				return BlockFace.EAST;
 			case WEST:
 				return BlockFace.SOUTH;
-			case EAST:
-				return BlockFace.NORTH;
 			case NORTH_WEST:
 				return BlockFace.SOUTH_WEST;
 			case NORTH_EAST:

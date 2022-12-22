@@ -8,6 +8,7 @@ import com.projectkorra.projectkorra.ability.AddonAbility;
 import com.projectkorra.projectkorra.ability.ComboAbility;
 import com.projectkorra.projectkorra.ability.EarthAbility;
 import com.projectkorra.projectkorra.ability.util.ComboManager.AbilityInformation;
+import com.projectkorra.projectkorra.ability.util.ComboUtil;
 import com.projectkorra.projectkorra.attribute.Attribute;
 import com.projectkorra.projectkorra.region.RegionProtection;
 import com.projectkorra.projectkorra.util.ClickType;
@@ -271,17 +272,12 @@ public class Crevice extends EarthAbility implements AddonAbility, ComboAbility 
 
 	@Override
 	public ArrayList<AbilityInformation> getCombination() {
-		ArrayList<AbilityInformation> combination = new ArrayList<>();
-		combination.add(new AbilityInformation("Collapse", ClickType.RIGHT_CLICK_BLOCK));
-		combination.add(new AbilityInformation("Shockwave", ClickType.SHIFT_DOWN));
-		combination.add(new AbilityInformation("Shockwave", ClickType.SHIFT_UP));
-		combination.add(new AbilityInformation("Shockwave", ClickType.SHIFT_DOWN));
-		return combination;
+		return ComboUtil.generateCombinationFromList(this, JedCoreConfig.getConfig(player).getStringList("Abilities.Earth.EarthCombo.Crevice.Combination"));
 	}
 
 	@Override
 	public String getInstructions() {
-		return "Collapse (Right Click a block) > Shockwave (Tap Shift) > Shockwave (Tap Shift)";
+		return JedCoreConfig.getConfig(player).getString("Abilities.Earth.EarthCombo.Crevice.Instructions");
 	}
 
 	@Override

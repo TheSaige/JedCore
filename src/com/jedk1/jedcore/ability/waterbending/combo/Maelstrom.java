@@ -8,6 +8,7 @@ import com.projectkorra.projectkorra.ability.AddonAbility;
 import com.projectkorra.projectkorra.ability.ComboAbility;
 import com.projectkorra.projectkorra.ability.WaterAbility;
 import com.projectkorra.projectkorra.ability.util.ComboManager.AbilityInformation;
+import com.projectkorra.projectkorra.ability.util.ComboUtil;
 import com.projectkorra.projectkorra.attribute.Attribute;
 import com.projectkorra.projectkorra.util.BlockSource;
 import com.projectkorra.projectkorra.util.ClickType;
@@ -250,16 +251,12 @@ public class Maelstrom extends WaterAbility implements AddonAbility, ComboAbilit
 
 	@Override
 	public ArrayList<AbilityInformation> getCombination() {
-		ArrayList<AbilityInformation> combination = new ArrayList<>();
-		combination.add(new AbilityInformation("PhaseChange", ClickType.SHIFT_DOWN));
-		combination.add(new AbilityInformation("Torrent", ClickType.LEFT_CLICK));
-		combination.add(new AbilityInformation("Torrent", ClickType.LEFT_CLICK));
-		return combination;
+		return ComboUtil.generateCombinationFromList(this, JedCoreConfig.getConfig(player).getStringList("Abilities.Water.WaterCombo.Maelstrom.Combination"));
 	}
 
 	@Override
 	public String getInstructions() {
-		return "PhaseChange (Hold Shift) > Torrent (Left Click) > Torrent (Left Click)";
+		return JedCoreConfig.getConfig(player).getString("Abilities.Water.WaterCombo.Maelstrom.Instructions");
 	}
 
 	@Override

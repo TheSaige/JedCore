@@ -144,7 +144,7 @@ public class ESEarth extends AvatarAbility implements AddonAbility {
 
 	@Override
 	public Location getLocation() {
-		return tfb.getLocation();
+		return tfb != null ? tfb.getLocation() : null;
 	}
 
 	@Override

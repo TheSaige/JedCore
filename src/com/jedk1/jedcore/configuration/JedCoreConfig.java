@@ -11,6 +11,7 @@ import org.bukkit.entity.Player;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class JedCoreConfig {
 
@@ -233,6 +234,8 @@ public class JedCoreConfig {
 		config.addDefault("Abilities.Air.AirCombo.AirSlam.Cooldown", 8000);
 		config.addDefault("Abilities.Air.AirCombo.AirSlam.Power", 5.0);
 		config.addDefault("Abilities.Air.AirCombo.AirSlam.Range", 8);
+		config.addDefault("Abilities.Air.AirCombo.AirSlam.Combination", Arrays.asList("AirSwipe:SHIFT_DOWN", "AirBlast:SHIFT_UP", "AirBlast:SHIFT_DOWN"));
+		config.addDefault("Abilities.Air.AirCombo.AirSlam.Instructions", "AirSwipe (Hold sneak) > AirBlast (Release sneak) > AirBlast (Hold sneak)");
 		
 		config.addDefault("Abilities.Air.AirCombo.SwiftStream.Enabled", true);
 		config.addDefault("Abilities.Air.AirCombo.SwiftStream.Description", "Create a stream of air as you fly which causes nearby "
@@ -240,6 +243,8 @@ public class JedCoreConfig {
 		config.addDefault("Abilities.Air.AirCombo.SwiftStream.DragFactor", 1.5);
 		config.addDefault("Abilities.Air.AirCombo.SwiftStream.Duration", 2000);
 		config.addDefault("Abilities.Air.AirCombo.SwiftStream.Cooldown", 6000);
+		config.addDefault("Abilities.Air.AirCombo.SwiftStream.Combination", Arrays.asList("Flight:SHIFT_DOWN", "Flight:SHIFT_UP", "Flight:SHIFT_DOWN", "Flight:SHIFT_UP"));
+		config.addDefault("Abilities.Air.AirCombo.SwiftStream.Instructions", "Flight (Double tap sneak)");
 		
 		config.addDefault("Abilities.Earth.EarthArmor.Enabled", true);
 		config.addDefault("Abilities.Earth.EarthArmor.Description", "If the block is metal, then you will get metal armor!");
@@ -494,7 +499,9 @@ public class JedCoreConfig {
 		config.addDefault("Abilities.Earth.EarthCombo.Crevice.Depth", 5);
 		config.addDefault("Abilities.Earth.EarthCombo.Crevice.AvatarStateDepth", 8);
 		config.addDefault("Abilities.Earth.EarthCombo.Crevice.Cooldown", 10000);
-		
+		config.addDefault("Abilities.Earth.EarthCombo.Crevice.Combination", Arrays.asList("Collapse:RIGHT_CLICK_BLOCK", "Shockwave:SHIFT_DOWN", "Shockwave:SHIFT_UP", "Shockwave:SHIFT_DOWN"));
+		config.addDefault("Abilities.Earth.EarthCombo.Crevice.Instructions", "Collapse (Right-click a block) > Shockwave (Tap sneak) > Shockwave (Tap sneak)");
+
 		config.addDefault("Abilities.Earth.EarthCombo.MagmaBlast.Enabled", true);
 		config.addDefault("Abilities.Earth.EarthCombo.MagmaBlast.Description", "Fire balls of magma at your enemy!");
 		config.addDefault("Abilities.Earth.EarthCombo.MagmaBlast.MaxShots", 3);
@@ -510,6 +517,8 @@ public class JedCoreConfig {
 		config.addDefault("Abilities.Earth.EarthCombo.MagmaBlast.FireSpeed", 1.5);
 		config.addDefault("Abilities.Earth.EarthCombo.MagmaBlast.MaxDuration", 15000);
 		config.addDefault("Abilities.Earth.EarthCombo.MagmaBlast.MaxDistanceFromSources", 15);
+		config.addDefault("Abilities.Earth.EarthCombo.MagmaBlast.Combination", Arrays.asList("EarthBlast:SHIFT_DOWN", "LavaFlow:SHIFT_UP", "LavaFlow:SHIFT_DOWN", "LavaFlow:RIGHT_CLICK_BLOCK"));
+		config.addDefault("Abilities.Earth.EarthCombo.MagmaBlast.Instructions", "EarthBlast (Hold sneak) > LavaFlow (Release sneak) > LavaFlow (Hold sneak) > LavaFlow (Right-click a block) > LavaFlow (Left-click multiple times)");
 		
 		config.addDefault("Abilities.Fire.Combustion.Enabled", true);
 		config.addDefault("Abilities.Fire.Combustion.Description", "Hold Shift to focus large amounts of energy into your body, "
@@ -782,7 +791,7 @@ public class JedCoreConfig {
 		config.addDefault("Abilities.Water.IceWall.WallDamage.AirBlast", 2);
 		
 		config.addDefault("Abilities.Water.WakeFishing.Enabled", true);
-		config.addDefault("Abilities.Water.WakeFishing.Description", "With this ability bound, hold Shift (Default: Sneak) at a water block and "
+		config.addDefault("Abilities.Water.WakeFishing.Description", "With this ability bound, hold Sneak (Default: Shift) at a water block and "
 				+ "don't lose focus of that block. Eventually some fish will investigate "
 				+ "the wake and swim out at you!");
 		config.addDefault("Abilities.Water.WakeFishing.Cooldown", 10000);
@@ -796,6 +805,8 @@ public class JedCoreConfig {
 		config.addDefault("Abilities.Water.WaterCombo.Maelstrom.Duration", 15000);
 		config.addDefault("Abilities.Water.WaterCombo.Maelstrom.MaxDepth", 5);
 		config.addDefault("Abilities.Water.WaterCombo.Maelstrom.Range", 10);
+		config.addDefault("Abilities.Water.WaterCombo.Maelstrom.Combination", Arrays.asList("PhaseChange:SHIFT_DOWN", "Torrent:LEFT_CLICK", "Torrent:LEFT_CLICK"));
+		config.addDefault("Abilities.Water.WaterCombo.Maelstrom.Instructions", "PhaseChange (Hold sneak) > Torrent (Left-click) > Torrent (Left-click)");
 		
 		config.addDefault("Abilities.Water.WaterCombo.WaterFlow.Enabled", true);
 		config.addDefault("Abilities.Water.WaterCombo.WaterFlow.Description", "Some Waterbenders have managed to create torrents of water much stronger than a regular torrent, "
@@ -823,6 +834,8 @@ public class JedCoreConfig {
 		config.addDefault("Abilities.Water.WaterCombo.WaterFlow.FullMoon.Modifier.Cooldown", 3);
 		config.addDefault("Abilities.Water.WaterCombo.WaterFlow.FullMoon.Modifier.Duration", 2);
 		config.addDefault("Abilities.Water.WaterCombo.WaterFlow.PlayerRideOwnFlow", true);
+		config.addDefault("Abilities.Water.WaterCombo.WaterFlow.Combination", Arrays.asList("WaterManipulation:SHIFT_DOWN", "WaterManipulation:SHIFT_UP", "Torrent:SHIFT_DOWN", "Torrent:SHIFT_UP", "Torrent:SHIFT_DOWN", "WaterManipulation:SHIFT_UP"));
+		config.addDefault("Abilities.Water.WaterCombo.WaterFlow.Instructions", "WaterManipulation (Tap sneak) > Torrent (Tap sneak) > Torrent (Hold sneak) > WaterManipulation (Release sneak)");
 		
 		config.addDefault("Abilities.Water.WaterCombo.WaterGimbal.Enabled", true);
 		config.addDefault("Abilities.Water.WaterCombo.WaterGimbal.Description", "Skilled Waterbenders are able to create two spinning rings of water around their bodies, "
@@ -843,6 +856,8 @@ public class JedCoreConfig {
 		config.addDefault("Abilities.Water.WaterCombo.WaterGimbal.Collisions.FireShield.Enabled", false);
 		config.addDefault("Abilities.Water.WaterCombo.WaterGimbal.Collisions.FireShield.RemoveFirst", true);
 		config.addDefault("Abilities.Water.WaterCombo.WaterGimbal.Collisions.FireShield.RemoveSecond", false);
+		config.addDefault("Abilities.Water.WaterCombo.WaterGimbal.Combination", Arrays.asList("Torrent:SHIFT_DOWN", "Torrent:SHIFT_UP", "Torrent:SHIFT_DOWN", "Torrent:SHIFT_UP", "WaterManipulation:SHIFT_DOWN"));
+		config.addDefault("Abilities.Water.WaterCombo.WaterGimbal.Instructions", "Torrent (Tap sneak) > Torrent (Tap sneak) > WaterManipulation (Hold sneak) > WaterManipulation (Left-click multiple times)");
 		
 		config.addDefault("Abilities.Water.Ice.Passive.Skate.Enabled", true);
 		config.addDefault("Abilities.Water.Ice.Passive.Skate.SpeedFactor", 4);

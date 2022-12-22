@@ -174,8 +174,7 @@ public class EarthSurf extends EarthAbility implements AddonAbility {
 	private double getPlayerDistance() {
 		Location l = player.getLocation().clone();
 		while (true) {
-			if (l.getBlock() == null) break;
-			if (l.getBlockY() <= 1) break;
+			if (l.getBlockY() <= l.getWorld().getMinHeight()) break;
 			if (ElementalAbility.isAir(l.getBlock().getType()) && ridingBlocks.contains(l.getBlock())) break;
 			if (GeneralMethods.isSolid(l.getBlock())) break;
 
@@ -185,7 +184,7 @@ public class EarthSurf extends EarthAbility implements AddonAbility {
 	}
 
 	private Block getBlockBeneath(Location l) {
-		while (l.getBlock() != null && l.getBlockY() > 1 && MaterialUtil.isTransparent(l.getBlock())) {
+		while (l.getBlockY() > l.getWorld().getMinHeight() && MaterialUtil.isTransparent(l.getBlock())) {
 			l.add(0, -0.5, 0);
 		}
 		return l.getBlock();

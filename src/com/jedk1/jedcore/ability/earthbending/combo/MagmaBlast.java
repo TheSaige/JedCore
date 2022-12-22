@@ -4,6 +4,7 @@ import com.jedk1.jedcore.collision.AABB;
 import com.jedk1.jedcore.configuration.JedCoreConfig;
 import com.jedk1.jedcore.util.MaterialUtil;
 import com.projectkorra.projectkorra.ability.ElementalAbility;
+import com.projectkorra.projectkorra.ability.util.ComboUtil;
 import com.projectkorra.projectkorra.attribute.Attribute;
 import com.projectkorra.projectkorra.earthbending.lava.LavaFlow;
 
@@ -433,17 +434,12 @@ public class MagmaBlast extends LavaAbility implements AddonAbility, ComboAbilit
 
 	@Override
 	public ArrayList<AbilityInformation> getCombination() {
-		ArrayList<AbilityInformation> combination = new ArrayList<>();
-		combination.add(new AbilityInformation("EarthBlast", ClickType.SHIFT_DOWN));
-		combination.add(new AbilityInformation("LavaFlow", ClickType.SHIFT_UP));
-		combination.add(new AbilityInformation("LavaFlow", ClickType.SHIFT_DOWN));
-		combination.add(new AbilityInformation("LavaFlow", ClickType.RIGHT_CLICK_BLOCK));
-		return combination;
+		return ComboUtil.generateCombinationFromList(this, JedCoreConfig.getConfig(player).getStringList("Abilities.Earth.EarthCombo.MagmaBlast.Combination"));
 	}
 
 	@Override
 	public String getInstructions() {
-		return "EarthBlast (Hold Shift) > LavaFlow (Release Shift) > LavaFlow (Hold Shift) > LavaFlow (Right Click a block) > LavaFlow (Left Click Multiple times)";
+		return JedCoreConfig.getConfig(player).getString("Abilities.Earth.EarthCombo.MagmaBlast.Instructions");
 	}
 
 	@Override

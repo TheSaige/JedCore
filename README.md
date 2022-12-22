@@ -5,6 +5,24 @@ Join our [Discord](https://discord.gg/gh9MfDmwZm) to discuss the plugin, suggest
 
 ## Changelog
 
+### 2.12.0
+- Added death messages for all abilities
+- Made all combos configurable with configurable instructions as well
+- Updated MagnetShield metal list
+- Fixed bending board not supporting the easy hex color format
+- Fixed LavaFlux making permanent stone, duplicating earth block items, and destroying plants
+- Fixed LavaFlux not working outside of old world height bounds
+- Fixed Backstab not dealing "bending" damage
+- Fixed rainbow FireBreath message
+- Fixed AirBreath not extinguishing soul fire
+- Fixed some newer signs not being supported in sign checking
+- Fixed NPE in ESEarth#getLocation
+- Added Aztl to the JedCore dev list
+- Removed pointless imports
+- Replaced a lot of deprecated methods with the non-deprecated versions
+- Optimized a few minor things
+
+
 ### 2.11.0
 - Updated ProjectKorra dependency to 1.10.2
 - Converted to PK's TempFallingBlock class

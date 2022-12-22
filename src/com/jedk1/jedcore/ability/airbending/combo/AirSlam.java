@@ -8,6 +8,7 @@ import com.projectkorra.projectkorra.ability.AddonAbility;
 import com.projectkorra.projectkorra.ability.AirAbility;
 import com.projectkorra.projectkorra.ability.ComboAbility;
 import com.projectkorra.projectkorra.ability.util.ComboManager.AbilityInformation;
+import com.projectkorra.projectkorra.ability.util.ComboUtil;
 import com.projectkorra.projectkorra.attribute.Attribute;
 import com.projectkorra.projectkorra.command.Commands;
 import com.projectkorra.projectkorra.object.HorizontalVelocityTracker;
@@ -122,16 +123,12 @@ public class AirSlam extends AirAbility implements AddonAbility, ComboAbility {
 
 	@Override
 	public ArrayList<AbilityInformation> getCombination() {
-		ArrayList<AbilityInformation> combination = new ArrayList<>();
-		combination.add(new AbilityInformation("AirSwipe", ClickType.SHIFT_DOWN));
-		combination.add(new AbilityInformation("AirBlast", ClickType.SHIFT_UP));
-		combination.add(new AbilityInformation("AirBlast", ClickType.SHIFT_DOWN));
-		return combination;
+		return ComboUtil.generateCombinationFromList(this, JedCoreConfig.getConfig(player).getStringList("Abilities.Air.AirCombo.AirSlam.Combination"));
 	}
 
 	@Override
 	public String getInstructions() {
-		return "AirSwipe (Hold Shift) > AirBlast (Release Shift) > AirBlast (Hold Shift)";
+		return JedCoreConfig.getConfig(player).getString("Abilities.Air.AirCombo.SwiftStream.Instructions");
 	}
 
 	@Override

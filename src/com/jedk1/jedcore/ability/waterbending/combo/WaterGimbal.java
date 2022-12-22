@@ -12,6 +12,7 @@ import com.projectkorra.projectkorra.ability.ComboAbility;
 import com.projectkorra.projectkorra.ability.ElementalAbility;
 import com.projectkorra.projectkorra.ability.WaterAbility;
 import com.projectkorra.projectkorra.ability.util.ComboManager.AbilityInformation;
+import com.projectkorra.projectkorra.ability.util.ComboUtil;
 import com.projectkorra.projectkorra.attribute.Attribute;
 import com.projectkorra.projectkorra.util.BlockSource;
 import com.projectkorra.projectkorra.util.ClickType;
@@ -422,18 +423,12 @@ public class WaterGimbal extends WaterAbility implements AddonAbility, ComboAbil
 
 	@Override
 	public ArrayList<AbilityInformation> getCombination() {
-		ArrayList<AbilityInformation> combination = new ArrayList<>();
-		combination.add(new AbilityInformation("Torrent", ClickType.SHIFT_DOWN));
-		combination.add(new AbilityInformation("Torrent", ClickType.SHIFT_UP));
-		combination.add(new AbilityInformation("Torrent", ClickType.SHIFT_DOWN));
-		combination.add(new AbilityInformation("Torrent", ClickType.SHIFT_UP));
-		combination.add(new AbilityInformation("WaterManipulation", ClickType.SHIFT_DOWN));
-		return combination;
+		return ComboUtil.generateCombinationFromList(this, JedCoreConfig.getConfig(player).getStringList("Abilities.Water.WaterCombo.WaterGimbal.Combination"));
 	}
 
 	@Override
 	public String getInstructions() {
-		return "Torrent (Tap Shift) > Torrent (Tap Shift) > WaterManipulation (Hold Shift) > WaterManipulation (Left-click multiple times)";
+		return JedCoreConfig.getConfig(player).getString("Abilities.Water.WaterCombo.WaterGimbal.Instructions");
 	}
 
 	@Override

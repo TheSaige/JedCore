@@ -172,11 +172,11 @@ public class LavaDisc extends LavaAbility implements AddonAbility {
 	}
 
 	private boolean isLocationSafe(Location location) {
-		if (location == null) {
+		if (location == null || location.getWorld() == null) {
 			return false;
 		}
 
-		return location.getY() >= 2 && location.getY() <= (location.getWorld().getMaxHeight() - 1);
+		return location.getY() >= location.getWorld().getMinHeight() && location.getY() <= (location.getWorld().getMaxHeight() - 1);
 	}
 
 	private void doDamage(Entity entity) {

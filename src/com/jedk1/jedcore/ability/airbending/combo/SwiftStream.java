@@ -7,6 +7,7 @@ import com.projectkorra.projectkorra.ability.AddonAbility;
 import com.projectkorra.projectkorra.ability.ComboAbility;
 import com.projectkorra.projectkorra.ability.FlightAbility;
 import com.projectkorra.projectkorra.ability.util.ComboManager.AbilityInformation;
+import com.projectkorra.projectkorra.ability.util.ComboUtil;
 import com.projectkorra.projectkorra.attribute.Attribute;
 import com.projectkorra.projectkorra.object.HorizontalVelocityTracker;
 import com.projectkorra.projectkorra.util.ClickType;
@@ -138,16 +139,12 @@ public class SwiftStream extends FlightAbility implements AddonAbility, ComboAbi
 
 	@Override
 	public ArrayList<AbilityInformation> getCombination() {
-		ArrayList<AbilityInformation> combination = new ArrayList<>();
-		combination.add(new AbilityInformation("Flight", ClickType.SHIFT_UP));
-		combination.add(new AbilityInformation("Flight", ClickType.LEFT_CLICK));
-		combination.add(new AbilityInformation("Flight", ClickType.LEFT_CLICK));
-		return combination;
+		return ComboUtil.generateCombinationFromList(this, JedCoreConfig.getConfig(player).getStringList("Abilities.Air.AirCombo.SwiftStream.Combination"));
 	}
 
 	@Override
 	public String getInstructions() {
-		return "Flight (Start Flying) " + "> Flight (Release Shift) > Flight (Left Click) " + "> Flight (Left Click)";
+		return JedCoreConfig.getConfig(player).getString("Abilities.Air.AirCombo.SwiftStream.Instructions");
 	}
 
 	@Override
