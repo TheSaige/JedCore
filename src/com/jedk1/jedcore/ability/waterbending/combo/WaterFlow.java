@@ -443,7 +443,7 @@ public class WaterFlow extends WaterAbility implements AddonAbility, ComboAbilit
 
 	@Override
 	public String getInstructions() {
-		return JedCoreConfig.getConfig(player).getString("Abilities.Water.WaterCombo.WaterGimbal.Instructions");
+		return JedCoreConfig.getConfig(player).getString("Abilities.Water.WaterCombo.WaterFlow.Instructions");
 	}
 
 	@Override

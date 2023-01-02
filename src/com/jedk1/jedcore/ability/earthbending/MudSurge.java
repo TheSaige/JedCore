@@ -52,19 +52,28 @@ public class MudSurge extends EarthAbility implements AddonAbility {
 
 	public static int surgeInterval = 300;
 	public static int mudPoolRadius = 2;
-	public static Material[] mudTypes = new Material[] {
-			Material.SAND, Material.CLAY, Material.TERRACOTTA, Material.BLACK_TERRACOTTA, Material.BLUE_TERRACOTTA,
-			Material.BROWN_TERRACOTTA, Material.CYAN_TERRACOTTA, Material.GRAY_TERRACOTTA, Material.GREEN_TERRACOTTA,
-			Material.LIGHT_BLUE_TERRACOTTA, Material.LIGHT_GRAY_TERRACOTTA, Material.LIME_TERRACOTTA,
-			Material.MAGENTA_TERRACOTTA, Material.ORANGE_TERRACOTTA, Material.PINK_TERRACOTTA,
-			Material.PURPLE_TERRACOTTA, Material.RED_TERRACOTTA, Material.WHITE_TERRACOTTA, Material.YELLOW_TERRACOTTA,
-			Material.GRASS_BLOCK, Material.DIRT, Material.MYCELIUM,
-			Material.SOUL_SAND, Material.RED_SANDSTONE, Material.SANDSTONE };
+	public static Set<Material> mudTypes = new HashSet<>();
+
+	static {
+		mudTypes.addAll(Arrays.asList(Material.SAND, Material.RED_SAND, Material.CLAY, Material.TERRACOTTA, Material.BLACK_TERRACOTTA, Material.BLUE_TERRACOTTA,
+				Material.BROWN_TERRACOTTA, Material.CYAN_TERRACOTTA, Material.GRAY_TERRACOTTA, Material.GREEN_TERRACOTTA,
+				Material.LIGHT_BLUE_TERRACOTTA, Material.LIGHT_GRAY_TERRACOTTA, Material.LIME_TERRACOTTA,
+				Material.MAGENTA_TERRACOTTA, Material.ORANGE_TERRACOTTA, Material.PINK_TERRACOTTA,
+				Material.PURPLE_TERRACOTTA, Material.RED_TERRACOTTA, Material.WHITE_TERRACOTTA, Material.YELLOW_TERRACOTTA,
+				Material.GRASS_BLOCK, Material.DIRT, Material.MYCELIUM, Material.COARSE_DIRT, Material.ROOTED_DIRT,
+				Material.SOUL_SAND, Material.SOUL_SOIL, Material.RED_SANDSTONE, Material.SANDSTONE, Material.CHISELED_SANDSTONE,
+				Material.CHISELED_RED_SANDSTONE, Material.SMOOTH_SANDSTONE, Material.SMOOTH_RED_SANDSTONE, Material.CUT_SANDSTONE,
+				Material.CUT_RED_SANDSTONE));
+		if (GeneralMethods.getMCVersion() >= 1190) {
+			mudTypes.add(Material.getMaterial("MUD"));
+			mudTypes.add(Material.getMaterial("MUDDY_MANGROVE_ROOTS"));
+			mudTypes.add(Material.getMaterial("PACKED_MUD"));
+		}
+	}
 
 	private CompositeRemovalPolicy removalPolicy;
 
 	private Block source;
-	private TempBlock sourceTB;
 
 	private int wavesOnTheRun = 0;
 	private boolean mudFormed = false;
@@ -176,7 +185,6 @@ public class MudSurge extends EarthAbility implements AddonAbility {
 
 				if (water) {
 					this.source = block;
-					this.sourceTB = new TempBlock(this.source, Material.BROWN_TERRACOTTA.createBlockData());
 					return true;
 				}
 			}
@@ -301,6 +309,7 @@ public class MudSurge extends EarthAbility implements AddonAbility {
 			}
 		}
 
+		Collections.shuffle(mudArea);
 		mudAreaItr = mudArea.listIterator();
 	}
 
@@ -341,7 +350,7 @@ public class MudSurge extends EarthAbility implements AddonAbility {
 			x = (rand.nextBoolean()) ? -x : x;
 			z = (rand.nextBoolean()) ? -z : z;
 
-			fallingBlocks.add(new TempFallingBlock(tb.getLocation().add(0, 1, 0), Material.BROWN_TERRACOTTA.createBlockData(), direction.clone().add(new Vector(x, 0.2, z)), this));
+			fallingBlocks.add(new TempFallingBlock(tb.getLocation().add(0.5, 1, 0.5), Material.BROWN_TERRACOTTA.createBlockData(), direction.clone().add(new Vector(x, 0.2, z)), this));
 			
 			playEarthbendingSound(tb.getLocation());
 		}
@@ -394,7 +403,6 @@ public class MudSurge extends EarthAbility implements AddonAbility {
 
 	@Override
 	public void remove() {
-		sourceTB.revertBlock();
 		revertMudPool();
 		super.remove();
 	}
@@ -544,11 +552,16 @@ public class MudSurge extends EarthAbility implements AddonAbility {
 	}
 
 	public static Material[] getMudTypes() {
+		return mudTypes.toArray(new Material[0]);
+	}
+
+	public static Set<Material> getMudTypesSet() {
 		return mudTypes;
 	}
 
 	public static void setMudTypes(Material[] mudTypes) {
-		MudSurge.mudTypes = mudTypes;
+		MudSurge.mudTypes.clear();
+		MudSurge.mudTypes.addAll(Arrays.asList(mudTypes));
 	}
 
 	public CompositeRemovalPolicy getRemovalPolicy() {
@@ -561,14 +574,6 @@ public class MudSurge extends EarthAbility implements AddonAbility {
 
 	public void setSource(Block source) {
 		this.source = source;
-	}
-
-	public TempBlock getSourceTB() {
-		return sourceTB;
-	}
-
-	public void setSourceTB(TempBlock sourceTB) {
-		this.sourceTB = sourceTB;
 	}
 
 	public int getWavesOnTheRun() {

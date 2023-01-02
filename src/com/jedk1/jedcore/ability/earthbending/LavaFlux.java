@@ -113,10 +113,10 @@ public class LavaFlux extends LavaAbility implements AddonAbility {
 					progressFlux();
 				}
 			}
-		} else {
+		} else if (duration > cleanup) {
 			if (System.currentTimeMillis() > time + duration) {
 				for (TempBlock tb : blocks.values()) {
-					tb.setType(Material.STONE);
+					if (!tb.isReverted()) tb.setType(Material.STONE);
 				}
 				remove();
 			}

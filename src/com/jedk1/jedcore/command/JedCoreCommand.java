@@ -12,7 +12,7 @@ import com.jedk1.jedcore.JedCore;
 import com.projectkorra.projectkorra.command.PKCommand;
 
 public class JedCoreCommand extends PKCommand {
-	private static final String DOWNLOAD_URL = "https://github.com/plushmonkey/JedCore";
+	private static final String DOWNLOAD_URL = "https://github.com/Aztlon/JedCore";
 
 	public JedCoreCommand() {
 		super("jedcore", "/bending jedcore", "This command will show the statistics and version of JedCore.", new String[] { "jedcore", "jc" });

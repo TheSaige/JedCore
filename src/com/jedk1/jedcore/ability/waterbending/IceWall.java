@@ -143,19 +143,14 @@ public class IceWall extends IceAbility implements AddonAbility {
 		for (int i = 0; i <= range; i++) {
 			Block b = player.getEyeLocation().add(direction.clone().multiply((double) i)).getBlock();
 
-			if (b.getType() == Material.WATER || b.getType() == Material.ICE || b.getType() == Material.PACKED_ICE
-					//|| b.getType() == Material.SNOW
-					|| b.getType() == Material.SNOW_BLOCK)
-				return b;
+			if (isBendable(b)) return b;
 		}
 
 		return null;
 	}
 
 	public boolean isBendable(Block b) {
-		return b.getType() == Material.WATER || b.getType() == Material.ICE || b.getType() == Material.PACKED_ICE
-				//|| b.getType() == Material.SNOW
-				|| b.getType() == Material.SNOW_BLOCK;
+		return isWater(b) || isIce(b.getType()) || isSnow(b.getType());
 	}
 
 	public void loadAffectedBlocks(Player player, Block block) {
