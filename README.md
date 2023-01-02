@@ -5,6 +5,17 @@ Join our [Discord](https://discord.gg/gh9MfDmwZm) to discuss the plugin, suggest
 
 ## Changelog
 
+### 2.12.1
+- Fixed URL being outdated in /b version
+- Fixed IceWall not working on snow and ice blocks from the config
+- Fixed WaterFlow using the wrong instructions
+- Fixed LavaFlux making permanent stone when duration is less than cleanup
+- Fixed MudSurge duping the center block
+- Fixed MudSurge creating the blocks offset of 0.5 blocks
+- Added new supported blocks to MudSurge
+- Made MudSurge's brown blocks appear in a random order
+- Fixed ElementSphere Fire crash
+
 ### 2.12.0
 - Added death messages for all abilities
 - Made all combos configurable with configurable instructions as well

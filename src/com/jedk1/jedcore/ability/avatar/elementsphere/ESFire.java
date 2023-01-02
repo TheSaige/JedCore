@@ -56,9 +56,6 @@ public class ESFire extends AvatarAbility implements AddonAbility {
 		if (bPlayer.isOnCooldown("ESFire")) {
 			return;
 		}
-		if (RegionProtection.isRegionProtected(this, player.getTargetBlock(getTransparentMaterialSet(), (int) range).getLocation())) {
-			return;
-		}
 		setFields();
 		start();
 		if (!isRemoved()) {
