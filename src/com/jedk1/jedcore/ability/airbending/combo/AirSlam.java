@@ -128,7 +128,7 @@ public class AirSlam extends AirAbility implements AddonAbility, ComboAbility {
 
 	@Override
 	public String getInstructions() {
-		return JedCoreConfig.getConfig(player).getString("Abilities.Air.AirCombo.SwiftStream.Instructions");
+		return JedCoreConfig.getConfig(player).getString("Abilities.Air.AirCombo.AirSlam.Instructions");
 	}
 
 	@Override
