@@ -10,7 +10,6 @@ import com.projectkorra.projectkorra.region.RegionProtection;
 import com.projectkorra.projectkorra.waterbending.ice.PhaseChange;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.block.Biome;
 import org.bukkit.block.Block;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Entity;
@@ -30,29 +29,17 @@ import com.projectkorra.projectkorra.util.TempBlock;
 
 public class FrostBreath extends IceAbility implements AddonAbility {
 
-	private static final List<Material> INVALID_MATERIALS = Arrays.asList(
-			Material.ICE,
-			Material.LAVA,
-			Material.AIR,
-			Material.VOID_AIR,
-			Material.CAVE_AIR,
-			Material.LIGHT
-	);
-	@Deprecated
-	private static final List<Biome> INVALID_BIOMES = Arrays.asList(
-		Biome.DESERT,
-		Biome.BASALT_DELTAS,
-		Biome.CRIMSON_FOREST,
-		Biome.NETHER_WASTES,
-		Biome.SOUL_SAND_VALLEY,
-		Biome.WARPED_FOREST,
-		Biome.BADLANDS,
-		Biome.WOODED_BADLANDS,
-		Biome.ERODED_BADLANDS,
-		Biome.SAVANNA,
-		Biome.SAVANNA_PLATEAU,
-		Biome.WINDSWEPT_SAVANNA
-	);
+	private static final List<Material> INVALID_MATERIALS = new ArrayList<Material>(){{
+		addAll(Arrays.asList(
+				Material.ICE,
+				Material.LAVA,
+				Material.AIR,
+				Material.VOID_AIR,
+				Material.CAVE_AIR));
+		if (GeneralMethods.getMCVersion() >= 1170) {
+			add(Material.getMaterial("LIGHT"));
+		}
+	}};
 
 	//Savannas are 1.0 temp with 0 humidity. Deserts are 2.0 temp with 0 humidity.
 	private static float MAX_TEMP = 1.0F;
@@ -156,11 +143,6 @@ public class FrostBreath extends IceAbility implements AddonAbility {
 
 	public static List<Material> getInvalidMaterials() {
 		return INVALID_MATERIALS;
-	}
-
-	@Deprecated
-	public static List<Biome> getInvalidBiomes() {
-		return INVALID_BIOMES;
 	}
 
 	public State getState() {

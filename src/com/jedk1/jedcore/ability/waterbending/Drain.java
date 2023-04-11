@@ -10,12 +10,11 @@ import com.projectkorra.projectkorra.ability.ElementalAbility;
 import com.projectkorra.projectkorra.ability.WaterAbility;
 import com.projectkorra.projectkorra.attribute.Attribute;
 import com.projectkorra.projectkorra.util.ParticleEffect;
-
 import com.projectkorra.projectkorra.util.TempBlock;
 import com.projectkorra.projectkorra.waterbending.util.WaterReturn;
+
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.block.Biome;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.Levelled;
@@ -34,20 +33,10 @@ import java.util.Random;
 public class Drain extends WaterAbility implements AddonAbility {
 
 	private final List<Location> locations = new ArrayList<>();
-	private static final Biome[] INVALID_BIOMES = {
-			Biome.DESERT,
-			Biome.BASALT_DELTAS,
-			Biome.CRIMSON_FOREST,
-			Biome.NETHER_WASTES,
-			Biome.SOUL_SAND_VALLEY,
-			Biome.WARPED_FOREST,
-			Biome.BADLANDS,
-			Biome.WOODED_BADLANDS,
-			Biome.ERODED_BADLANDS,
-			Biome.SAVANNA,
-			Biome.SAVANNA_PLATEAU,
-			Biome.WINDSWEPT_SAVANNA
-	};
+
+	//Savannas are 1.0 temp with 0 humidity. Deserts are 2.0 temp with 0 humidity.
+	private static float MAX_TEMP = 1.0F;
+	private static float MIN_HUMIDITY = 0.01F;
 
 	private long regenDelay;
 	@Attribute(Attribute.DURATION)
@@ -128,10 +117,6 @@ public class Drain extends WaterAbility implements AddonAbility {
 			blastRange = getNightFactor(blastRange);
 			blastDamage = getNightFactor(blastDamage);
 		}
-	}
-	
-	public boolean isValidBiome(Biome biome) {
-		return !Arrays.asList(INVALID_BIOMES).contains(biome);
 	}
 
 	@Override
@@ -267,8 +252,9 @@ public class Drain extends WaterAbility implements AddonAbility {
 			Block block = locs.get(rand.nextInt(locs.size()-1)).getBlock();
 			if (block.getY() > block.getWorld().getMinHeight() && block.getY() < block.getWorld().getMaxHeight()) {
 				if (rand.nextInt(chance) == 0) {
-					Biome biome = player.getLocation().getBlock().getBiome();
-					if (useRain && player.getWorld().hasStorm() && isValidBiome(biome)) {
+					double temp = player.getLocation().getWorld().getTemperature(player.getLocation().getBlockX(), player.getLocation().getBlockY(), player.getLocation().getBlockZ());
+					double humidity = player.getLocation().getWorld().getHumidity(player.getLocation().getBlockX(), player.getLocation().getBlockY(), player.getLocation().getBlockZ());
+					if (useRain && player.getWorld().hasStorm() && !(temp >= MAX_TEMP || humidity <= MIN_HUMIDITY)) {
 						if (player.getLocation().getY() >= player.getWorld().getHighestBlockAt(player.getLocation()).getLocation().getY()) {
 							if (block.getLocation().getY() >= player.getWorld().getHighestBlockAt(player.getLocation()).getLocation().getY()) {
 								locations.add(block.getLocation().clone().add(.5, .5, .5));

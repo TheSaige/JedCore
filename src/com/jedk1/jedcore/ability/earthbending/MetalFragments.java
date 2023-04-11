@@ -10,9 +10,10 @@ import com.projectkorra.projectkorra.region.RegionProtection;
 import com.projectkorra.projectkorra.util.BlockSource;
 import com.projectkorra.projectkorra.util.ClickType;
 import com.projectkorra.projectkorra.util.DamageHandler;
+import com.projectkorra.projectkorra.util.ParticleEffect;
 import com.projectkorra.projectkorra.util.TempBlock;
-
 import com.projectkorra.projectkorra.util.TempFallingBlock;
+
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -246,19 +247,20 @@ public class MetalFragments extends MetalAbility implements AddonAbility {
 				fb.getLocation().getBlock().setBlockData(fb.getBlockData());
 			}
 		}
+		for (ListIterator<Item> iterator = thrownFragments.listIterator(); iterator.hasNext(); ) {
+			Item f = iterator.next();
 
-		for (Item f : thrownFragments) {
-			if (f.isOnGround())
-				f.remove();
-
-			if (f.isDead())
-				continue;
-
+			boolean touchedLiving = false;
 			for (Entity e : GeneralMethods.getEntitiesAroundPoint(f.getLocation(), 1)) {
 				if (e instanceof LivingEntity && e.getEntityId() != player.getEntityId()) {
+					touchedLiving = true;
 					DamageHandler.damageEntity(e, damage, this);
-					f.remove();
 				}
+			}
+			if (touchedLiving || f.isOnGround() || f.isDead()) {
+				ParticleEffect.ITEM_CRACK.display(f.getLocation(), 3, 0.3, 0.3, 0.3, 0.2, f.getItemStack());
+				f.remove();
+				iterator.remove();
 			}
 		}
 
@@ -289,6 +291,7 @@ public class MetalFragments extends MetalAbility implements AddonAbility {
 
 	public void removeFragments() {
 		for (Item i : thrownFragments) {
+			ParticleEffect.ITEM_CRACK.display(i.getLocation(), 3, 0.3, 0.3, 0.3, 0.2, i.getItemStack());
 			i.remove();
 		}
 		thrownFragments.clear();

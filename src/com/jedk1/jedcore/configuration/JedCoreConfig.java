@@ -32,6 +32,7 @@ public class JedCoreConfig {
 		
 		config.addDefault("Settings.Enabled", true);
 		config.addDefault("Settings.Title", "&lSlots");
+		config.addDefault("Settings.Pointer", "> ");
 		config.addDefault("Settings.EmptySlot", "&8&o-- Slot % --");
 		config.addDefault("Settings.Combos", "&fCombos:");
 		config.addDefault("Settings.Toggle.Off", "&7You have hidden the bending board.");

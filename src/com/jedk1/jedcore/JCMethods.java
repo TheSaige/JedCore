@@ -26,18 +26,31 @@ import com.projectkorra.projectkorra.ability.util.ComboManager;
 import com.projectkorra.projectkorra.util.TempBlock;
 
 public class JCMethods {
-	private static final Material[] SMALL_PLANTS = {
-			Material.GRASS, Material.FERN, Material.POPPY, Material.DANDELION, Material.OAK_SAPLING,
-			Material.SPRUCE_SAPLING, Material.BIRCH_SAPLING, Material.JUNGLE_SAPLING, Material.ACACIA_SAPLING,
-			Material.DARK_OAK_SAPLING, Material.ALLIUM, Material.ORANGE_TULIP, Material.PINK_TULIP, Material.RED_TULIP,
-			Material.WHITE_TULIP, Material.ROSE_BUSH, Material.BLUE_ORCHID, Material.LILAC, Material.OXEYE_DAISY,
-			Material.AZURE_BLUET, Material.PEONY, Material.SUNFLOWER, Material.LARGE_FERN, Material.RED_MUSHROOM,
-			Material.BROWN_MUSHROOM, Material.PUMPKIN_STEM, Material.MELON_STEM, Material.WHEAT, Material.TALL_GRASS,
-			Material.BEETROOTS, Material.CARROTS, Material.POTATOES, Material.AZALEA, Material.FLOWERING_AZALEA,
-			Material.FLOWERING_AZALEA_LEAVES, Material.AZALEA_LEAVES, Material.CRIMSON_FUNGUS, Material.WARPED_FUNGUS, 
-			Material.BIG_DRIPLEAF, Material.BIG_DRIPLEAF_STEM, Material.SMALL_DRIPLEAF, Material.HANGING_ROOTS,
-			Material.BAMBOO, Material.BAMBOO_SAPLING, Material.GLOW_LICHEN, Material.CAVE_VINES, Material.CAVE_VINES_PLANT
-	};
+	private static final ArrayList<Material> SMALL_PLANTS = new ArrayList<Material>(){{
+		addAll(Arrays.asList(Material.GRASS, Material.FERN, Material.POPPY, Material.DANDELION, Material.OAK_SAPLING,
+				Material.SPRUCE_SAPLING, Material.BIRCH_SAPLING, Material.JUNGLE_SAPLING, Material.ACACIA_SAPLING,
+				Material.DARK_OAK_SAPLING, Material.ALLIUM, Material.ORANGE_TULIP, Material.PINK_TULIP, Material.RED_TULIP,
+				Material.WHITE_TULIP, Material.ROSE_BUSH, Material.BLUE_ORCHID, Material.LILAC, Material.OXEYE_DAISY,
+				Material.AZURE_BLUET, Material.PEONY, Material.SUNFLOWER, Material.LARGE_FERN, Material.RED_MUSHROOM,
+				Material.BROWN_MUSHROOM, Material.PUMPKIN_STEM, Material.MELON_STEM, Material.WHEAT, Material.TALL_GRASS,
+				Material.BEETROOTS, Material.CARROTS, Material.POTATOES, Material.CRIMSON_FUNGUS, Material.WARPED_FUNGUS,
+				Material.BAMBOO, Material.BAMBOO_SAPLING));
+		int serverVersion = GeneralMethods.getMCVersion();
+		if (serverVersion >= 1170) {
+			add(Material.getMaterial("AZALEA"));
+			add(Material.getMaterial("FLOWERING_AZALEA"));
+			add(Material.getMaterial("FLOWERING_AZALEA_LEAVES"));
+			add(Material.getMaterial("AZALEA_LEAVES"));
+			add(Material.getMaterial("BIG_DRIPLEAF"));
+			add(Material.getMaterial("BIG_DRIPLEAF_STEM"));
+			add(Material.getMaterial("SMALL_DRIPLEAF"));
+			add(Material.getMaterial("HANGING_ROOTS"));
+			add(Material.getMaterial("GLOW_LICHEN"));
+			add(Material.getMaterial("CAVE_VINES"));
+			add(Material.getMaterial("CAVE_VINES_PLANT"));
+		}
+	}};
+
 	private static List<String> worlds = new ArrayList<String>();
 	private static List<String> combos = new ArrayList<String>();
 
@@ -225,28 +238,15 @@ public class JCMethods {
 		return locations;
 	}
 
-	private static byte full = 0x0;
-
 	public static void extinguishBlocks(Player player, String ability, int range, int radius, boolean fire, boolean lava){
-		for (Block block : GeneralMethods.getBlocksAroundPoint(player.getTargetBlock((HashSet<Material>) null, (int) range).getLocation(), 2)) {
-
+		for (Block block : GeneralMethods.getBlocksAroundPoint(player.getTargetBlock(null, range).getLocation(), radius)) {
 			Material mat = block.getType();
 			if(mat != Material.FIRE && mat != Material.LAVA && mat != Material.SOUL_FIRE)
 				continue;
 			if (RegionProtection.isRegionProtected(player, block.getLocation(), ability))
 				continue;
-			if ((mat == Material.FIRE || mat == Material.SOUL_FIRE) && fire) {
-				block.setType(Material.AIR);
-				block.getWorld().playEffect(block.getLocation(), Effect.EXTINGUISH, 0);
-			} else if (lava && mat == Material.LAVA && isLiquidSource(block)) {
-				block.setType(Material.OBSIDIAN);
-				block.getWorld().playEffect(block.getLocation(), Effect.EXTINGUISH, 0);
-			} else if (mat == Material.LAVA && lava) {
-				if (block.getData() == full) {
-					block.setType(Material.OBSIDIAN);
-				} else {
-					block.setType(Material.COBBLESTONE);
-				}
+			if (((mat == Material.FIRE || mat == Material.SOUL_FIRE) && fire)||(mat == Material.LAVA && lava)) {
+				block.setType(mat != Material.LAVA ? Material.AIR : isLiquidSource(block) ? Material.OBSIDIAN : Material.COBBLESTONE);
 				block.getWorld().playEffect(block.getLocation(), Effect.EXTINGUISH, 0);
 			}
 		}
@@ -322,7 +322,7 @@ public class JCMethods {
 	}
 
 	public static boolean isSmallPlant(Material material) {
-		return Arrays.asList(SMALL_PLANTS).contains(material);
+		return SMALL_PLANTS.contains(material);
 	}
 
 	public static void reload() {

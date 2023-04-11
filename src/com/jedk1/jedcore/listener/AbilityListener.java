@@ -4,6 +4,8 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.projectkorra.projectkorra.earthbending.EarthArmor;
+import com.projectkorra.projectkorra.earthbending.lava.LavaFlow;
 import com.projectkorra.projectkorra.firebending.FireJet;
 import com.projectkorra.projectkorra.util.MovementHandler;
 import org.bukkit.Material;
@@ -176,21 +178,29 @@ public class AbilityListener implements Listener {
 			new WallRun(player);
 		}
 
-		String abil = bPlayer.getBoundAbilityName();
 		CoreAbility coreAbil = bPlayer.getBoundAbility();
-
-		if (coreAbil == null && !MultiAbilityManager.hasMultiAbilityBound(player)) {
+		if (coreAbil == null) {
+			if(MultiAbilityManager.hasMultiAbilityBound(player)){
+				String abil = MultiAbilityManager.getBoundMultiAbility(player);
+				if (abil.equalsIgnoreCase("elementsphere")) {
+					new ElementSphere(player);
+				}
+			}
 			return;
-		} else if (bPlayer.canBendIgnoreCooldowns(coreAbil)) {
+		}
+
+		Class<? extends CoreAbility> abilClass = coreAbil.getClass();
+
+		if (bPlayer.canBendIgnoreCooldowns(coreAbil)) {
 
 			if (coreAbil instanceof AirAbility && bPlayer.isElementToggled(Element.AIR)) {
 				if (GeneralMethods.isWeapon(player.getInventory().getItemInMainHand().getType()) && !ProjectKorra.plugin.getConfig().getBoolean("Properties.Air.CanBendWithWeapons")) {
 					return;
 				}
-				if (abil.equalsIgnoreCase("airblade")) {
+				if (abilClass.equals(AirBlade.class)) {
 					new AirBlade(player);
 				}
-				if (abil.equalsIgnoreCase("airpunch")) {
+				if (abilClass.equals(AirPunch.class)) {
 					new AirPunch(player);
 				}
 			}
@@ -199,43 +209,43 @@ public class AbilityListener implements Listener {
 				if (GeneralMethods.isWeapon(player.getInventory().getItemInMainHand().getType()) && !ProjectKorra.plugin.getConfig().getBoolean("Properties.Earth.CanBendWithWeapons")) {
 					return;
 				}
-				if (abil.equalsIgnoreCase("eartharmor")) {
+				if (abilClass.equals(EarthArmor.class)) {
 					new MetalArmor(player);
 				}
-				if (abil.equalsIgnoreCase("earthline")) {
+				if (abilClass.equals(EarthLine.class)) {
 					EarthLine.shootLine(player);
 				}
-				if (abil.equalsIgnoreCase("earthshard")) {
+				if (abilClass.equals(EarthShard.class)) {
 					EarthShard.throwShard(player);
 				}
-				if (abil.equalsIgnoreCase("earthsurf")) {
+				if (abilClass.equals(EarthSurf.class)) {
 					new EarthSurf(player);
 				}
-				if (abil.equalsIgnoreCase("fissure")) {
+				if (abilClass.equals(Fissure.class)) {
 					new Fissure(player);
 				}
-				if (abil.equalsIgnoreCase("lavaflux")) {
+				if (abilClass.equals(LavaFlux.class)) {
 					new LavaFlux(player);
 				}
-				if (abil.equalsIgnoreCase("lavathrow")) {
+				if (abilClass.equals(LavaThrow.class)) {
 					new LavaThrow(player);
 				}
-				if (abil.equalsIgnoreCase("metalfragments")) {
+				if (abilClass.equals(MetalFragments.class)) {
 					MetalFragments.shootFragment(player);
 				}
-				if (abil.equalsIgnoreCase("metalhook")) {
+				if (abilClass.equals(MetalHook.class)) {
 					new MetalHook(player);
 				}
-				if (abil.equalsIgnoreCase("metalshred")) {
+				if (abilClass.equals(MetalShred.class)) {
 					MetalShred.extend(player);
 				}
-				if (abil.equalsIgnoreCase("mudsurge")) {
+				if (abilClass.equals(MudSurge.class)) {
 					MudSurge.mudSurge(player);
 				}
-				if (abil.equalsIgnoreCase("sandblast")) {
+				if (abilClass.equals(SandBlast.class)) {
 					SandBlast.blastSand(player);
 				}
-				if (abil.equalsIgnoreCase("lavaflow")) {
+				if (abilClass.equals(LavaFlow.class)) {
 					MagmaBlast.performAction(player);
 				}
 			}
@@ -244,19 +254,19 @@ public class AbilityListener implements Listener {
 				if (GeneralMethods.isWeapon(player.getInventory().getItemInMainHand().getType()) && !ProjectKorra.plugin.getConfig().getBoolean("Properties.Fire.CanBendWithWeapons")) {
 					return;
 				}
-				if (abil.equalsIgnoreCase("combustion")) {
+				if (abilClass.equals(Combustion.class)) {
 					Combustion.combust(player);
 				}
-				if (abil.equalsIgnoreCase("discharge")) {
+				if (abilClass.equals(Discharge.class)) {
 					new Discharge(player);
 				}
-				if (abil.equalsIgnoreCase("fireball")) {
+				if (abilClass.equals(FireBall.class)) {
 					new FireBall(player);
 				}
-				if (abil.equalsIgnoreCase("firepunch")) {
+				if (abilClass.equals(FirePunch.class)) {
 					new FirePunch(player);
 				}
-				if (abil.equalsIgnoreCase("fireshots")) {
+				if (abilClass.equals(FireShots.class)) {
 					FireShots.fireShot(player);
 				}
 			}
@@ -265,22 +275,22 @@ public class AbilityListener implements Listener {
 				if (GeneralMethods.isWeapon(player.getInventory().getItemInMainHand().getType()) && !ProjectKorra.plugin.getConfig().getBoolean("Properties.WATER.CanBendWithWeapons")) {
 					return;
 				}
-				if (abil.equalsIgnoreCase("bloodbending")) {
+				if (abilClass.equals(com.jedk1.jedcore.ability.waterbending.Bloodbending.class)) {
 					com.jedk1.jedcore.ability.waterbending.Bloodbending.launch(player);
 				}
-				if (abil.equalsIgnoreCase("bloodpuppet")) {
+				if (abilClass.equals(BloodPuppet.class)) {
 					BloodPuppet.attack(player);
 				}
-				if (abil.equalsIgnoreCase("iceclaws")) {
+				if (abilClass.equals(IceClaws.class)) {
 					IceClaws.throwClaws(player);
 				}
-				if (abil.equalsIgnoreCase("drain")) {
+				if (abilClass.equals(Drain.class)) {
 					Drain.fireBlast(player);
 				}
-				if (abil.equalsIgnoreCase("watermanipulation")) {
+				if (coreAbil.getName().equalsIgnoreCase("watermanipulation")) {
 					WaterGimbal.prepareBlast(player);
 				}
-				if (abil.equalsIgnoreCase("watermanipulation")) {
+				if (coreAbil.getName().equalsIgnoreCase("watermanipulation")) {
 					WaterFlow.freeze(player);
 				}
 			}
@@ -288,22 +298,15 @@ public class AbilityListener implements Listener {
 				if (GeneralMethods.isWeapon(player.getInventory().getItemInMainHand().getType()) && !ProjectKorra.plugin.getConfig().getBoolean("Properties.Chi.CanBendWithWeapons")) {
 					return;
 				}
-				if (abil.equalsIgnoreCase("daggerthrow")) {
+				if (abilClass.equals(DaggerThrow.class)) {
 					new DaggerThrow(player);
 				}
 			}
 			
 			if (coreAbil instanceof AvatarAbility) {
-				if (abil.equalsIgnoreCase("elementsphere")) {
+				if (abilClass.equals(ElementSphere.class)) {
 					new ElementSphere(player);
 				}
-			}
-		}
-		
-		if(MultiAbilityManager.hasMultiAbilityBound(player)){
-			abil = MultiAbilityManager.getBoundMultiAbility(player);
-			if (abil.equalsIgnoreCase("elementsphere")) {
-				new ElementSphere(player);
 			}
 		}
 	}
@@ -337,14 +340,23 @@ public class AbilityListener implements Listener {
 		}
 
 		CoreAbility coreAbil = bPlayer.getBoundAbility();
-		String abil = bPlayer.getBoundAbilityName();
 		if (coreAbil == null) {
 			return;
 		}
 
+		Class<? extends CoreAbility> abilClass = coreAbil.getClass();
+
 		if (bPlayer.isChiBlocked()) {
 			event.setCancelled(true);
 			return;
+		}
+
+		if(player.isSneaking() && bPlayer.canBendIgnoreCooldowns(coreAbil)){
+			if (coreAbil instanceof FireAbility && bPlayer.isElementToggled(Element.FIRE)) {
+				if (abilClass.equals(FireShots.class)) {
+					FireShots.swapHands(player);
+				}
+			}
 		}
 
 		if (!player.isSneaking() && bPlayer.canBendIgnoreCooldowns(coreAbil)) {
@@ -352,16 +364,16 @@ public class AbilityListener implements Listener {
 				if (GeneralMethods.isWeapon(player.getInventory().getItemInMainHand().getType()) && !plugin.getConfig().getBoolean("Properties.Air.CanBendWithWeapons")) {
 					return;
 				}
-				if (abil.equalsIgnoreCase("airbreath")) {
+				if (abilClass.equals(AirBreath.class)) {
 					new AirBreath(player);
 				}
-				if (abil.equalsIgnoreCase("airglide")) {
+				if (abilClass.equals(AirGlide.class)) {
 					new AirGlide(player);
 				}
-				if (abil.equalsIgnoreCase("meditate")) {
+				if (abilClass.equals(Meditate.class)) {
 					new Meditate(player);
 				}
-				if (abil.equalsIgnoreCase("sonicblast")) {
+				if (abilClass.equals(SonicBlast.class)) {
 					new SonicBlast(player);
 				}
 			}
@@ -370,40 +382,40 @@ public class AbilityListener implements Listener {
 				if (GeneralMethods.isWeapon(player.getInventory().getItemInMainHand().getType()) && !ProjectKorra.plugin.getConfig().getBoolean("Properties.Earth.CanBendWithWeapons")) {
 					return;
 				}
-				if (abil.equalsIgnoreCase("earthkick")) {
+				if (abilClass.equals(EarthKick.class)) {
 					new EarthKick(player);
 				}
-				if (abil.equalsIgnoreCase("earthline")) {
+				if (abilClass.equals(EarthLine.class)) {
 					new EarthLine(player);
 				}
-				if (abil.equalsIgnoreCase("earthpillar")) {
+				if (abilClass.equals(EarthPillar.class)) {
 					new EarthPillar(player);
 				}
-				if (abil.equalsIgnoreCase("earthshard")) {
+				if (abilClass.equals(EarthShard.class)) {
 					new EarthShard(player);
 				}
-				if (abil.equalsIgnoreCase("fissure")) {
+				if (abilClass.equals(Fissure.class)) {
 					Fissure.performAction(player);
 				}
-				if (abil.equalsIgnoreCase("lavadisc")) {
+				if (abilClass.equals(LavaDisc.class)) {
 					new LavaDisc(player);
 				}
-				if (abil.equalsIgnoreCase("magnetshield")) {
+				if (abilClass.equals(MagnetShield.class)) {
 					new MagnetShield(player);
 				}
-				if (abil.equalsIgnoreCase("metalfragments")) {
+				if (abilClass.equals(MetalFragments.class)) {
 					new MetalFragments(player);
 				}
-				if (abil.equalsIgnoreCase("metalshred")) {
+				if (abilClass.equals(MetalShred.class)) {
 					new MetalShred(player);
 				}
-				if (abil.equalsIgnoreCase("mudsurge")) {
+				if (abilClass.equals(MudSurge.class)) {
 					new MudSurge(player);
 				}
-				if (abil.equalsIgnoreCase("sandblast")) {
+				if (abilClass.equals(SandBlast.class)) {
 					new SandBlast(player);
 				}
-				if (abil.equalsIgnoreCase("shockwave")) {
+				if (abilClass.equals(Crevice.class)) {
 					Crevice.closeCrevice(player);
 				}
 			}
@@ -412,16 +424,16 @@ public class AbilityListener implements Listener {
 				if (GeneralMethods.isWeapon(player.getInventory().getItemInMainHand().getType()) && !ProjectKorra.plugin.getConfig().getBoolean("Properties.Fire.CanBendWithWeapons")) {
 					return;
 				}
-				if (abil.equalsIgnoreCase("combustion")) {
+				if (abilClass.equals(Combustion.class)) {
 					new Combustion(event.getPlayer());
 				}
-				if (abil.equalsIgnoreCase("firebreath")) {
+				if (abilClass.equals(FireBreath.class)) {
 					new FireBreath(player);
 				}
-				if (abil.equalsIgnoreCase("firecomet")) {
+				if (abilClass.equals(FireComet.class)) {
 					new FireComet(player);
 				}
-				if (abil.equalsIgnoreCase("firejet")) {
+				if (abilClass.equals(FireJet.class)) {
 					if (FireSki.isPunchActivated(player.getWorld())) {
 						FireSki fs = CoreAbility.getAbility(player, FireSki.class);
 
@@ -432,10 +444,10 @@ public class AbilityListener implements Listener {
 						new FireSki(player);
 					}
 				}
-				if (abil.equalsIgnoreCase("fireshots")) {
+				if (abilClass.equals(FireShots.class)) {
 					new FireShots(player);
 				}
-				if (abil.equalsIgnoreCase("lightningburst")) {
+				if (abilClass.equals(LightningBurst.class)) {
 					new LightningBurst(player);
 				}
 			}
@@ -444,31 +456,31 @@ public class AbilityListener implements Listener {
 				if (GeneralMethods.isWeapon(player.getInventory().getItemInMainHand().getType()) && !ProjectKorra.plugin.getConfig().getBoolean("Properties.Water.CanBendWithWeapons")) {
 					return;
 				}
-				if (abil.equalsIgnoreCase("bloodbending")) {
+				if (abilClass.equals(com.jedk1.jedcore.ability.waterbending.Bloodbending.class)) {
 					new com.jedk1.jedcore.ability.waterbending.Bloodbending(player);
 				}
-				if (abil.equalsIgnoreCase("bloodpuppet")) {
+				if (abilClass.equals(BloodPuppet.class)) {
 					new BloodPuppet(player);
 				}
-				if (abil.equalsIgnoreCase("frostbreath")) {
+				if (abilClass.equals(FrostBreath.class)) {
 					new FrostBreath(player);
 				}
-				if (abil.equalsIgnoreCase("iceclaws")) {
+				if (abilClass.equals(IceClaws.class)) {
 					new IceClaws(player);
 				}
-				if (abil.equalsIgnoreCase("icewall")) {
+				if (abilClass.equals(IceWall.class)) {
 					new IceWall(player);
 				}
-				if (abil.equalsIgnoreCase("drain")) {
+				if (abilClass.equals(Drain.class)) {
 					new Drain(player);
 				}
-				if (abil.equalsIgnoreCase("wakefishing")) {
+				if (abilClass.equals(WakeFishing.class)) {
 					new WakeFishing(player);
 				}
 			}
 			
 			if (coreAbil instanceof AvatarAbility) {
-				if (abil.equalsIgnoreCase("spiritbeam")) {
+				if (abilClass.equals(SpiritBeam.class)) {
 					new SpiritBeam(player);
 				}
 			}

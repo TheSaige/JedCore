@@ -60,10 +60,13 @@ public class MudSurge extends EarthAbility implements AddonAbility {
 				Material.LIGHT_BLUE_TERRACOTTA, Material.LIGHT_GRAY_TERRACOTTA, Material.LIME_TERRACOTTA,
 				Material.MAGENTA_TERRACOTTA, Material.ORANGE_TERRACOTTA, Material.PINK_TERRACOTTA,
 				Material.PURPLE_TERRACOTTA, Material.RED_TERRACOTTA, Material.WHITE_TERRACOTTA, Material.YELLOW_TERRACOTTA,
-				Material.GRASS_BLOCK, Material.DIRT, Material.MYCELIUM, Material.COARSE_DIRT, Material.ROOTED_DIRT,
+				Material.GRASS_BLOCK, Material.DIRT, Material.MYCELIUM, Material.COARSE_DIRT,
 				Material.SOUL_SAND, Material.SOUL_SOIL, Material.RED_SANDSTONE, Material.SANDSTONE, Material.CHISELED_SANDSTONE,
 				Material.CHISELED_RED_SANDSTONE, Material.SMOOTH_SANDSTONE, Material.SMOOTH_RED_SANDSTONE, Material.CUT_SANDSTONE,
 				Material.CUT_RED_SANDSTONE));
+		if (GeneralMethods.getMCVersion() >= 1170) {
+			mudTypes.add(Material.getMaterial("ROOTED_DIRT"));
+		}
 		if (GeneralMethods.getMCVersion() >= 1190) {
 			mudTypes.add(Material.getMaterial("MUD"));
 			mudTypes.add(Material.getMaterial("MUDDY_MANGROVE_ROOTS"));

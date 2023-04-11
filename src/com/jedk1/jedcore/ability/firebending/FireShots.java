@@ -28,6 +28,7 @@ import com.projectkorra.projectkorra.ability.BlueFireAbility;
 import com.projectkorra.projectkorra.ability.FireAbility;
 import com.projectkorra.projectkorra.util.DamageHandler;
 import com.projectkorra.projectkorra.util.ParticleEffect;
+import org.bukkit.inventory.MainHand;
 import org.bukkit.util.Vector;
 
 public class FireShots extends FireAbility implements AddonAbility {
@@ -45,22 +46,23 @@ public class FireShots extends FireAbility implements AddonAbility {
 	private double damage;
 	@Attribute("CollisionRadius")
 	private double collisionRadius;
+    private Boolean flameInMainHand = null;
 
 	public int amount;
-	
+
 	public FireShots(Player player){
 		super(player);
-		
+
 		if (!bPlayer.canBend(this) || hasAbility(player, FireShots.class)) {
 			return;
 		}
-		
+
 		setFields();
-		
+
 		amount = startAmount;
 		start();
 	}
-	
+
 	public void setFields() {
 		ConfigurationSection config = JedCoreConfig.getConfig(this.player);
 
@@ -70,26 +72,26 @@ public class FireShots extends FireAbility implements AddonAbility {
 		range = config.getInt("Abilities.Fire.FireShots.Range");
 		damage = config.getDouble("Abilities.Fire.FireShots.Damage");
 		collisionRadius = config.getDouble("Abilities.Fire.FireShots.CollisionRadius");
-		
+
 		applyModifiers();
 	}
-	
+
 	private void applyModifiers() {
 		if (bPlayer.canUseSubElement(SubElement.BLUE_FIRE)) {
 			cooldown *= BlueFireAbility.getCooldownFactor();
 			range *= BlueFireAbility.getRangeFactor();
 			damage *= BlueFireAbility.getDamageFactor();
 		}
-		
+
 		if (isDay(player.getWorld())) {
 			cooldown -= ((long) getDayFactor(cooldown) - cooldown);
 			range = (int) getDayFactor(range);
 			damage = getDayFactor(damage);
 		}
 	}
-	
+
 	public class FireShot {
-		
+
 		private final Ability ability;
 		private final Player player;
 		private Location location;
@@ -98,7 +100,7 @@ public class FireShots extends FireAbility implements AddonAbility {
 		private double distanceTravelled;
 		private final double damage;
 		private Vector direction = null;
-		
+
 		public FireShot(Ability ability, Player player, Location location, int range, int fireTicks, double damage) {
 			this.ability = ability;
 			this.player = player;
@@ -107,7 +109,7 @@ public class FireShots extends FireAbility implements AddonAbility {
 			this.fireTicks = fireTicks;
 			this.damage = damage;
 		}
-		
+
 		public boolean progress() {
 			if (player.isDead() || !player.isOnline()) {
 				return false;
@@ -130,7 +132,7 @@ public class FireShots extends FireAbility implements AddonAbility {
 				if (GeneralMethods.isSolid(location.getBlock()) || isWater(location.getBlock())){
 					return false;
 				}
-				
+
 				if (bPlayer.canUseSubElement(SubElement.BLUE_FIRE)) {
 					ParticleEffect.SOUL_FIRE_FLAME.display(location, 5, 0.0, 0.0, 0.0, 0.02);
 				} else {
@@ -224,14 +226,23 @@ public class FireShots extends FireAbility implements AddonAbility {
 			displayFireBalls();
 		}
 	}
-	
+
 	public static void fireShot(Player player) {
 		FireShots fs = getAbility(player, FireShots.class);
 		if (fs != null) {
 			fs.fireShot();
 		}
 	}
-	
+
+    public static void swapHands(Player player) {
+        FireShots fs = getAbility(player, FireShots.class);
+        if (fs == null)
+            return;
+        if (fs.flameInMainHand == null)
+            fs.flameInMainHand = true;
+        else fs.flameInMainHand = !fs.flameInMainHand;
+    }
+
 	public void fireShot() {
 		if (amount >= 1) {
 			if (--amount <= 0) {
@@ -242,14 +253,16 @@ public class FireShots extends FireAbility implements AddonAbility {
 	}
 
 	public Location getRightHandPos() {
-		return GeneralMethods.getRightSide(player.getLocation(), .55).add(0, 1.2, 0);
+        return (player.getMainHand()==MainHand.RIGHT == ((flameInMainHand == null) || flameInMainHand) ?
+                GeneralMethods.getRightSide(player.getLocation(), .55) :
+                GeneralMethods.getLeftSide(player.getLocation(), .55)).add(0, 1.2, 0);
 	}
 
 	private void displayFireBalls() {
 		playFirebendingParticles(getRightHandPos().toVector().add(player.getEyeLocation().getDirection().clone().multiply(.8D)).toLocation(player.getWorld()), 3, 0, 0, 0);
 		ParticleEffect.SMOKE_NORMAL.display(getRightHandPos().toVector().add(player.getEyeLocation().getDirection().clone().multiply(.8D)).toLocation(player.getWorld()), 3, 0, 0, 0, 0.01);
 	}
-	
+
 	@Override
 	public long getCooldown() {
 		return cooldown;
@@ -387,7 +400,7 @@ public class FireShots extends FireAbility implements AddonAbility {
 
 	@Override
 	public void stop() {}
-	
+
 	@Override
 	public boolean isEnabled() {
 		ConfigurationSection config = JedCoreConfig.getConfig(this.player);

@@ -48,8 +48,14 @@ public class Combustion extends CombustionAbility implements AddonAbility {
 
 		if (!isEnabled()) return;
 
-		if (this.player == null || !bPlayer.canBend(this) || !bPlayer.canCombustionbend() || hasAbility(player, Combustion.class)) {
+		if (this.player == null || !bPlayer.canBend(this) || !bPlayer.canCombustionbend()) {
 			return;
+		}
+
+		if(hasAbility(player, Combustion.class)){
+			Combustion c = getAbility(player, Combustion.class);
+			if (c.state instanceof ChargeState)
+				return;
 		}
 
 		setFields();
@@ -173,7 +179,7 @@ public class Combustion extends CombustionAbility implements AddonAbility {
 	// This state transitions to CombustState if the player takes damage while charging.
 	private class ChargeState implements State {
 		private final long startTime;
-		private int currPoint;
+		private int currPoint = (int) player.getLocation().getYaw() + 90;
 		private final long warmup;
 		private final double playerStartHealth;
 		private final boolean instantExplodeIfHit;
@@ -205,6 +211,7 @@ public class Combustion extends CombustionAbility implements AddonAbility {
 				if (instantExplodeIfHit && player.getHealth() < playerStartHealth) {
 					// Remove and combust at player's location
 					state = new CombustState(player.getLocation(), true);
+					bPlayer.addCooldown(Combustion.this);
 					return;
 				}
 
@@ -214,6 +221,7 @@ public class Combustion extends CombustionAbility implements AddonAbility {
 			} else {
 				if (charged) {
 					state = new TravelState();
+					bPlayer.addCooldown(Combustion.this);
 				} else {
 					remove();
 				}
@@ -293,7 +301,6 @@ public class Combustion extends CombustionAbility implements AddonAbility {
 			}
 
 			if (ticks >= range) {
-				bPlayer.addCooldown(Combustion.this);
 				remove();
 			}
 		}
@@ -407,8 +414,6 @@ public class Combustion extends CombustionAbility implements AddonAbility {
 
 			AirAbility.removeAirSpouts(location, power, player);
 			WaterAbility.removeWaterSpouts(location, power, player);
-
-			bPlayer.addCooldown(Combustion.this);
 		}
 
 		@Override
@@ -529,10 +534,10 @@ public class Combustion extends CombustionAbility implements AddonAbility {
 		public boolean destroyBlock(Location l) {
 			Block block = l.getBlock();
 
-			if (TempBlock.isTempBlock(block)) {
+			if (TempBlock.isTempBlock(block))
 				TempBlock.revertBlock(block, Material.AIR);
+			if (TempBlock.isTempBlock(block))
 				TempBlock.removeBlock(block);
-			}
 
 			if (!MaterialUtil.isTransparent(block) && !blocks.contains(block.getType()) && !MaterialUtil.isSign(block)) {
 				new RegenTempBlock(block, Material.AIR, Material.AIR.createBlockData(), regenTime, false);

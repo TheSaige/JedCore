@@ -25,6 +25,7 @@ public class BendingBoard {
 	public static List<UUID> disabled = new ArrayList<>();
 	public static boolean enabled;
 	public static String title;
+	public static String pointer;
 	public static String empty;
 	public static String toggleOn;
 	public static String toggleOff;
@@ -61,6 +62,7 @@ public class BendingBoard {
 	public static void setFields() {
 		enabled = JedCoreConfig.board.getConfig().getBoolean("Settings.Enabled");
 		title = ChatUtil.color(JedCoreConfig.board.getConfig().getString("Settings.Title"));
+		pointer = ChatUtil.color(JedCoreConfig.board.getConfig().getString("Settings.Pointer"));
 		empty = ChatUtil.color(JedCoreConfig.board.getConfig().getString("Settings.EmptySlot"));
 		combo = ChatUtil.color(JedCoreConfig.board.getConfig().getString("Settings.Combos"));
 		toggleOn = ChatUtil.color(JedCoreConfig.board.getConfig().getString("Settings.Toggle.On"));
@@ -196,16 +198,16 @@ public class BendingBoard {
 			StringBuilder sb = new StringBuilder();
 
 			if (currentSlot == (slotIndex - 1)) {
-				sb.append(">");
+				sb.append(pointer);
 			}
 
 			if (abilities.containsKey(slotIndex) && currentAbility != null) {
 				for (String str : formatted) {
-					String stripped = ChatColor.stripColor(str).replace(">", "");
+					String stripped = ChatColor.stripColor(str).replace(pointer, "");
 
 					if (stripped.equalsIgnoreCase(currentAbilityName)) {
 						// Add a unique chat color to the beginning, so the ability doesn't override other slots in the map.
-						sb.append(ChatColor.values()[slotIndex]);
+						sb.append(ChatColor.getByChar((char) slotIndex));
 						break;
 					}
 				}

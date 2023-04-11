@@ -36,6 +36,7 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.entity.EntityExplodeEvent;
+import org.bukkit.event.inventory.InventoryPickupItemEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -290,5 +291,12 @@ public class JCListener implements Listener {
 			event.setCancelled(true);
 		}
 
+	}
+
+	@EventHandler(priority = EventPriority.NORMAL)
+	public void onItemPickup(InventoryPickupItemEvent event){
+		if(event.getItem().getPickupDelay()>=Short.MAX_VALUE) {
+			event.setCancelled(true);
+		}
 	}
 }
