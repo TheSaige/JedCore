@@ -176,7 +176,7 @@ public class LavaFlux extends LavaAbility implements AddonAbility {
 		for (Location location : flux) {
 			if (flux.indexOf(location) <= step) {
 				if (!blocks.containsKey(location.getBlock())) { //Make a new temp block if we haven't made one there before
-					blocks.put(location.getBlock(), new TempBlock(location.getBlock(), LAVA, duration + cleanup));
+					blocks.put(location.getBlock(), new TempBlock(location.getBlock(), LAVA, duration + cleanup, this));
 				}
 
 				//new RegenTempBlock(location.getBlock(), Material.LAVA, LAVA, duration + cleanup);
@@ -189,15 +189,15 @@ public class LavaFlux extends LavaAbility implements AddonAbility {
 					if (isPlant(above) || isSnow(above)) {
 						final Block above2 = above.getRelative(BlockFace.UP);
 						if (isPlant(above) || isSnow(above)) {
-							TempBlock tb = new TempBlock(above, Material.AIR.createBlockData(), duration + cleanup);
+							TempBlock tb = new TempBlock(above, Material.AIR.createBlockData(), duration + cleanup, this);
 							this.above.put(above, tb);
 							if (isPlant(above2) && above2.getBlockData() instanceof Bisected) {
-								TempBlock tb2 = new TempBlock(above2, Material.AIR.createBlockData(), duration + cleanup + 30_000);
+								TempBlock tb2 = new TempBlock(above2, Material.AIR.createBlockData(), duration + cleanup + 30_000, this);
 								tb.addAttachedBlock(tb2);
 							}
 						}
 					} else if (wave && isTransparent(above)) {
-						new TempBlock(location.getBlock().getRelative(BlockFace.UP), LAVA, speed * 150L);
+						new TempBlock(location.getBlock().getRelative(BlockFace.UP), LAVA, speed * 150L, this);
 					}
 				}
 			}

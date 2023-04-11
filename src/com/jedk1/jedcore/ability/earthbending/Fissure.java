@@ -53,6 +53,7 @@ public class Fissure extends LavaAbility implements AddonAbility {
 
 	private final List<Location> centerSlap = new ArrayList<>();
 	private final List<Block> blocks = new ArrayList<>();
+	private final List<TempBlock> tempblocks = new ArrayList<>();
 
 	public Fissure(Player player) {
 		super(player);
@@ -157,7 +158,7 @@ public class Fissure extends LavaAbility implements AddonAbility {
 
 	private void slapCenter() {
 		for (Location location : centerSlap) {
-			if (centerSlap.indexOf(location) <= slap) {
+			if (centerSlap.indexOf(location) == slap) {
 				addTempBlock(location.getBlock(), Material.LAVA);
 			}
 		}
@@ -235,7 +236,7 @@ public class Fissure extends LavaAbility implements AddonAbility {
 		if (DensityShift.isPassiveSand(block)) {
             DensityShift.revertSand(block);
 		}
-		new TempBlock(block, material.createBlockData());
+		tempblocks.add(new TempBlock(block, material.createBlockData(), this));
 		blocks.add(block);
 	}
 
@@ -263,17 +264,16 @@ public class Fissure extends LavaAbility implements AddonAbility {
 	}
 	
 	private void forceRevert() {
-		for (Block block : blocks) {
-			new RegenTempBlock(block, Material.STONE, Material.STONE.createBlockData(), 500 + (long) rand.nextInt((int) 1000));
-		}
 		coolLava();
 	}
 	
 	private void coolLava() {
+		tempblocks.forEach(TempBlock::revertBlock);
 		for (Block block : blocks) {
-			new RegenTempBlock(block, Material.STONE, Material.STONE.createBlockData(), 500 + (long) rand.nextInt((int) 1000));
+			new TempBlock(block, Material.STONE.createBlockData(), 500 + (long) rand.nextInt((int) 1000));
 		}
 		blocks.clear();
+		tempblocks.clear();
 	}
 
 	@Override
