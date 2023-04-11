@@ -46,7 +46,7 @@ public class FireShots extends FireAbility implements AddonAbility {
 	private double damage;
 	@Attribute("CollisionRadius")
 	private double collisionRadius;
-    private Boolean flameInMainHand = null;
+	private Boolean flameInMainHand = null;
 
 	public int amount;
 
@@ -56,6 +56,9 @@ public class FireShots extends FireAbility implements AddonAbility {
 		if (!bPlayer.canBend(this) || hasAbility(player, FireShots.class)) {
 			return;
 		}
+
+		if (!player.hasGravity())
+			player.setGravity(true);
 
 		setFields();
 
@@ -234,14 +237,14 @@ public class FireShots extends FireAbility implements AddonAbility {
 		}
 	}
 
-    public static void swapHands(Player player) {
-        FireShots fs = getAbility(player, FireShots.class);
-        if (fs == null)
-            return;
-        if (fs.flameInMainHand == null)
-            fs.flameInMainHand = true;
-        else fs.flameInMainHand = !fs.flameInMainHand;
-    }
+	public static void swapHands(Player player) {
+		FireShots fs = getAbility(player, FireShots.class);
+		if (fs == null)
+			return;
+		if (fs.flameInMainHand == null)
+			fs.flameInMainHand = true;
+		else fs.flameInMainHand = !fs.flameInMainHand;
+	}
 
 	public void fireShot() {
 		if (amount >= 1) {
@@ -253,9 +256,9 @@ public class FireShots extends FireAbility implements AddonAbility {
 	}
 
 	public Location getRightHandPos() {
-        return (player.getMainHand()==MainHand.RIGHT == ((flameInMainHand == null) || flameInMainHand) ?
-                GeneralMethods.getRightSide(player.getLocation(), .55) :
-                GeneralMethods.getLeftSide(player.getLocation(), .55)).add(0, 1.2, 0);
+		return (player.getMainHand()==MainHand.RIGHT == ((flameInMainHand == null) || flameInMainHand) ?
+				GeneralMethods.getRightSide(player.getLocation(), .55) :
+				GeneralMethods.getLeftSide(player.getLocation(), .55)).add(0, 1.2, 0);
 	}
 
 	private void displayFireBalls() {

@@ -52,7 +52,7 @@ public class Combustion extends CombustionAbility implements AddonAbility {
 			return;
 		}
 
-		if(hasAbility(player, Combustion.class)){
+		if (hasAbility(player, Combustion.class)) {
 			Combustion c = getAbility(player, Combustion.class);
 			if (c.state instanceof ChargeState)
 				return;

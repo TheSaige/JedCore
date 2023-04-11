@@ -11,6 +11,7 @@ import com.projectkorra.projectkorra.attribute.Attribute;
 import com.projectkorra.projectkorra.command.Commands;
 import com.projectkorra.projectkorra.region.RegionProtection;
 import com.projectkorra.projectkorra.util.DamageHandler;
+import com.projectkorra.projectkorra.util.ParticleEffect;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -47,9 +48,6 @@ public class ESWater extends AvatarAbility implements AddonAbility {
 			return;
 		}
 		if (bPlayer.isOnCooldown("ESWater")) {
-			return;
-		}
-		if (RegionProtection.isRegionProtected(this, player.getTargetBlock(getTransparentMaterialSet(), (int) range).getLocation())) {
 			return;
 		}
 		setFields();
@@ -92,7 +90,7 @@ public class ESWater extends AvatarAbility implements AddonAbility {
 			if (!player.isDead())
 				direction = GeneralMethods.getDirection(player.getLocation(), GeneralMethods.getTargetedLocation(player, range, Material.WATER)).normalize();
 			location = location.add(direction.clone().multiply(1));
-			if(RegionProtection.isRegionProtected(this, location)){
+			if (RegionProtection.isRegionProtected(this, location)){
 				travelled = range;
 				return;
 			}
@@ -102,6 +100,8 @@ public class ESWater extends AvatarAbility implements AddonAbility {
 			}
 
 			WaterAbility.playWaterbendingSound(location);
+			if (isWater(location.getBlock()))
+				ParticleEffect.WATER_BUBBLE.display(location, 3, 0.5, 0.5, 0.5);
 			new RegenTempBlock(location.getBlock(), Material.WATER, Material.WATER.createBlockData(bd -> ((Levelled) bd).setLevel(0)), 100L);
 
 			for (Entity entity : GeneralMethods.getEntitiesAroundPoint(location, 2.5)) {

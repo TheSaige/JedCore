@@ -351,7 +351,7 @@ public class AbilityListener implements Listener {
 			return;
 		}
 
-		if(player.isSneaking() && bPlayer.canBendIgnoreCooldowns(coreAbil)){
+		if (player.isSneaking() && bPlayer.canBendIgnoreCooldowns(coreAbil)) {
 			if (coreAbil instanceof FireAbility && bPlayer.isElementToggled(Element.FIRE)) {
 				if (abilClass.equals(FireShots.class)) {
 					FireShots.swapHands(player);

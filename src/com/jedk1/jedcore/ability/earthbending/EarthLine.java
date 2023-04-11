@@ -54,7 +54,6 @@ public class EarthLine extends EarthAbility implements AddonAbility {
 	private boolean allowChangeDirection;
 	private CompositeRemovalPolicy removalPolicy;
 
-
 	public EarthLine(Player player) {
 		super(player);
 

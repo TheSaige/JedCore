@@ -5,6 +5,24 @@ Join our [Discord](https://discord.gg/gh9MfDmwZm) to discuss the plugin, suggest
 
 ## Changelog
 
+### 2.13.0
+- Added support for Spigot 1.16 (Dreig-Michihi)
+- Fixed ElementSphere Water crash
+- Added water bubbles to ElementSphere Water underwater
+- Added FireShots hand swapping by tapping sneak (Dreig-Michihi)
+- Added configurable pointer for bending board, with "> " as default, to fix flickering (Dreig-Michihi)
+- Fixed MetalFragments hoppers dupe (Dreig-Michihi)
+- Added item crack particles to MetalFragments (Dreig-Michihi)
+- Optimized MetalFragments (Dreig-Michihi)
+- Fixed error resulting from ambiguous ability names like EarthKick that are shared with other popular addons (Dreig-Michihi)
+- Optimized extinguishing for AirBreath (Dreig-Michihi)
+- Fixed bug where Combustion couldn't start when a previous Combustion was still reverting (Dreig-Michihi)
+- Improved Combustion charge-up and cooldown add times (Dreig-Michihi)
+- Fixed FirePunch allowing multiple instances (Dreig-Michihi)
+- Fixed Fissure reversion (StrangeOne101)
+- Fixed lava immunity bug (StrangeOne101)
+- Fixed AirSlam using SwiftStream's instructions (MKieburtz)
+
 ### 2.12.1
 - Fixed URL being outdated in /b version
 - Fixed IceWall not working on snow and ice blocks from the config

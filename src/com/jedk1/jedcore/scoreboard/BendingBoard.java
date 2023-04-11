@@ -37,7 +37,7 @@ public class BendingBoard {
 		toggled = new Config(new File("/board/players.yml"));
 
 		List<String> uuids = toggled.getConfig().getStringList("Players");
-		if (uuids != null && !uuids.isEmpty()) {
+		if (!uuids.isEmpty()) {
 			if (!uuids.get(0).matches("[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[34][0-9a-fA-F]{3}-[89ab][0-9a-fA-F]{3}-[0-9a-fA-F]{12}")) {
 				toggled.getConfig().set("Players", new ArrayList<String>());
 				toggled.saveConfig();
@@ -110,8 +110,7 @@ public class BendingBoard {
 
 	public static void toggle(Player player) {
 		if (!enabled) return;
-		List<String> uuids = new ArrayList<>();
-		uuids.addAll(toggled.getConfig().getStringList("Players"));
+		List<String> uuids = new ArrayList<>(toggled.getConfig().getStringList("Players"));
 		if (uuids.contains(player.getUniqueId().toString())) {
 			uuids.remove(player.getUniqueId().toString());
 			disabled.remove(player.getUniqueId());

@@ -247,7 +247,7 @@ public class MetalFragments extends MetalAbility implements AddonAbility {
 				fb.getLocation().getBlock().setBlockData(fb.getBlockData());
 			}
 		}
-		for (ListIterator<Item> iterator = thrownFragments.listIterator(); iterator.hasNext(); ) {
+		for (ListIterator<Item> iterator = thrownFragments.listIterator(); iterator.hasNext();) {
 			Item f = iterator.next();
 
 			boolean touchedLiving = false;

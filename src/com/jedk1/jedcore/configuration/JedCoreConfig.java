@@ -621,7 +621,8 @@ public class JedCoreConfig {
 		config.addDefault("Abilities.Fire.FireShots.Enabled", true);
 		config.addDefault("Abilities.Fire.FireShots.Description", "To use, tap Sneak (Default: Shift) to summon a "
 				+ "FireBalls at your hand, then Left Click to shoot off each ball! "
-				+ "Each shot will follow the cursor until it runs out or hits something!");
+				+ "Each shot will follow the cursor until it runs out or hits something! "
+				+ "Tap Sneak again to switch your main hand.");
 		config.addDefault("Abilities.Fire.FireShots.Cooldown", 3000);
 		config.addDefault("Abilities.Fire.FireShots.Range", 50);
 		config.addDefault("Abilities.Fire.FireShots.FireBalls", 4);

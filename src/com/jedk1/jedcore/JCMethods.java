@@ -51,8 +51,8 @@ public class JCMethods {
 		}
 	}};
 
-	private static List<String> worlds = new ArrayList<String>();
-	private static List<String> combos = new ArrayList<String>();
+	private static List<String> worlds = new ArrayList<>();
+	private static List<String> combos = new ArrayList<>();
 
 	public static List<String> getDisabledWorlds() {
 		return JCMethods.worlds;
@@ -61,10 +61,8 @@ public class JCMethods {
 	public static void registerDisabledWorlds() {
 		worlds.clear();
 		List<String> registeredworlds = ProjectKorra.plugin.getConfig().getStringList("Properties.DisabledWorlds");
-		if (registeredworlds != null && !registeredworlds.isEmpty()) {
-			for (String s : registeredworlds) {
-				worlds.add(s);
-			}
+		if (!registeredworlds.isEmpty()) {
+			worlds.addAll(registeredworlds);
 		}
 	}
 	
@@ -78,9 +76,7 @@ public class JCMethods {
 
 	public static void registerCombos() {
 		combos.clear();
-		for (String s : ComboManager.getComboAbilities().keySet()) {
-			combos.add(s);
-		}
+		combos.addAll(ComboManager.getComboAbilities().keySet());
 	}
 
 	/**

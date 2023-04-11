@@ -294,8 +294,8 @@ public class JCListener implements Listener {
 	}
 
 	@EventHandler(priority = EventPriority.NORMAL)
-	public void onItemPickup(InventoryPickupItemEvent event){
-		if(event.getItem().getPickupDelay()>=Short.MAX_VALUE) {
+	public void onItemPickup(InventoryPickupItemEvent event) {
+		if (event.getItem().getPickupDelay() >= Short.MAX_VALUE) {
 			event.setCancelled(true);
 		}
 	}

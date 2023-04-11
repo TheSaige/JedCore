@@ -116,7 +116,7 @@ public class EarthKick extends EarthAbility implements AddonAbility {
 	}
 
 	private void launchBlocks() {
-		if (EarthAbility.getMovedEarth().containsKey(block)){
+		if (getMovedEarth().containsKey(block)) {
 			block.setType(Material.AIR);
 		}
 		if (block.getType() != Material.AIR) {
@@ -125,10 +125,9 @@ public class EarthKick extends EarthAbility implements AddonAbility {
 		}
 
 		location.setPitch(0);
-		Vector direction = location.getDirection();
-		location.add(direction.clone().multiply(1.0));
+		location.add(location.getDirection());
 
-		if (!ElementalAbility.isAir(location.getBlock().getType())) {
+		if (!isAir(location.getBlock().getType())) {
 			location.setY(location.getY() + 1.0);
 		}
 
