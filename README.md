@@ -5,6 +5,9 @@ Join our [Discord](https://discord.gg/gh9MfDmwZm) to discuss the plugin, suggest
 
 ## Changelog
 
+### 2.13.1
+- Fixed board command overriding PK's when our board is disabled
+
 ### 2.13.0
 - Added support for Spigot 1.16 (Dreig-Michihi)
 - Fixed ElementSphere Water crash
