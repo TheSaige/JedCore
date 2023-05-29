@@ -173,14 +173,14 @@ public class AbilityListener implements Listener {
 		} else if (GeneralMethods.isInteractable(player.getTargetBlock((Set<Material>)null, 5))) {
 			return;
 		}
-		
+
 		if (bPlayer.isToggled()) {
 			new WallRun(player);
 		}
 
 		CoreAbility coreAbil = bPlayer.getBoundAbility();
 		if (coreAbil == null) {
-			if(MultiAbilityManager.hasMultiAbilityBound(player)){
+			if (MultiAbilityManager.hasMultiAbilityBound(player)){
 				String abil = MultiAbilityManager.getBoundMultiAbility(player);
 				if (abil.equalsIgnoreCase("elementsphere")) {
 					new ElementSphere(player);
@@ -189,6 +189,7 @@ public class AbilityListener implements Listener {
 			return;
 		}
 
+		String abilName = bPlayer.getBoundAbilityName();
 		Class<? extends CoreAbility> abilClass = coreAbil.getClass();
 
 		if (bPlayer.canBendIgnoreCooldowns(coreAbil)) {
@@ -204,7 +205,7 @@ public class AbilityListener implements Listener {
 					new AirPunch(player);
 				}
 			}
-			
+
 			if (coreAbil instanceof EarthAbility && bPlayer.isElementToggled(Element.EARTH)) {
 				if (GeneralMethods.isWeapon(player.getInventory().getItemInMainHand().getType()) && !ProjectKorra.plugin.getConfig().getBoolean("Properties.Earth.CanBendWithWeapons")) {
 					return;
@@ -270,7 +271,7 @@ public class AbilityListener implements Listener {
 					FireShots.fireShot(player);
 				}
 			}
-			
+
 			if (coreAbil instanceof WaterAbility && bPlayer.isElementToggled(Element.WATER)) {
 				if (GeneralMethods.isWeapon(player.getInventory().getItemInMainHand().getType()) && !ProjectKorra.plugin.getConfig().getBoolean("Properties.WATER.CanBendWithWeapons")) {
 					return;
@@ -284,7 +285,7 @@ public class AbilityListener implements Listener {
 				if (abilClass.equals(IceClaws.class)) {
 					IceClaws.throwClaws(player);
 				}
-				if (abilClass.equals(Drain.class)) {
+				if (abilName.equals("Drain")) {
 					Drain.fireBlast(player);
 				}
 				if (coreAbil.getName().equalsIgnoreCase("watermanipulation")) {
@@ -302,7 +303,7 @@ public class AbilityListener implements Listener {
 					new DaggerThrow(player);
 				}
 			}
-			
+
 			if (coreAbil instanceof AvatarAbility) {
 				if (abilClass.equals(ElementSphere.class)) {
 					new ElementSphere(player);
@@ -310,7 +311,7 @@ public class AbilityListener implements Listener {
 			}
 		}
 	}
-	
+
 	public static ConcurrentHashMap<UUID, Long> recent = new ConcurrentHashMap<UUID, Long>();
 
 	@EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
@@ -377,7 +378,7 @@ public class AbilityListener implements Listener {
 					new SonicBlast(player);
 				}
 			}
-			
+
 			if (coreAbil instanceof EarthAbility && bPlayer.isElementToggled(Element.EARTH)) {
 				if (GeneralMethods.isWeapon(player.getInventory().getItemInMainHand().getType()) && !ProjectKorra.plugin.getConfig().getBoolean("Properties.Earth.CanBendWithWeapons")) {
 					return;
@@ -419,7 +420,7 @@ public class AbilityListener implements Listener {
 					Crevice.closeCrevice(player);
 				}
 			}
-			
+
 			if (coreAbil instanceof FireAbility && bPlayer.isElementToggled(Element.FIRE)) {
 				if (GeneralMethods.isWeapon(player.getInventory().getItemInMainHand().getType()) && !ProjectKorra.plugin.getConfig().getBoolean("Properties.Fire.CanBendWithWeapons")) {
 					return;
@@ -451,7 +452,7 @@ public class AbilityListener implements Listener {
 					new LightningBurst(player);
 				}
 			}
-			
+
 			if (coreAbil instanceof WaterAbility && bPlayer.isElementToggled(Element.WATER)) {
 				if (GeneralMethods.isWeapon(player.getInventory().getItemInMainHand().getType()) && !ProjectKorra.plugin.getConfig().getBoolean("Properties.Water.CanBendWithWeapons")) {
 					return;
@@ -471,14 +472,14 @@ public class AbilityListener implements Listener {
 				if (abilClass.equals(IceWall.class)) {
 					new IceWall(player);
 				}
-				if (abilClass.equals(Drain.class)) {
+				if (abilName.equals("Drain")) {
 					new Drain(player);
 				}
 				if (abilClass.equals(WakeFishing.class)) {
 					new WakeFishing(player);
 				}
 			}
-			
+
 			if (coreAbil instanceof AvatarAbility) {
 				if (abilClass.equals(SpiritBeam.class)) {
 					new SpiritBeam(player);
@@ -497,7 +498,7 @@ public class AbilityListener implements Listener {
 			}
 		}
 	}
-	
+
 	@EventHandler(priority = EventPriority.NORMAL)
 	public void onPlayerInteraction(PlayerInteractEvent event) {
 		if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {

@@ -5,6 +5,9 @@ Join our [Discord](https://discord.gg/gh9MfDmwZm) to discuss the plugin, suggest
 
 ## Changelog
 
+### 2.13.2
+- Fixed Drain not activating and messily leaving water blocks behind
+
 ### 2.13.1
 - Fixed board command overriding PK's when our board is disabled
 

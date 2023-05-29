@@ -2,12 +2,12 @@ package com.jedk1.jedcore.ability.waterbending;
 
 import com.jedk1.jedcore.JedCore;
 import com.jedk1.jedcore.configuration.JedCoreConfig;
-import com.jedk1.jedcore.util.RegenTempBlock;
 import com.projectkorra.projectkorra.GeneralMethods;
 import com.projectkorra.projectkorra.ability.AddonAbility;
 import com.projectkorra.projectkorra.ability.WaterAbility;
 import com.projectkorra.projectkorra.attribute.Attribute;
 import com.projectkorra.projectkorra.util.DamageHandler;
+import com.projectkorra.projectkorra.util.TempBlock;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -69,7 +69,9 @@ public class DrainBlast extends WaterAbility implements AddonAbility {
 			}
 
 			playWaterbendingSound(location);
-			new RegenTempBlock(location.getBlock(), Material.WATER, Material.WATER.createBlockData(bd -> ((Levelled) bd).setLevel(0)), 100L);
+			TempBlock tb = new TempBlock(location.getBlock(), Material.WATER.createBlockData(bd -> ((Levelled) bd).setLevel(0)), 100L);
+			Drain.WATER_TEMPS.add(tb);
+			tb.setRevertTask(() -> Drain.WATER_TEMPS.remove(tb));
 
 			for (Entity entity : GeneralMethods.getEntitiesAroundPoint(location, 2.5)) {
 				if (entity instanceof LivingEntity && entity.getEntityId() != player.getEntityId() && !(entity instanceof ArmorStand)) {
@@ -79,7 +81,7 @@ public class DrainBlast extends WaterAbility implements AddonAbility {
 			}
 		}
 	}
-	
+
 	@Override
 	public long getCooldown() {
 		return 0;
@@ -158,7 +160,7 @@ public class DrainBlast extends WaterAbility implements AddonAbility {
 
 	@Override
 	public void stop() {}
-	
+
 	@Override
 	public boolean isEnabled() {
 		ConfigurationSection config = JedCoreConfig.getConfig(this.player);

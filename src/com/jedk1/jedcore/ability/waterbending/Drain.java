@@ -3,7 +3,6 @@ package com.jedk1.jedcore.ability.waterbending;
 import com.jedk1.jedcore.JCMethods;
 import com.jedk1.jedcore.JedCore;
 import com.jedk1.jedcore.configuration.JedCoreConfig;
-import com.jedk1.jedcore.util.RegenTempBlock;
 import com.projectkorra.projectkorra.GeneralMethods;
 import com.projectkorra.projectkorra.ability.AddonAbility;
 import com.projectkorra.projectkorra.ability.ElementalAbility;
@@ -15,6 +14,7 @@ import com.projectkorra.projectkorra.waterbending.util.WaterReturn;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.Levelled;
@@ -27,12 +27,15 @@ import org.bukkit.util.Vector;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 
 public class Drain extends WaterAbility implements AddonAbility {
 
 	private final List<Location> locations = new ArrayList<>();
+	static final Set<TempBlock> WATER_TEMPS = new HashSet<>();
 
 	//Savannas are 1.0 temp with 0 humidity. Deserts are 2.0 temp with 0 humidity.
 	private static float MAX_TEMP = 1.0F;
@@ -107,10 +110,10 @@ public class Drain extends WaterAbility implements AddonAbility {
 		blastSpeed = config.getDouble("Abilities.Water.Drain.BlastSpeed");
 		useRain = config.getBoolean("Abilities.Water.Drain.AllowRainSource");
 		drainTemps = config.getBoolean("Abilities.Water.Drain.DrainTempBlocks");
-		
+
 		applyModifiers();
 	}
-	
+
 	private void applyModifiers() {
 		if (isNight(player.getWorld())) {
 			cooldown -= ((long) getNightFactor(cooldown) - cooldown);
@@ -197,9 +200,11 @@ public class Drain extends WaterAbility implements AddonAbility {
 
 	private void displayWaterSource() {
 		Location location = player.getEyeLocation().add(player.getLocation().getDirection().multiply(holdRange));
-		if (!GeneralMethods.isSolid(location.getBlock()) || isTransparent(location.getBlock())) {
-			Block block = location.getBlock();
-			new RegenTempBlock(block, Material.WATER, Material.WATER.createBlockData(bd -> ((Levelled)bd).setLevel(charge)), 100L);
+		Block block = location.getBlock();
+		if (!GeneralMethods.isSolid(block) || isTransparent(block)) {
+			TempBlock tb = new TempBlock(block, Material.WATER.createBlockData(bd -> ((Levelled) bd).setLevel(charge)), 100L);
+			WATER_TEMPS.add(tb);
+			tb.setRevertTask(() -> WATER_TEMPS.remove(tb));
 		}
 	}
 
@@ -250,25 +255,29 @@ public class Drain extends WaterAbility implements AddonAbility {
 		List<Location> locs = GeneralMethods.getCircle(player.getLocation(), radius, radius, false, true, 0);
 		for (int i = 0; i < locs.size(); i++) {
 			Block block = locs.get(rand.nextInt(locs.size()-1)).getBlock();
-			if (block.getY() > block.getWorld().getMinHeight() && block.getY() < block.getWorld().getMaxHeight()) {
-				if (rand.nextInt(chance) == 0) {
-					double temp = player.getLocation().getWorld().getTemperature(player.getLocation().getBlockX(), player.getLocation().getBlockY(), player.getLocation().getBlockZ());
-					double humidity = player.getLocation().getWorld().getHumidity(player.getLocation().getBlockX(), player.getLocation().getBlockY(), player.getLocation().getBlockZ());
-					if (useRain && player.getWorld().hasStorm() && !(temp >= MAX_TEMP || humidity <= MIN_HUMIDITY)) {
-						if (player.getLocation().getY() >= player.getWorld().getHighestBlockAt(player.getLocation()).getLocation().getY()) {
-							if (block.getLocation().getY() >= player.getWorld().getHighestBlockAt(player.getLocation()).getLocation().getY()) {
-								locations.add(block.getLocation().clone().add(.5, .5, .5));
+			if (rand.nextInt(chance) == 0) {
+				Location pLoc = player.getLocation();
+				World world = pLoc.getWorld();
+				double temp = world.getTemperature(pLoc.getBlockX(), pLoc.getBlockY(), pLoc.getBlockZ());
+				double humidity = world.getHumidity(pLoc.getBlockX(), pLoc.getBlockY(), pLoc.getBlockZ());
+				if (block.getY() > world.getMinHeight() && block.getY() < world.getMaxHeight()) {
+					Location bLoc = block.getLocation();
+					if (useRain && world.hasStorm() && !(temp >= MAX_TEMP || humidity <= MIN_HUMIDITY)) {
+						if (pLoc.getY() >= world.getHighestBlockAt(pLoc).getLocation().getY()) {
+							if (bLoc.getY() >= world.getHighestBlockAt(pLoc).getLocation().getY()) {
+								locations.add(bLoc.clone().add(.5, .5, .5));
 								return;
 							}
 						}
 					}
-					if (usePlants && JCMethods.isSmallPlant(block) && !isObstructed(block.getLocation(), player.getEyeLocation())) {
+					if (usePlants && JCMethods.isSmallPlant(block) && !isObstructed(bLoc, player.getEyeLocation())) {
 						drainPlant(block);
-					} else if(usePlants && ElementalAbility.isPlant(block) && !isObstructed(block.getLocation(), player.getEyeLocation())) {
-						locations.add(block.getLocation().clone().add(.5, .5, .5));
-						new RegenTempBlock(block, Material.AIR, Material.AIR.createBlockData(), regenDelay);
+					} else if (usePlants && ElementalAbility.isPlant(block) && !isObstructed(bLoc, player.getEyeLocation())) {
+						locations.add(bLoc.clone().add(.5, .5, .5));
+						new TempBlock(block, Material.AIR.createBlockData(), regenDelay);
 					} else if (isWater(block)) {
-						if (drainTemps || !TempBlock.isTempBlock(block)) {
+						TempBlock tb = TempBlock.get(block);
+						if ((tb == null || (drainTemps && !WATER_TEMPS.contains(tb)))) {
 							drainWater(block);
 						}
 					}
@@ -303,13 +312,13 @@ public class Drain extends WaterAbility implements AddonAbility {
 				if (JCMethods.isDoublePlant(block.getType())) {
 					block = block.getRelative(BlockFace.DOWN);
 					locations.add(block.getLocation().clone().add(.5, .5, .5));
-					new RegenTempBlock(block, Material.DEAD_BUSH, Material.DEAD_BUSH.createBlockData(), regenDelay);
+					new TempBlock(block, Material.DEAD_BUSH.createBlockData(), regenDelay);
 					return;
 				}
 				block = block.getRelative(BlockFace.DOWN);
 			}
 			locations.add(block.getLocation().clone().add(.5, .5, .5));
-			new RegenTempBlock(block, Material.DEAD_BUSH, Material.DEAD_BUSH.createBlockData(), regenDelay);
+			new TempBlock(block, Material.DEAD_BUSH.createBlockData(), regenDelay);
 		}
 	}
 
@@ -317,9 +326,11 @@ public class Drain extends WaterAbility implements AddonAbility {
 		if (isTransparent(block.getRelative(BlockFace.UP)) && !isWater(block.getRelative(BlockFace.UP))) {
 			locations.add(block.getLocation().clone().add(.5, .5, .5));
 			if (block.getBlockData() instanceof Waterlogged) {
-				new RegenTempBlock(block, block.getBlockData().getMaterial(), block.getBlockData().getMaterial().createBlockData(bd -> ((Waterlogged) bd).setWaterlogged(false)), regenDelay);
+				new TempBlock(block, block.getType().createBlockData(bd -> ((Waterlogged) bd).setWaterlogged(false)), regenDelay);
 			} else {
-				new RegenTempBlock(block, Material.WATER, Material.WATER.createBlockData(bd -> ((Levelled) bd).setLevel(1)), regenDelay);
+				TempBlock tb = new TempBlock(block, Material.WATER.createBlockData(bd -> ((Levelled) bd).setLevel(1)), regenDelay);
+				WATER_TEMPS.add(tb);
+				tb.setRevertTask(() -> WATER_TEMPS.remove(tb));
 			}
 		}
 	}
