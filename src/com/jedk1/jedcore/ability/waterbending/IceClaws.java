@@ -154,7 +154,7 @@ public class IceClaws extends IceAbility implements AddonAbility {
 		if (entity.hasPotionEffect(PotionEffectType.SPEED)) {
 			entity.removePotionEffect(PotionEffectType.SPEED);
 		}
-		entity.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, slowDur, 3));
+		entity.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, slowDur, 3));
 		bPlayer.addCooldown(this);
 		remove();
 		DamageHandler.damageEntity(entity, damage, this);

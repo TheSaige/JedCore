@@ -132,7 +132,7 @@ public class SonicBlast extends AirAbility implements AddonAbility {
 			boolean hit = CollisionDetector.checkEntityCollisions(player, new Sphere(location.toVector(), entityCollisionRadius), (entity) -> {
 				DamageHandler.damageEntity(entity, damage, this);
 				LivingEntity lE = (LivingEntity) entity;
-				lE.addPotionEffect(new PotionEffect(PotionEffectType.CONFUSION, nauseaDur/50, 1));
+				lE.addPotionEffect(new PotionEffect(PotionEffectType.NAUSEA, nauseaDur/50, 1));
 				lE.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, blindDur/50, 1));
 				return true;
 			});

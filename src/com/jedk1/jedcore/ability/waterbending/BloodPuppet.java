@@ -7,9 +7,11 @@ import com.projectkorra.projectkorra.ability.ElementalAbility;
 import com.projectkorra.projectkorra.attribute.Attribute;
 import com.projectkorra.projectkorra.region.RegionProtection;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.*;
-import org.bukkit.potion.Potion;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.potion.PotionType;
 import org.bukkit.util.Vector;
 
@@ -264,9 +266,11 @@ public class BloodPuppet extends BloodAbility implements AddonAbility {
 				if (target instanceof LivingEntity) {
 					LivingEntity e = (LivingEntity) target;
 					ThrownPotion tp = missmagus.launchProjectile(ThrownPotion.class, GeneralMethods.getDirection(puppet.getEyeLocation(), e.getEyeLocation()));
-					Potion potion = new Potion(PotionType.INSTANT_DAMAGE);
-					potion.setSplash(true);
-					tp.setItem(potion.toItemStack(1));
+					// todo: test
+					ItemStack potionItem = new ItemStack(Material.SPLASH_POTION, 1);
+					PotionMeta potion = (PotionMeta) potionItem.getItemMeta();
+					potionItem.setItemMeta(potion);
+					tp.setItem(potionItem);
 					tp.setVelocity(GeneralMethods.getDirection(puppet.getEyeLocation(), e.getEyeLocation()).multiply(0.125));
 					tp.setShooter(puppet);
 					if (e instanceof Creature)

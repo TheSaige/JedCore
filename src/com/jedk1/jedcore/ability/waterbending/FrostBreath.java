@@ -261,7 +261,7 @@ public class FrostBreath extends IceAbility implements AddonAbility {
 						}
 
 						if (config.slowEnabled) {
-							((LivingEntity) entity).addPotionEffect(new PotionEffect(PotionEffectType.SLOW, (int) config.slowDuration / 50, 5));
+							((LivingEntity) entity).addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, (int) config.slowDuration / 50, 5));
 						}
 
 						if (config.damageEnabled) {

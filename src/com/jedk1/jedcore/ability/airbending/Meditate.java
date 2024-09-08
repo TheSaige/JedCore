@@ -93,10 +93,10 @@ public class Meditate extends AirAbility implements AddonAbility {
 		}
 		player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, boostDuration/50, speedBoost - 1));
 
-		if (player.hasPotionEffect(PotionEffectType.JUMP)) {
-			player.removePotionEffect(PotionEffectType.JUMP);
+		if (player.hasPotionEffect(PotionEffectType.JUMP_BOOST)) {
+			player.removePotionEffect(PotionEffectType.JUMP_BOOST);
 		}
-		player.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, boostDuration/50, jumpBoost - 1));
+		player.addPotionEffect(new PotionEffect(PotionEffectType.JUMP_BOOST, boostDuration/50, jumpBoost - 1));
 
 		if (player.hasPotionEffect(PotionEffectType.ABSORPTION)) {
 			player.removePotionEffect(PotionEffectType.ABSORPTION);

@@ -269,15 +269,6 @@ public class MudSurge extends EarthAbility implements AddonAbility {
 		return null;
 	}
 
-	private boolean isMud(Block block) {
-		for (Material mat : mudTypes) {
-			if (mat.name().equalsIgnoreCase(block.getType().name()))
-				return true;
-		}
-
-		return false;
-	}
-
 	private void createMud(Block block) {
 		mudBlocks.add(new TempBlock(block, Material.BROWN_TERRACOTTA.createBlockData()));
 	}

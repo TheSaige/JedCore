@@ -97,7 +97,7 @@ public class MetalArmor extends EarthAbility implements AddonAbility {
 				}
 
 				player.getInventory().setArmorContents(armors);
-				PotionEffect resistance = new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, resistDuration / 50, resistStrength - 1);
+				PotionEffect resistance = new PotionEffect(PotionEffectType.RESISTANCE, resistDuration / 50, resistStrength - 1);
 				new TempPotionEffect(player, resistance);
 			}
 

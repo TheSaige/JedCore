@@ -645,4 +645,24 @@ public class SubsectionConfigurationDecorator implements ConfigurationSection {
     public void addDefault(String path, Object value) {
         parent.addDefault(path, value);
     }
+
+    @Override
+    public List<String> getComments(String s) {
+        return List.of();
+    }
+
+    @Override
+    public List<String> getInlineComments(String s) {
+        return List.of();
+    }
+
+    @Override
+    public void setComments(String s, List<String> list) {
+
+    }
+
+    @Override
+    public void setInlineComments(String s, List<String> list) {
+
+    }
 }
