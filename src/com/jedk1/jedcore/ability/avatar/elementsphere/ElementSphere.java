@@ -13,10 +13,7 @@ import com.projectkorra.projectkorra.attribute.Attribute;
 import com.projectkorra.projectkorra.region.RegionProtection;
 import com.projectkorra.projectkorra.util.ParticleEffect;
 
-import org.bukkit.ChatColor;
-import org.bukkit.GameMode;
-import org.bukkit.Location;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.configuration.ConfigurationSection;
@@ -232,9 +229,9 @@ public class ElementSphere extends AvatarAbility implements AddonAbility, MultiA
 				tempLoc.add(newDir);
 				tempLoc.setY(tempLoc.getY() + 2 + (2 * Math.sin(Math.toRadians(j))));
 				if (rand.nextInt(30) == 0) {
-					ParticleEffect.SPELL_MOB.display(tempLoc, 0, 255, 255, 255, 0.003);
+					ParticleEffect.SPELL_MOB.display(tempLoc, 1, 0, 0, 0, 0.003, new Particle.DustOptions(Color.fromRGB(255, 255, 255), 1));
 				} else {
-					ParticleEffect.SPELL_MOB_AMBIENT.display(tempLoc, 1, 0, 0, 0, 0);
+					ParticleEffect.SPELL_MOB_AMBIENT.display(tempLoc, 1, 0, 0, 0, 0, new Particle.DustOptions(Color.fromRGB(255, 255, 255), 1));
 				}
 			}
 

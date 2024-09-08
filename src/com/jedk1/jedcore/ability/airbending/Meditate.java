@@ -8,7 +8,9 @@ import com.projectkorra.projectkorra.ability.AirAbility;
 import com.projectkorra.projectkorra.attribute.Attribute;
 import com.projectkorra.projectkorra.util.ParticleEffect;
 
+import org.bukkit.Color;
 import org.bukkit.Location;
+import org.bukkit.Particle;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffect;
@@ -74,14 +76,14 @@ public class Meditate extends AirAbility implements AddonAbility {
 			return;
 		}
 		if (System.currentTimeMillis() > getStartTime() + warmup) {
-			ParticleEffect.SPELL_INSTANT.display(player.getLocation(), particleDensity, Math.random(), Math.random(), Math.random(), 0.0);
+			ParticleEffect.SPELL_INSTANT.display(player.getLocation(), particleDensity, Math.random(), Math.random(), Math.random(), 0.0, new Particle.DustOptions(Color.fromRGB(255, 255, 255), 1));
 			if (!player.isSneaking()) {
 				bPlayer.addCooldown(this);
 				givePlayerBuffs();
 				remove();
 			}
 		} else if (player.isSneaking()) {
-			ParticleEffect.SPELL_MOB_AMBIENT.display(player.getLocation(), particleDensity, Math.random(), Math.random(), Math.random(), 0.0);
+			ParticleEffect.SPELL_MOB_AMBIENT.display(player.getLocation(), particleDensity, Math.random(), Math.random(), Math.random(), 0.0, new Particle.DustOptions(Color.fromRGB(255, 255, 255), 1));
 		} else {
 			remove();
 		}

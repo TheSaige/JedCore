@@ -8,8 +8,10 @@ import com.jedk1.jedcore.configuration.JedCoreConfig;
 import com.projectkorra.projectkorra.command.Commands;
 import com.projectkorra.projectkorra.region.RegionProtection;
 import com.projectkorra.projectkorra.waterbending.ice.PhaseChange;
+import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Particle;
 import org.bukkit.block.Block;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Entity;
@@ -279,8 +281,8 @@ public class FrostBreath extends IceAbility implements AddonAbility {
 				}
 
 				ParticleEffect.SNOW_SHOVEL.display(loc, config.particles, Math.random(), Math.random(), Math.random(), size);
-				ParticleEffect.SPELL_MOB.display(getOffsetLocation(loc, offset), 0, 220, 220, 220, 0.003/*, new Particle.DustOptions(Color.fromRGB(220, 220, 220), 1)*/);
-				ParticleEffect.SPELL_MOB.display(getOffsetLocation(loc, offset), 0, 150, 150, 255, 0.0035/*, new Particle.DustOptions(Color.fromRGB(150, 150, 255), 1)*/);
+				ParticleEffect.SPELL_MOB.display(getOffsetLocation(loc, offset), 0, 0, 0, 0, 0.003, new Particle.DustOptions(Color.fromRGB(220, 220, 220), 1));
+				ParticleEffect.SPELL_MOB.display(getOffsetLocation(loc, offset), 0, 0, 0, 0, 0.0035, new Particle.DustOptions(Color.fromRGB(150, 150, 255), 1));
 			}
 		}
 

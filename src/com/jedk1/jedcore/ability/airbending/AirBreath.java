@@ -12,7 +12,9 @@ import com.projectkorra.projectkorra.region.RegionProtection;
 import com.projectkorra.projectkorra.util.DamageHandler;
 import com.projectkorra.projectkorra.util.ParticleEffect;
 
+import org.bukkit.Color;
 import org.bukkit.Location;
+import org.bukkit.Particle;
 import org.bukkit.block.Block;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.ArmorStand;
@@ -181,7 +183,7 @@ public class AirBreath extends AirAbility implements AddonAbility {
 
 			if (getAirbendingParticles() == ParticleEffect.CLOUD) {
 				ParticleEffect.CLOUD.display(loc, particles, Math.random(), Math.random(), Math.random(), size);
-				ParticleEffect.SPELL.display(loc, particles, Math.random(), Math.random(), Math.random(), size);
+				ParticleEffect.SPELL.display(loc, particles, Math.random(), Math.random(), Math.random(), size, new Particle.DustOptions(Color.fromRGB(255, 255, 255), 1));
 			} else {
 				getAirbendingParticles().display(loc, particles, Math.random(), Math.random(), Math.random(), size);
 			}

@@ -269,6 +269,7 @@ public class BloodPuppet extends BloodAbility implements AddonAbility {
 					// todo: test
 					ItemStack potionItem = new ItemStack(Material.SPLASH_POTION, 1);
 					PotionMeta potion = (PotionMeta) potionItem.getItemMeta();
+					potion.setBasePotionType(PotionType.HARMING);
 					potionItem.setItemMeta(potion);
 					tp.setItem(potionItem);
 					tp.setVelocity(GeneralMethods.getDirection(puppet.getEyeLocation(), e.getEyeLocation()).multiply(0.125));

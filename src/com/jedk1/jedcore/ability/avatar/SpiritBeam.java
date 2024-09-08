@@ -12,8 +12,10 @@ import com.projectkorra.projectkorra.region.RegionProtection;
 import com.projectkorra.projectkorra.util.DamageHandler;
 import com.projectkorra.projectkorra.util.ParticleEffect;
 
+import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Particle;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
@@ -106,8 +108,8 @@ public class SpiritBeam extends AvatarAbility implements AddonAbility {
 				return;
 			}
 
-			ParticleEffect.SPELL_WITCH.display(location, 1, 0f, 0f, 0f, 0f);
-			ParticleEffect.SPELL_WITCH.display(location, 1, (float) Math.random() / 3, (float) Math.random() / 3, (float) Math.random() / 3, 0f);
+			ParticleEffect.SPELL_WITCH.display(location, 1, 0f, 0f, 0f, 0f, new Particle.DustOptions(Color.fromRGB(160, 32, 240), 1));
+			ParticleEffect.SPELL_WITCH.display(location, 1, (float) Math.random() / 3, (float) Math.random() / 3, (float) Math.random() / 3, 0f, new Particle.DustOptions(Color.fromRGB(160, 32, 240), 1));
 			ParticleEffect.BLOCK_CRACK.display(location, 1,(float) Math.random() / 3, (float) Math.random() / 3, (float) Math.random() / 3, 0.1F, Material.NETHER_PORTAL.createBlockData());
 			ParticleEffect.BLOCK_CRACK.display(location, 1, direction.getX(), direction.getY(), direction.getZ(), 0.1F, Material.NETHER_PORTAL.createBlockData());
 
