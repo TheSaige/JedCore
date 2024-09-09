@@ -211,9 +211,9 @@ public class ESStream extends AvatarAbility implements AddonAbility {
 						break;
 					case 1:
 						if (rand.nextInt(30) == 0) {
-							ParticleEffect.SPELL_MOB.display(pl, 1, 0, 0, 0, 0.003, new Particle.DustOptions(Color.fromRGB(255, 255, 255), 1));
+							JCMethods.displayColoredParticles("#FFFFFF", pl, 1, 0, 0, 0, 0.003f);
 						} else {
-							ParticleEffect.SPELL_MOB_AMBIENT.display(pl, 1, 0.05, 0.05, 0.05, 0.005, new Particle.DustOptions(Color.fromRGB(255, 255, 255), 1));
+							JCMethods.displayColoredParticles("#FFFFFF", pl, 1, 0.05, 0.05, 0.05, 0.005f, 50);
 						}
 						break;
 					case 2:

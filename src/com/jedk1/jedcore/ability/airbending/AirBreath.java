@@ -183,7 +183,8 @@ public class AirBreath extends AirAbility implements AddonAbility {
 
 			if (getAirbendingParticles() == ParticleEffect.CLOUD) {
 				ParticleEffect.CLOUD.display(loc, particles, Math.random(), Math.random(), Math.random(), size);
-				ParticleEffect.SPELL.display(loc, particles, Math.random(), Math.random(), Math.random(), size, new Particle.DustOptions(Color.fromRGB(255, 255, 255), 1));
+				JCMethods.displayColoredParticles("#FFFFFF", loc, particles, Math.random(), Math.random(), Math.random(), 0f);
+				JCMethods.displayColoredParticles("#FFFFFF", player.getLocation(), particles, Math.random(), Math.random(), Math.random(), size, 50);
 			} else {
 				getAirbendingParticles().display(loc, particles, Math.random(), Math.random(), Math.random(), size);
 			}

@@ -108,8 +108,9 @@ public class SpiritBeam extends AvatarAbility implements AddonAbility {
 				return;
 			}
 
-			ParticleEffect.SPELL_WITCH.display(location, 1, 0f, 0f, 0f, 0f, new Particle.DustOptions(Color.fromRGB(160, 32, 240), 1));
-			ParticleEffect.SPELL_WITCH.display(location, 1, (float) Math.random() / 3, (float) Math.random() / 3, (float) Math.random() / 3, 0f, new Particle.DustOptions(Color.fromRGB(160, 32, 240), 1));
+			JCMethods.displayColoredParticles("#A020F0", location, 1, 0f, 0f, 0f, 0f);
+			JCMethods.displayColoredParticles("#A020F0", location, 1, (float) Math.random() / 3, (float) Math.random() / 3, (float) Math.random() / 3, 0f);
+
 			ParticleEffect.BLOCK_CRACK.display(location, 1,(float) Math.random() / 3, (float) Math.random() / 3, (float) Math.random() / 3, 0.1F, Material.NETHER_PORTAL.createBlockData());
 			ParticleEffect.BLOCK_CRACK.display(location, 1, direction.getX(), direction.getY(), direction.getZ(), 0.1F, Material.NETHER_PORTAL.createBlockData());
 

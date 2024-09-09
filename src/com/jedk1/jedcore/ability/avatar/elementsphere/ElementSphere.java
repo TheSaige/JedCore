@@ -1,5 +1,6 @@
 package com.jedk1.jedcore.ability.avatar.elementsphere;
 
+import com.jedk1.jedcore.JCMethods;
 import com.jedk1.jedcore.JedCore;
 import com.jedk1.jedcore.configuration.JedCoreConfig;
 import com.projectkorra.projectkorra.Element;
@@ -229,9 +230,9 @@ public class ElementSphere extends AvatarAbility implements AddonAbility, MultiA
 				tempLoc.add(newDir);
 				tempLoc.setY(tempLoc.getY() + 2 + (2 * Math.sin(Math.toRadians(j))));
 				if (rand.nextInt(30) == 0) {
-					ParticleEffect.SPELL_MOB.display(tempLoc, 1, 0, 0, 0, 0.003, new Particle.DustOptions(Color.fromRGB(255, 255, 255), 1));
+					JCMethods.displayColoredParticles("#FFFFFF", tempLoc, 1, 0, 0, 0, 0.003f);
 				} else {
-					ParticleEffect.SPELL_MOB_AMBIENT.display(tempLoc, 1, 0, 0, 0, 0, new Particle.DustOptions(Color.fromRGB(255, 255, 255), 1));
+					JCMethods.displayColoredParticles("#FFFFFF", tempLoc, 1, 0, 0, 0, 0.003f, 50);
 				}
 			}
 

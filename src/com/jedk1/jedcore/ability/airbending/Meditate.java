@@ -1,5 +1,6 @@
 package com.jedk1.jedcore.ability.airbending;
 
+import com.jedk1.jedcore.JCMethods;
 import com.jedk1.jedcore.JedCore;
 import com.jedk1.jedcore.configuration.JedCoreConfig;
 import com.projectkorra.projectkorra.Element;
@@ -76,14 +77,15 @@ public class Meditate extends AirAbility implements AddonAbility {
 			return;
 		}
 		if (System.currentTimeMillis() > getStartTime() + warmup) {
-			ParticleEffect.SPELL_INSTANT.display(player.getLocation(), particleDensity, Math.random(), Math.random(), Math.random(), 0.0, new Particle.DustOptions(Color.fromRGB(255, 255, 255), 1));
+			// "creative" liberty
+			JCMethods.displayColoredParticles("#FFFFFF", player.getLocation(), particleDensity, Math.random(), Math.random(), Math.random(), 0f);
 			if (!player.isSneaking()) {
 				bPlayer.addCooldown(this);
 				givePlayerBuffs();
 				remove();
 			}
 		} else if (player.isSneaking()) {
-			ParticleEffect.SPELL_MOB_AMBIENT.display(player.getLocation(), particleDensity, Math.random(), Math.random(), Math.random(), 0.0, new Particle.DustOptions(Color.fromRGB(255, 255, 255), 1));
+			JCMethods.displayColoredParticles("#FFFFFF", player.getLocation(), particleDensity, Math.random(), Math.random(), Math.random(), 0f, 50);
 		} else {
 			remove();
 		}
