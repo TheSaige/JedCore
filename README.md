@@ -1,9 +1,17 @@
 # JedCore
 This is my fork of plushmonkey's fork of jedk1's JedCore addon for ProjectKorra.  
-Download releases [here](https://github.com/Aztlon/JedCore/releases).
+Download releases [here](https://github.com/CozmycDev/JedCore/releases).
 Join our [Discord](https://discord.gg/gh9MfDmwZm) to discuss the plugin, suggest changes, report bugs, etc.
 
 ## Changelog
+
+### 2.14.1
+- For the one ProjectKorra server running 1.20.5!
+- Still works on 1.20.6+, nothing else changed since 2.14.0 released less than an hour ago.
+
+### 2.14.0
+- Only works on MC 1.20.6+ and PK 1.11.3+
+- Fixes particle effects causing errors on 1.20.6+
 
 ### 2.13.2
 - Fixed Drain not activating and messily leaving water blocks behind
