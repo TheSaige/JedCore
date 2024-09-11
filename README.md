@@ -1,3 +1,7 @@
+[![GitHub Pre-Release](https://img.shields.io/github/release-pre/CozmycDev/JedCore.svg)](https://github.com/CozmycDev/JedCore/releases)
+[![Github All Releases](https://img.shields.io/github/downloads/CozmycDev/JedCore/total.svg)](https://github.com/CozmycDev/JedCore/releases)
+![Size](https://img.shields.io/github/repo-size/CozmycDev/JedCore.svg)
+
 # JedCore
 This is my fork of plushmonkey's fork of jedk1's JedCore addon for ProjectKorra.  
 Download releases [here](https://github.com/CozmycDev/JedCore/releases).
