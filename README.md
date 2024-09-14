@@ -5,6 +5,10 @@ Join our [Discord](https://discord.gg/gh9MfDmwZm) to discuss the plugin, suggest
 
 ## Changelog
 
+### 2.14.2
+- Reintroduces backwards support for MC <1.20.2+ and PK 1.11.1+
+- Still works on 1.20.5+ too!
+
 ### 2.14.1
 - For the one ProjectKorra server running 1.20.5!
 - Still works on 1.20.6+, nothing else changed since 2.14.0 released less than an hour ago.

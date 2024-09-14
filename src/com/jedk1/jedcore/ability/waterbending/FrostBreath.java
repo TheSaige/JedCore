@@ -9,17 +9,13 @@ import com.jedk1.jedcore.configuration.JedCoreConfig;
 import com.projectkorra.projectkorra.command.Commands;
 import com.projectkorra.projectkorra.region.RegionProtection;
 import com.projectkorra.projectkorra.waterbending.ice.PhaseChange;
-import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.Particle;
 import org.bukkit.block.Block;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 
 import com.jedk1.jedcore.JedCore;
@@ -264,7 +260,7 @@ public class FrostBreath extends IceAbility implements AddonAbility {
 						}
 
 						if (config.slowEnabled) {
-							((LivingEntity) entity).addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, (int) config.slowDuration / 50, 5));
+							((LivingEntity) entity).addPotionEffect(JedCore.plugin.getPotionEffectAdapter().getSlownessEffect((int) config.slowDuration, 5));
 						}
 
 						if (config.damageEnabled) {

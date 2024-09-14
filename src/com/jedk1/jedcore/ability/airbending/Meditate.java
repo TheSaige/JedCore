@@ -7,9 +7,7 @@ import com.projectkorra.projectkorra.Element;
 import com.projectkorra.projectkorra.ability.AddonAbility;
 import com.projectkorra.projectkorra.ability.AirAbility;
 import com.projectkorra.projectkorra.attribute.Attribute;
-import com.projectkorra.projectkorra.util.ParticleEffect;
 
-import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.configuration.ConfigurationSection;
@@ -77,7 +75,7 @@ public class Meditate extends AirAbility implements AddonAbility {
 			return;
 		}
 		if (System.currentTimeMillis() > getStartTime() + warmup) {
-			// "creative" liberty
+			player.spawnParticle(Particle.ELECTRIC_SPARK, player.getLocation(), 3, 0.5, 0.5, 0.5, 0.003F);
 			JCMethods.displayColoredParticles("#FFFFFF", player.getLocation(), particleDensity, Math.random(), Math.random(), Math.random(), 0f);
 			if (!player.isSneaking()) {
 				bPlayer.addCooldown(this);
@@ -97,10 +95,7 @@ public class Meditate extends AirAbility implements AddonAbility {
 		}
 		player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, boostDuration/50, speedBoost - 1));
 
-		if (player.hasPotionEffect(PotionEffectType.JUMP_BOOST)) {
-			player.removePotionEffect(PotionEffectType.JUMP_BOOST);
-		}
-		player.addPotionEffect(new PotionEffect(PotionEffectType.JUMP_BOOST, boostDuration/50, jumpBoost - 1));
+		JedCore.plugin.getPotionEffectAdapter().applyJumpBoost(player, boostDuration, jumpBoost);
 
 		if (player.hasPotionEffect(PotionEffectType.ABSORPTION)) {
 			player.removePotionEffect(PotionEffectType.ABSORPTION);

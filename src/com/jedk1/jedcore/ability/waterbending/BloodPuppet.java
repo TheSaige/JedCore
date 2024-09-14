@@ -12,7 +12,6 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.*;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.PotionMeta;
-import org.bukkit.potion.PotionType;
 import org.bukkit.util.Vector;
 
 import com.jedk1.jedcore.JedCore;
@@ -266,10 +265,9 @@ public class BloodPuppet extends BloodAbility implements AddonAbility {
 				if (target instanceof LivingEntity) {
 					LivingEntity e = (LivingEntity) target;
 					ThrownPotion tp = missmagus.launchProjectile(ThrownPotion.class, GeneralMethods.getDirection(puppet.getEyeLocation(), e.getEyeLocation()));
-					// todo: test
 					ItemStack potionItem = new ItemStack(Material.SPLASH_POTION, 1);
 					PotionMeta potion = (PotionMeta) potionItem.getItemMeta();
-					potion.setBasePotionType(PotionType.HARMING);
+					potion.setBasePotionType(JedCore.plugin.getPotionEffectAdapter().getHarmingPotionType());
 					potionItem.setItemMeta(potion);
 					tp.setItem(potionItem);
 					tp.setVelocity(GeneralMethods.getDirection(puppet.getEyeLocation(), e.getEyeLocation()).multiply(0.125));

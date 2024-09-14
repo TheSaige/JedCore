@@ -326,16 +326,12 @@ public class JCMethods {
 		return new int[]{r, g, b};
 	}
 
-	// no alpha
 	public static void displayColoredParticles(String hex, Location location, int amount, double offsetX, double offsetY, double offsetZ, double extra) {
 		displayColoredParticles(hex, location, amount, offsetX, offsetY, offsetZ, extra, 255);
 	}
 
-	// use a low alpha (range: 0-255) for ambient particles
 	public static void displayColoredParticles(String hex, Location location, int amount, double offsetX, double offsetY, double offsetZ, double extra, int alpha) {
-		if (location.getWorld() == null) return;
-		int[] color = hexToRgb(hex);
-		location.getWorld().spawnParticle(Particle.ENTITY_EFFECT, location, amount, extra, offsetX, offsetY, offsetZ, Color.fromARGB(alpha, color[0], color[1], color[2]));
+		JedCore.plugin.getParticleAdapter().displayColoredParticles(hex, location, amount, offsetX, offsetY, offsetZ, extra, alpha);
 	}
 
 	public static void reload() {

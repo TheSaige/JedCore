@@ -17,7 +17,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
 import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
 
 import java.util.Arrays;
 import java.util.List;
@@ -97,7 +96,8 @@ public class MetalArmor extends EarthAbility implements AddonAbility {
 				}
 
 				player.getInventory().setArmorContents(armors);
-				PotionEffect resistance = new PotionEffect(PotionEffectType.RESISTANCE, resistDuration / 50, resistStrength - 1);
+
+				PotionEffect resistance = JedCore.plugin.getPotionEffectAdapter().getResistanceEffect(resistDuration, resistStrength);
 				new TempPotionEffect(player, resistance);
 			}
 

@@ -15,7 +15,6 @@ import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
-import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
 public class IceClaws extends IceAbility implements AddonAbility {
@@ -154,7 +153,8 @@ public class IceClaws extends IceAbility implements AddonAbility {
 		if (entity.hasPotionEffect(PotionEffectType.SPEED)) {
 			entity.removePotionEffect(PotionEffectType.SPEED);
 		}
-		entity.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, slowDur, 3));
+		// todo: doesnt seem to be affecting mobs? frostbreath does.
+		entity.addPotionEffect(JedCore.plugin.getPotionEffectAdapter().getSlownessEffect(slowDur, 3));
 		bPlayer.addCooldown(this);
 		remove();
 		DamageHandler.damageEntity(entity, damage, this);
