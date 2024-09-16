@@ -9,6 +9,11 @@ Join our [Discord](https://discord.gg/gh9MfDmwZm) to discuss the plugin, suggest
 
 ## Changelog
 
+### 2.14.3
+- Fixes a critical issue with EarthLine. Please update to this version!
+- EarthLine sourcing is now about as accurate as Core EarthBlast.
+- Adds Cozmyc to the JedCore dev list and as the current maintainer.
+
 ### 2.14.2
 - Reintroduces backwards support for MC <1.20.2+ and PK 1.11.1+
 - Still works on 1.20.5+ too!

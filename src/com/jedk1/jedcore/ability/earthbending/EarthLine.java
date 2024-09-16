@@ -4,6 +4,8 @@ import com.jedk1.jedcore.JedCore;
 import com.jedk1.jedcore.configuration.JedCoreConfig;
 import com.jedk1.jedcore.policies.removal.*;
 import com.jedk1.jedcore.util.RegenTempBlock;
+
+import com.projectkorra.projectkorra.util.TempBlock;
 import com.projectkorra.projectkorra.GeneralMethods;
 import com.projectkorra.projectkorra.ability.AddonAbility;
 import com.projectkorra.projectkorra.ability.EarthAbility;
@@ -16,6 +18,7 @@ import com.projectkorra.projectkorra.util.ClickType;
 import com.projectkorra.projectkorra.util.DamageHandler;
 
 import com.projectkorra.projectkorra.util.TempFallingBlock;
+import org.bukkit.Bukkit;
 import org.bukkit.Effect;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -97,39 +100,51 @@ public class EarthLine extends EarthAbility implements AddonAbility {
 	}
 
 	public boolean prepare() {
+		Block block = BlockSource.getEarthSourceBlock(player, prepareRange, ClickType.SHIFT_DOWN);
+		if (block == null || !this.isEarthbendable(block)) {
+			return false;
+		} else if (TempBlock.isTempBlock(block) && !EarthAbility.isBendableEarthTempBlock(block)) {
+			return false;
+		}
+
 		if (hasAbility(player, EarthLine.class)) {
 			EarthLine el = getAbility(player, EarthLine.class);
 			if (!el.progressing) {
+				Bukkit.getLogger().info("el already progressing, removing old el");
 				el.remove();
 			}
 		}
-		Block block = BlockSource.getEarthSourceBlock(player, prepareRange, ClickType.SHIFT_DOWN);
-		if (block != null) {
-			sourceBlock = block;
-			focusBlock();
-			return true;
-		} else {
+
+		if (block.getLocation().distanceSquared(this.player.getLocation()) > this.prepareRange * this.prepareRange) {
+			Bukkit.getLogger().info("out of range, returning false");
 			return false;
 		}
+
+		Bukkit.getLogger().info("sourced a block");
+		this.sourceBlock = block;
+		this.focusBlock();
+		return true;
 	}
 
 	private void focusBlock() {
-		if (sourceBlock.getType() == Material.SAND) {
-			if (DensityShift.isPassiveSand(this.sourceBlock)) {
-				DensityShift.revertSand(this.sourceBlock);
-				this.sourceType = this.sourceBlock.getType();
-			} else {
-				sourceType = Material.SAND;
-			}
-			sourceBlock.setType(Material.SANDSTONE);
-		} else if (sourceBlock.getType() == Material.STONE) {
-			sourceType = sourceBlock.getType();
-			sourceBlock.setType(Material.COBBLESTONE);
-		} else {
-			sourceType = sourceBlock.getType();
-			sourceBlock.setType(Material.STONE);
+		if (DensityShift.isPassiveSand(this.sourceBlock)) {
+			DensityShift.revertSand(this.sourceBlock);
 		}
-		location = sourceBlock.getLocation();
+		if (this.sourceBlock.getType() == Material.SAND) {
+			this.sourceType = Material.SAND;
+			this.sourceBlock.setType(Material.SANDSTONE);
+		} else if (this.sourceBlock.getType() == Material.RED_SAND) {
+			this.sourceType = Material.RED_SAND;
+			this.sourceBlock.setType(Material.RED_SANDSTONE);
+		} else if (this.sourceBlock.getType() == Material.STONE) {
+			this.sourceBlock.setType(Material.COBBLESTONE);
+			this.sourceType = Material.STONE;
+		} else {
+			this.sourceType = this.sourceBlock.getType();
+			this.sourceBlock.setType(Material.STONE);
+		}
+
+		this.location = this.sourceBlock.getLocation();
 	}
 	
 	private void unfocusBlock() {
@@ -143,7 +158,9 @@ public class EarthLine extends EarthAbility implements AddonAbility {
 
 	@Override
 	public void remove() {
-		sourceBlock.setType(sourceType);
+		if (sourceBlock != null && sourceBlock.getType() != Material.AIR) {
+			sourceBlock.setType(sourceType); // Ensure no duplication of the source block
+		}
 		super.remove();
 	}
 
@@ -232,10 +249,12 @@ public class EarthLine extends EarthAbility implements AddonAbility {
 
 			playEarthbendingSound(location);
 
-			new RegenTempBlock(location.getBlock(), Material.AIR, Material.AIR.createBlockData(), 700L);
-
-			new TempFallingBlock(locationYUP, cloneType.createBlockData(), new Vector(0.0, 0.35, 0.0), this);
-
+			if (isEarthbendable(location.getBlock())) {
+				new RegenTempBlock(location.getBlock(), Material.AIR, Material.AIR.createBlockData(), 700L);
+				new TempFallingBlock(locationYUP, cloneType.createBlockData(), new Vector(0.0, 0.35, 0.0), this);
+			} else {
+				location.getBlock().setType(Material.AIR);
+			}
 			location.add(looking.normalize());
 
 			if (!climb()) {
@@ -266,6 +285,7 @@ public class EarthLine extends EarthAbility implements AddonAbility {
 			remove();
 			return;
 		}
+
 		if (!isEarthbendable(player, location.getBlock()) && !isTransparent(location.getBlock())) {
 			remove();
 		}
