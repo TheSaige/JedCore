@@ -110,17 +110,14 @@ public class EarthLine extends EarthAbility implements AddonAbility {
 		if (hasAbility(player, EarthLine.class)) {
 			EarthLine el = getAbility(player, EarthLine.class);
 			if (!el.progressing) {
-				Bukkit.getLogger().info("el already progressing, removing old el");
 				el.remove();
 			}
 		}
 
 		if (block.getLocation().distanceSquared(this.player.getLocation()) > this.prepareRange * this.prepareRange) {
-			Bukkit.getLogger().info("out of range, returning false");
 			return false;
 		}
 
-		Bukkit.getLogger().info("sourced a block");
 		this.sourceBlock = block;
 		this.focusBlock();
 		return true;
