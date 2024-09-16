@@ -249,9 +249,8 @@ public class EarthLine extends EarthAbility implements AddonAbility {
 			if (isEarthbendable(location.getBlock())) {
 				new RegenTempBlock(location.getBlock(), Material.AIR, Material.AIR.createBlockData(), 700L);
 				new TempFallingBlock(locationYUP, cloneType.createBlockData(), new Vector(0.0, 0.35, 0.0), this);
-			} else {
-				location.getBlock().setType(Material.AIR);
 			}
+
 			location.add(looking.normalize());
 
 			if (!climb()) {
