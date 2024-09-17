@@ -114,6 +114,8 @@ public class SpiritBeam extends AvatarAbility implements AddonAbility {
 			ParticleEffect.BLOCK_CRACK.display(location, 1,(float) Math.random() / 3, (float) Math.random() / 3, (float) Math.random() / 3, 0.1F, Material.NETHER_PORTAL.createBlockData());
 			ParticleEffect.BLOCK_CRACK.display(location, 1, direction.getX(), direction.getY(), direction.getZ(), 0.1F, Material.NETHER_PORTAL.createBlockData());
 
+			JCMethods.emitLight(location);
+
 			for (Entity entity : GeneralMethods.getEntitiesAroundPoint(location, 2)) {
 				if (entity instanceof LivingEntity && entity.getEntityId() != player.getEntityId() && !(entity instanceof ArmorStand)) {
 					entity.setFireTicks(100);

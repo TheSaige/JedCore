@@ -72,6 +72,10 @@ public class JedCoreConfig {
 		config.addDefault("Properties.ChiRestrictor.ResetCooldown", true);
 		config.addDefault("Properties.ChiRestrictor.MeleeDistance", 7);
 		config.addDefault("Properties.ChiRestrictor.Whitelist", new ArrayList<String>());
+
+		config.addDefault("Properties.Fire.DynamicLight.Enabled", true);
+		config.addDefault("Properties.Fire.DynamicLight.Brightness", 13);
+		config.addDefault("Properties.Fire.DynamicLight.KeepAlive", 600);
 		
 		config.addDefault("Abilities.Avatar.ElementSphere.Enabled", true);
 		config.addDefault("Abilities.Avatar.ElementSphere.Description", "ElementSphere is a very all round ability, being "
@@ -751,6 +755,9 @@ public class JedCoreConfig {
 		config.addDefault("Abilities.Water.HealingWaters.Power", 1);
 		config.addDefault("Abilities.Water.HealingWaters.Range", 5);
 		config.addDefault("Abilities.Water.HealingWaters.DrainChance", 5);
+		config.addDefault("Abilities.Water.HealingWaters.DynamicLight.Enabled", true);
+		config.addDefault("Abilities.Water.HealingWaters.DynamicLight.Brightness", 10);
+		config.addDefault("Abilities.Water.HealingWaters.DynamicLight.KeepAlive", 1500);
 		
 		config.addDefault("Abilities.Water.IceClaws.Enabled", true);
 		config.addDefault("Abilities.Water.IceClaws.Description", "As demonstrated by Hama, a Waterbender can pull water out of thin air to create claws "

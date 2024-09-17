@@ -1,11 +1,13 @@
 package com.jedk1.jedcore.ability.firebending;
 
+import com.jedk1.jedcore.JCMethods;
 import com.jedk1.jedcore.JedCore;
 import com.jedk1.jedcore.collision.CollisionDetector;
 import com.jedk1.jedcore.collision.Sphere;
 import com.jedk1.jedcore.configuration.JedCoreConfig;
 import com.jedk1.jedcore.policies.removal.*;
 import com.jedk1.jedcore.util.FireTick;
+import com.jedk1.jedcore.util.LightManager;
 import com.jedk1.jedcore.util.MaterialUtil;
 import com.jedk1.jedcore.util.RegenTempBlock;
 import com.projectkorra.projectkorra.GeneralMethods;
@@ -243,6 +245,7 @@ public class Combustion extends CombustionAbility implements AddonAbility {
 				Location loc = player.getLocation().add(x, 1.0D, z);
 				playFirebendingParticles(loc, 3, 0.0, 0.0, 0.0);
 				ParticleEffect.SMOKE_NORMAL.display(loc, 4, 0.0, 0.0, 0.0, 0.01);
+				JCMethods.emitLight(loc);
 			}
 		}
 	}
@@ -351,6 +354,8 @@ public class Combustion extends CombustionAbility implements AddonAbility {
 			ParticleEffect.FIREWORKS_SPARK.display(location, 1, 0.0, 0.0, 0.0F, 0.06);
 
 			location.getWorld().playSound(location, Sound.ENTITY_FIREWORK_ROCKET_BLAST, 1.0F, 0.01F);
+
+			JCMethods.emitLight(location);
 		}
 	}
 

@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import com.jedk1.jedcore.JCMethods;
 import com.jedk1.jedcore.collision.CollisionDetector;
 import com.jedk1.jedcore.collision.Sphere;
 import com.jedk1.jedcore.configuration.JedCoreConfig;
@@ -143,6 +144,8 @@ public class FireShots extends FireAbility implements AddonAbility {
 				}
 				ParticleEffect.SMOKE_NORMAL.display(location, 2, 0.0, 0.0, 0.0, 0.01);
 
+				JCMethods.emitLight(location);
+
 				Sphere collider = new Sphere(location.toVector(), collisionRadius);
 
 				boolean hit = CollisionDetector.checkEntityCollisions(player, collider, (entity) -> {
@@ -264,6 +267,7 @@ public class FireShots extends FireAbility implements AddonAbility {
 	private void displayFireBalls() {
 		playFirebendingParticles(getRightHandPos().toVector().add(player.getEyeLocation().getDirection().clone().multiply(.8D)).toLocation(player.getWorld()), 3, 0, 0, 0);
 		ParticleEffect.SMOKE_NORMAL.display(getRightHandPos().toVector().add(player.getEyeLocation().getDirection().clone().multiply(.8D)).toLocation(player.getWorld()), 3, 0, 0, 0, 0.01);
+		JCMethods.emitLight(getRightHandPos().toVector().add(player.getEyeLocation().getDirection().clone().multiply(.8D)).toLocation(player.getWorld()));
 	}
 
 	@Override

@@ -136,6 +136,7 @@ public class Discharge extends LightningAbility implements AddonAbility {
 
 				for (int j = 0; j < 5; j++) {
 					playLightningbendingParticle(l.clone(), 0f, 0f, 0f);
+					JCMethods.emitLight(l.clone());
 
 					if (rand.nextInt(3) == 0) {
 						player.getWorld().playSound(l, Sound.ENTITY_CREEPER_PRIMED, 1, 0);
@@ -154,6 +155,7 @@ public class Discharge extends LightningAbility implements AddonAbility {
 
 						for (int k = 0; k < 5; k++) {
 							playLightningbendingParticle(entity.getLocation(), (float) Math.random(), (float) Math.random(), (float) Math.random());
+							JCMethods.emitLight(entity.getLocation());
 						}
 
 						entity.getWorld().playSound(entity.getLocation(), Sound.ENTITY_CREEPER_PRIMED, 1, 0);

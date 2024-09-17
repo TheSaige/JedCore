@@ -9,6 +9,18 @@ Join our [Discord](https://discord.gg/gh9MfDmwZm) to discuss the plugin, suggest
 
 ## Changelog
 
+### 2.14.4
+- Adds light to all fire abilities, SpiritBeam, ElementSphere, and HealingWaters.
+  - `Properties.Fire.DynamicLight.Enabled`: Whether to display light for Fire, SpiritBeam, or ElementSphere.
+  - `Properties.Fire.DynamicLight.Brightness`: A number 1-15 where higher is brighter.
+  - `Properties.Fire.DynamicLight.KeepAlive`: Time in ms lights persist until they fade out.
+  - `Abilities.Water.HealingWaters.DynamicLight.Enabled`
+  - `Properties.Fire.DynamicLight.Brightness`
+  - `Properties.Fire.DynamicLight.KeepAlive`
+- Adds a travel speed option to Combustion, so range no longer affects the speed of the ability. Thank you for your report @BlackXLight!
+  - `Abilities.Fire.Combustion.Speed`: The travel speed in blocks per tick.
+- EarthLine sourcing is now spot-on, making it much more enjoyable.
+
 ### 2.14.3
 - Fixes a critical issue with EarthLine. Please update to this version!
 - EarthLine sourcing is now about as accurate as Core EarthBlast.

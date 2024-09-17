@@ -246,6 +246,7 @@ public class ElementSphere extends AvatarAbility implements AddonAbility, MultiA
 				loc.add(x, 2, z);
 				ParticleEffect flame = bPlayer.hasSubElement(Element.BLUE_FIRE) ? ParticleEffect.SOUL_FIRE_FLAME : ParticleEffect.FLAME;
 				flame.display(loc, 0, 0, 0, 0, 1);
+				JCMethods.emitLight(loc);
 			}
 
 		point++;

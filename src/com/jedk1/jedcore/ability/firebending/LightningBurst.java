@@ -285,6 +285,7 @@ public class LightningBurst extends LightningAbility implements AddonAbility {
 				location = location.add(location.getDirection().clone().multiply(step));
 
 				playLightningbendingParticle(location, 0f, 0f, 0f);
+				JCMethods.emitLight(location);
 			}
 			switch (rand.nextInt(3)) {
 			case 0:

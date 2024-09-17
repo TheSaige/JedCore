@@ -9,6 +9,7 @@ import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.Levelled;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
@@ -318,20 +319,22 @@ public class JCMethods {
 		return SMALL_PLANTS.contains(material);
 	}
 
-	public static int[] hexToRgb(String hex) {
-		hex = hex.replace("#", "");
-		int r = Integer.parseInt(hex.substring(0, 2), 16);
-		int g = Integer.parseInt(hex.substring(2, 4), 16);
-		int b = Integer.parseInt(hex.substring(4, 6), 16);
-		return new int[]{r, g, b};
-	}
-
 	public static void displayColoredParticles(String hex, Location location, int amount, double offsetX, double offsetY, double offsetZ, double extra) {
 		displayColoredParticles(hex, location, amount, offsetX, offsetY, offsetZ, extra, 255);
 	}
 
 	public static void displayColoredParticles(String hex, Location location, int amount, double offsetX, double offsetY, double offsetZ, double extra, int alpha) {
 		JedCore.plugin.getParticleAdapter().displayColoredParticles(hex, location, amount, offsetX, offsetY, offsetZ, extra, alpha);
+	}
+
+	public static void emitLight(Location loc) {
+		ConfigurationSection config = JedCoreConfig.getConfig((Player)null);
+		if (config.getBoolean("Properties.Fire.DynamicLight.Enabled")) {
+			int brightness = config.getInt("Properties.Fire.DynamicLight.Brightness");
+			long keepAlive = config.getLong("Properties.Fire.DynamicLight.KeepAlive");
+
+			LightManager.createLight(loc).brightness(brightness).timeUntilFadeout(keepAlive).emit();
+		}
 	}
 
 	public static void reload() {

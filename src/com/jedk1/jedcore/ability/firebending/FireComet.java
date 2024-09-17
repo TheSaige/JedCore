@@ -220,6 +220,8 @@ public class FireComet extends FireAbility implements AddonAbility {
 		playFirebendingParticles(location, 20, Math.random(), Math.random(), Math.random());
 		ParticleEffect.FIREWORKS_SPARK.display(location, 20,  Math.random(), Math.random(), Math.random(), 0.5);
 
+		JCMethods.emitLight(location);
+
 		location.getWorld().playSound(location, (rand.nextBoolean()) ? Sound.ENTITY_FIREWORK_ROCKET_BLAST : Sound.ENTITY_FIREWORK_ROCKET_BLAST_FAR, 5F, 1F);
 		location.getWorld().playSound(location, Sound.ENTITY_GENERIC_EXPLODE, 5F, 0.8F);
 
@@ -267,6 +269,9 @@ public class FireComet extends FireAbility implements AddonAbility {
 		ParticleEffect.SMOKE_LARGE.display(location.clone().add(v), 1, 0, 0, 0, 0.02);
 		ParticleEffect.SMOKE_LARGE.display(location.clone().add(v1), 1, 0, 0, 0, 0.02);
 
+		JCMethods.emitLight(location.clone().add(v));
+		JCMethods.emitLight(location.clone().add(v1));
+
 		if (this.angle == 360) {
 			this.angle = 0;
 		}
@@ -283,6 +288,7 @@ public class FireComet extends FireAbility implements AddonAbility {
 //					ParticleEffect.FLAME.display(l, 1, 0, 0, 0, 0.02);
 //				}
 				playFirebendingParticles(l, 1, 0, 0, 0);
+				JCMethods.emitLight(l);
 			}
 		}
 
@@ -300,6 +306,7 @@ public class FireComet extends FireAbility implements AddonAbility {
 //					ParticleEffect.FLAME.display(l, 1, 0, 0, 0, 0.05);
 //				}
 				playFirebendingParticles(l, 1, 0, 0, 0);
+				JCMethods.emitLight(l);
 			}
 		}
 
@@ -330,6 +337,9 @@ public class FireComet extends FireAbility implements AddonAbility {
 			playFirebendingParticles(location.clone().add(v1), 1, 0, 0, 0);
 			ParticleEffect.SMOKE_LARGE.display(location.clone().add(v), 1, 0, 0, 0, 0.02);
 			ParticleEffect.SMOKE_LARGE.display(location.clone().add(v1), 1, 0, 0, 0, 0.02);
+
+			JCMethods.emitLight(location.clone().add(v));
+			JCMethods.emitLight(location.clone().add(v1));
 		}
 
 		if (point == 360) {

@@ -227,12 +227,14 @@ public class FireBreath extends FireAbility implements AddonAbility {
 			} else {
 				playFirebendingParticles(loc, particles, Math.random(), Math.random(), Math.random());
 				ParticleEffect.SMOKE_NORMAL.display(loc, particles, Math.random(), Math.random(), Math.random(), size);
+				JCMethods.emitLight(loc);
 			}
 		}
 	}
 
 	private void displayParticle(Location location, int amount, int r, int g, int b) {
 		ParticleEffect.REDSTONE.display(location, amount, 0, 0, 0, 0.005, new Particle.DustOptions(Color.fromRGB(r, g, b), 1));
+		JCMethods.emitLight(location);
 	}
 
 	private boolean isInRange(int x, int min, int max) {

@@ -1,5 +1,6 @@
 package com.jedk1.jedcore.ability.firebending;
 
+import com.jedk1.jedcore.JCMethods;
 import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.LivingEntity;
@@ -74,6 +75,7 @@ public class FirePunch extends FireAbility implements AddonAbility {
 				.add(player.getLocation().getDirection().multiply(0.8));
 		playFirebendingParticles(location, 3, 0, 0, 0);
 		ParticleEffect.SMOKE_NORMAL.display(location, 1);
+		JCMethods.emitLight(location);
 	}
 
 	public void punch(LivingEntity target) {
