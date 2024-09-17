@@ -248,14 +248,15 @@ public class Combustion extends CombustionAbility implements AddonAbility {
 	}
 
 	// This state is used after the player releases a charged Combustion.
-	// It's used for moving and rendering the projectile.
-	// This state transitions to CombustState when it collides with terrain or an entity.
+    // It's used for moving and rendering the projectile.
+    // This state transitions to CombustState when it collides with terrain or an entity.
 	private class TravelState implements State {
 		private Vector direction;
-		private int ticks;
 		private final int range;
+		private final double speed;
 		private final boolean explodeOnDeath;
 		private final double entityCollisionRadius;
+		private double distanceTraveled;
 
 		public TravelState() {
 			removalPolicy.removePolicyType(SwappedSlotsRemovalPolicy.class);
@@ -267,6 +268,7 @@ public class Combustion extends CombustionAbility implements AddonAbility {
 			ConfigurationSection config = JedCoreConfig.getConfig(player);
 
 			range = config.getInt("Abilities.Fire.Combustion.Range");
+			speed = config.getDouble("Abilities.Fire.Combustion.Speed");
 			explodeOnDeath = config.getBoolean("Abilities.Fire.Combustion.ExplodeOnDeath");
 			entityCollisionRadius = config.getDouble("Abilities.Fire.Combustion.EntityCollisionRadius");
 
@@ -274,6 +276,9 @@ public class Combustion extends CombustionAbility implements AddonAbility {
 				removalPolicy.removePolicyType(CannotBendRemovalPolicy.class);
 				removalPolicy.removePolicyType(IsDeadRemovalPolicy.class);
 			}
+
+			direction = player.getEyeLocation().getDirection().normalize();
+			distanceTraveled = 0;
 		}
 
 		@Override
@@ -293,22 +298,18 @@ public class Combustion extends CombustionAbility implements AddonAbility {
 				}
 			}
 
-			direction = player.getEyeLocation().getDirection().normalize();
-			++ticks;
-
-			if (ticks <= range) {
-				travel();
-			}
-
-			if (ticks >= range) {
+			if (distanceTraveled >= range) {
 				remove();
+				return;
 			}
+
+			travel();
 		}
 
 		private void travel() {
-			int r = (int) Math.sqrt(range);
+			double stepDistance = speed;
 
-			for (int i = 0; i < r; ++i) {
+			for (int i = 0; i < (int) (speed * 5); ++i) {
 				render();
 
 				Sphere collider = new Sphere(location.toVector(), entityCollisionRadius);
@@ -328,12 +329,15 @@ public class Combustion extends CombustionAbility implements AddonAbility {
 					return;
 				}
 
-				/*if (AirAbility.isWithinAirShield(location) || FireAbility.isWithinFireShield(location)) {
-					state = new CombustState(location);
-					return;
-				}*/
+				direction = player.getEyeLocation().getDirection().normalize();
+				location = location.add(direction.clone().multiply(stepDistance));
 
-				location = location.add(direction.clone().multiply(0.2D));
+				distanceTraveled += stepDistance;
+
+				if (distanceTraveled >= range) {
+					remove();
+					return;
+				}
 			}
 		}
 

@@ -531,6 +531,7 @@ public class JedCoreConfig {
 		config.addDefault("Abilities.Fire.Combustion.MisfireModifier", -1);
 		config.addDefault("Abilities.Fire.Combustion.Power", 3);
 		config.addDefault("Abilities.Fire.Combustion.Range", 100);
+		config.addDefault("Abilities.Fire.Combustion.Speed", 0.65);
 		config.addDefault("Abilities.Fire.Combustion.Warmup", 1500);
 		config.addDefault("Abilities.Fire.Combustion.Cooldown", 5000);
 		config.addDefault("Abilities.Fire.Combustion.RegenTime", 10000);
