@@ -99,29 +99,35 @@ public class EarthLine extends EarthAbility implements AddonAbility {
 		maxDuration = config.getLong("Abilities.Earth.EarthLine.MaxDuration");
 	}
 
-	public boolean prepare() {
-		Block block = BlockSource.getEarthSourceBlock(player, prepareRange, ClickType.SHIFT_DOWN);
-		if (block == null || !this.isEarthbendable(block)) {
-			return false;
-		} else if (TempBlock.isTempBlock(block) && !EarthAbility.isBendableEarthTempBlock(block)) {
-			return false;
-		}
+    public boolean prepare() {
+        final Block block = BlockSource.getEarthSourceBlock(this.player, this.range, ClickType.SHIFT_DOWN);
+        if (block == null || !this.isEarthbendable(block)) {
+            return false;
+        } else if (TempBlock.isTempBlock(block) && !EarthAbility.isBendableEarthTempBlock(block)) {
+            return false;
+        }
 
-		if (hasAbility(player, EarthLine.class)) {
-			EarthLine el = getAbility(player, EarthLine.class);
-			if (!el.progressing) {
-				el.remove();
-			}
-		}
+        boolean selectedABlockInUse = false;
+        for (final EarthLine el : getAbilities(this.player, EarthLine.class)) {
+            if (!el.progressing) {
+                el.remove();
+            } else if (block.equals(el.sourceBlock)) {
+                selectedABlockInUse = true;
+            }
+        }
 
-		if (block.getLocation().distanceSquared(this.player.getLocation()) > this.prepareRange * this.prepareRange) {
-			return false;
-		}
+        if (selectedABlockInUse) {
+            return false;
+        }
 
-		this.sourceBlock = block;
-		this.focusBlock();
-		return true;
-	}
+        if (block.getLocation().distanceSquared(this.player.getLocation()) > this.prepareRange * this.prepareRange) {
+            return false;
+        }
+
+        this.sourceBlock = block;
+        this.focusBlock();
+        return true;
+    }
 
 	private void focusBlock() {
 		if (DensityShift.isPassiveSand(this.sourceBlock)) {
