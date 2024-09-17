@@ -15,8 +15,8 @@ Join our [Discord](https://discord.gg/gh9MfDmwZm) to discuss the plugin, suggest
   - `Properties.Fire.DynamicLight.Brightness`: A number 1-15 where higher is brighter.
   - `Properties.Fire.DynamicLight.KeepAlive`: Time in ms lights persist until they fade out.
   - `Abilities.Water.HealingWaters.DynamicLight.Enabled`
-  - `Properties.Fire.DynamicLight.Brightness`
-  - `Properties.Fire.DynamicLight.KeepAlive`
+  - `Abilities.Water.HealingWaters.DynamicLight.Brightness`
+  - `Abilities.Water.HealingWaters.DynamicLight.KeepAlive`
 - Adds a travel speed option to Combustion, so range no longer affects the speed of the ability. Thank you for your report @BlackXLight!
   - `Abilities.Fire.Combustion.Speed`: The travel speed in blocks per tick.
 - EarthLine sourcing is now spot-on, making it much more enjoyable.
