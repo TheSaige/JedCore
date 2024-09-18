@@ -2,6 +2,7 @@ package com.jedk1.jedcore.configuration;
 
 import com.jedk1.jedcore.JedCore;
 
+import com.projectkorra.projectkorra.attribute.Attribute;
 import com.projectkorra.projectkorra.configuration.ConfigManager;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -421,6 +422,60 @@ public class JedCoreConfig {
 		config.addDefault("Abilities.Earth.MagnetShield.Enabled", true);
 		config.addDefault("Abilities.Earth.MagnetShield.Description", "Repel any metal projectiles using a strong magnetic shield. "
 				+ "To activate, simply hold sneak with this ability bound.");
+		config.addDefault("Abilities.Earth.MagnetShield.Materials", Arrays.asList(
+				"IRON_INGOT",
+				"IRON_HELMET",
+				"IRON_CHESTPLATE",
+				"IRON_LEGGINGS",
+				"IRON_BOOTS",
+				"IRON_BLOCK",
+				"IRON_AXE",
+				"IRON_PICKAXE",
+				"IRON_SWORD",
+				"IRON_HOE",
+				"IRON_SHOVEL",
+				"IRON_DOOR",
+				"IRON_NUGGET",
+				"IRON_BARS",
+				"IRON_HORSE_ARMOR",
+				"IRON_TRAPDOOR",
+				"HEAVY_WEIGHTED_PRESSURE_PLATE",
+				"GOLD_INGOT",
+				"GOLDEN_HELMET",
+				"GOLDEN_CHESTPLATE",
+				"GOLDEN_LEGGINGS",
+				"GOLDEN_BOOTS",
+				"GOLD_BLOCK",
+				"GOLD_NUGGET",
+				"GOLDEN_AXE",
+				"GOLDEN_PICKAXE",
+				"GOLDEN_SHOVEL",
+				"GOLDEN_SWORD",
+				"GOLDEN_HOE",
+				"GOLDEN_HORSE_ARMOR",
+				"LIGHT_WEIGHTED_PRESSURE_PLATE",
+				"CLOCK",
+				"COMPASS",
+				"RAW_GOLD_BLOCK",
+				"RAW_IRON_BLOCK",
+				"RAW_IRON",
+				"RAW_GOLD",
+				"ANVIL",
+				"CHIPPED_ANVIL",
+				"DAMAGED_ANVIL",
+				"IRON_ORE",
+				"GOLD_ORE",
+				"DEEPSLATE_IRON_ORE",
+				"DEEPSLATE_GOLD_ORE",
+				"SHIELD"
+		));
+		config.addDefault("Abilities.Earth.MagnetShield.Duration", 6000);
+		config.addDefault("Abilities.Earth.MagnetShield.Cooldowns.Shift", 5000);
+		config.addDefault("Abilities.Earth.MagnetShield.Cooldowns.Click", 5000);
+		config.addDefault("Abilities.Earth.MagnetShield.Range", 5.0);
+		config.addDefault("Abilities.Earth.MagnetShield.RepelArrows", true);
+		config.addDefault("Abilities.Earth.MagnetShield.RepelLivingEntities", true);
+		config.addDefault("Abilities.Earth.MagnetShield.Velocity", 0.1);
 		
 		config.addDefault("Abilities.Earth.MetalFragments.Enabled", true);
 		config.addDefault("Abilities.Earth.MetalFragments.Description", "MetalFragments allows you to select a source and shoot "

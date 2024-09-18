@@ -1,10 +1,6 @@
 package com.jedk1.jedcore.util.versionadapter;
 
 import org.bukkit.*;
-import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.PotionMeta;
-import org.bukkit.potion.PotionType;
 
 public class ParticleAdapter_1_20_5 implements ParticleAdapter {
 
@@ -13,6 +9,11 @@ public class ParticleAdapter_1_20_5 implements ParticleAdapter {
         if (location.getWorld() == null) return;
         int[] color = hexToRgb(hex);
         location.getWorld().spawnParticle(Particle.valueOf("ENTITY_EFFECT"), location, amount, extra, offsetX, offsetY, offsetZ, Color.fromARGB(alpha, color[0], color[1], color[2]));
+    }
+
+    @Override
+    public void displayMagneticParticles(Location location) {
+        location.getWorld().spawnParticle(Particle.valueOf("MYCELIUM"), location, 1, 0, 0, 0, 0.01);
     }
 
     private int[] hexToRgb(String hex) {

@@ -15,6 +15,11 @@ public class ParticleAdapter_1_20_4 implements ParticleAdapter {
         }
     }
 
+    @Override
+    public void displayMagneticParticles(Location location) {
+        location.getWorld().spawnParticle(Particle.valueOf("ASH"), location, 1, 0, 0, 0, 0.03);
+    }
+
     private int[] hexToRgb(String hex) {
         return new int[] {
                 Integer.valueOf(hex.substring(1, 3), 16),
