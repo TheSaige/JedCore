@@ -24,6 +24,7 @@ public class JedCoreConfig {
 		loadConfigBoard();
 		loadConfigCore();
 		addDeathMessages();
+		setupElementSphereNames();
 	}
 	
 	private void loadConfigBoard() {
@@ -961,6 +962,18 @@ public class JedCoreConfig {
 		lang.addDefault("Abilities.Avatar.ElementSphereEarth.DeathMessage", "{victim} was crushed by {attacker}'s \u00A75ElementSphere");
 		lang.addDefault("Abilities.Avatar.ElementSphereWater.DeathMessage", "{victim} was sliced apart by {attacker}'s \u00A75ElementSphere");
 		lang.addDefault("Abilities.Avatar.ElementSphereStream.DeathMessage", "{victim} took the full force of {attacker}'s \u00A75ElementSphere");
+
+		ConfigManager.languageConfig.save();
+	}
+
+	private void setupElementSphereNames() {
+		FileConfiguration lang = ConfigManager.languageConfig.get();
+
+		lang.addDefault("Abilities.Avatar.ElementSphereAir.Name", "Air");
+		lang.addDefault("Abilities.Avatar.ElementSphereFire.Name", "Fire");
+		lang.addDefault("Abilities.Avatar.ElementSphereEarth.Name", "Earth");
+		lang.addDefault("Abilities.Avatar.ElementSphereWater.Name", "Water");
+		lang.addDefault("Abilities.Avatar.ElementSphereStream.Name", "Stream");
 
 		ConfigManager.languageConfig.save();
 	}

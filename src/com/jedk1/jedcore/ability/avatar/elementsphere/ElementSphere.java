@@ -18,6 +18,7 @@ import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
@@ -56,6 +57,16 @@ public class ElementSphere extends AvatarAbility implements AddonAbility, MultiA
 	private long endTime;
 
 	private long lastClickTime;
+
+	private static final ArrayList<MultiAbilityInfoSub> multiAbilityInfo = new ArrayList<>();
+
+	static {
+		multiAbilityInfo.add(new MultiAbilityInfoSub("", Element.AIR));
+		multiAbilityInfo.add(new MultiAbilityInfoSub("", Element.EARTH));
+		multiAbilityInfo.add(new MultiAbilityInfoSub("", Element.FIRE));
+		multiAbilityInfo.add(new MultiAbilityInfoSub("", Element.WATER));
+		multiAbilityInfo.add(new MultiAbilityInfoSub("", Element.AVATAR));
+	}
 
 	Random rand = new Random();
 
@@ -395,12 +406,20 @@ public class ElementSphere extends AvatarAbility implements AddonAbility, MultiA
 
 	@Override
 	public ArrayList<MultiAbilityInfoSub> getMultiAbilities() {
-		ArrayList<MultiAbilityInfoSub> elementsphere = new ArrayList<>();
-		elementsphere.add(new MultiAbilityInfoSub("Air", Element.AIR));
-		elementsphere.add(new MultiAbilityInfoSub("Earth", Element.EARTH));
-		elementsphere.add(new MultiAbilityInfoSub("Fire", Element.FIRE));
-		elementsphere.add(new MultiAbilityInfoSub("Water", Element.WATER));
-		elementsphere.add(new MultiAbilityInfoSub("Stream", Element.AVATAR));
-		return elementsphere;
+		FileConfiguration lang = getLanguageConfig();
+
+		String airName = lang.getString("Abilities.Avatar.ElementSphereAir.Name");
+		String fireName = lang.getString("Abilities.Avatar.ElementSphereFire.Name");
+		String waterName = lang.getString("Abilities.Avatar.ElementSphereWater.Name");
+		String earthName = lang.getString("Abilities.Avatar.ElementSphereEarth.Name");
+		String streamName = lang.getString("Abilities.Avatar.ElementSphereStream.Name");
+
+		multiAbilityInfo.get(0).setName(airName);
+		multiAbilityInfo.get(1).setName(earthName);
+		multiAbilityInfo.get(2).setName(fireName);
+		multiAbilityInfo.get(3).setName(waterName);
+		multiAbilityInfo.get(4).setName(streamName);
+
+		return multiAbilityInfo;
 	}
 }
