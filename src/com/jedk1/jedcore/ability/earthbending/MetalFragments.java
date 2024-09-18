@@ -42,6 +42,7 @@ public class MetalFragments extends MetalAbility implements AddonAbility {
 	private double damage;
 	@Attribute(Attribute.COOLDOWN)
 	private long cooldown;
+	private double velocity;
 
 	public List<Block> sources = new ArrayList<>();
 	private final List<Item> thrownFragments = new ArrayList<>();
@@ -88,6 +89,7 @@ public class MetalFragments extends MetalAbility implements AddonAbility {
 		maxFragments = config.getInt("Abilities.Earth.MetalFragments.MaxFragments");
 		damage = config.getDouble("Abilities.Earth.MetalFragments.Damage");
 		cooldown = config.getInt("Abilities.Earth.MetalFragments.Cooldown");
+		velocity = config.getDouble("Abilities.Earth.MetalFragments.Velocity");
 	}
 
 	public static void shootFragment(Player player) {
@@ -130,7 +132,7 @@ public class MetalFragments extends MetalAbility implements AddonAbility {
 
 		Item ii = player.getWorld().dropItemNaturally(source.getLocation().getBlock().getRelative(GeneralMethods.getCardinalDirection(direction)).getLocation(), is);
 		ii.setPickupDelay(Integer.MAX_VALUE);
-		ii.setVelocity(direction.multiply(2).normalize());
+		ii.setVelocity(direction.normalize().multiply(velocity));
 		playMetalbendingSound(ii.getLocation());
 		thrownFragments.add(ii);
 

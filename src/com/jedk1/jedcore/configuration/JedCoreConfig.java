@@ -433,6 +433,7 @@ public class JedCoreConfig {
 		config.addDefault("Abilities.Earth.MetalFragments.SourceRange", 5);
 		config.addDefault("Abilities.Earth.MetalFragments.MaxFragments", 10);
 		config.addDefault("Abilities.Earth.MetalFragments.Damage", 4.0);
+		config.addDefault("Abilities.Earth.MetalFragments.Velocity", 2.0);
 		
 		config.addDefault("Abilities.Earth.MetalHook.Enabled", true);
 		config.addDefault("Abilities.Earth.MetalHook.Description", "This ability lets a Metalbender bend metal into "
