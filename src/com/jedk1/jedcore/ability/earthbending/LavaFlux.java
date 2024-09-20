@@ -56,6 +56,9 @@ public class LavaFlux extends LavaAbility implements AddonAbility {
 	private long time;
 	private boolean complete;
 
+	private double knockUp;
+	private double knockBack;
+
 	Random rand = new Random();
 
 	private static final BlockData LAVA = Material.LAVA.createBlockData(bd -> ((Levelled)bd).setLevel(1));
@@ -93,6 +96,8 @@ public class LavaFlux extends LavaAbility implements AddonAbility {
 		cleanup = config.getLong("Abilities.Earth.LavaFlux.Cleanup");
 		damage = config.getDouble("Abilities.Earth.LavaFlux.Damage");
 		wave = config.getBoolean("Abilities.Earth.LavaFlux.Wave");
+		knockUp = config.getDouble("Abilities.Earth.LavaFlux.KnockUp");
+		knockBack = config.getDouble("Abilities.Earth.LavaFlux.KnockBack");
 	}
 
 	@Override
@@ -217,12 +222,19 @@ public class LavaFlux extends LavaAbility implements AddonAbility {
 			}
 		}
 	}
-	
+
 	private void applyDamageFromWave(Location location) {
 		for (Entity entity : GeneralMethods.getEntitiesAroundPoint(location, 1.5)) {
 			if (entity instanceof LivingEntity && entity.getEntityId() != player.getEntityId()) {
+				LivingEntity livingEntity = (LivingEntity) entity;
+
 				DamageHandler.damageEntity(entity, damage, this);
 				new FireDamageTimer(entity, player, this);
+
+				Vector direction = livingEntity.getLocation().toVector().subtract(player.getLocation().toVector()).normalize();
+				Vector knockbackVelocity = direction.multiply(knockBack).setY(knockUp);
+
+				livingEntity.setVelocity(knockbackVelocity);
 			}
 		}
 	}
