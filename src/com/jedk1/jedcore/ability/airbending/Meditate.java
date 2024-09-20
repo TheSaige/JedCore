@@ -5,7 +5,7 @@ import com.jedk1.jedcore.JedCore;
 import com.jedk1.jedcore.configuration.JedCoreConfig;
 import com.projectkorra.projectkorra.Element;
 import com.projectkorra.projectkorra.ability.AddonAbility;
-import com.projectkorra.projectkorra.ability.AirAbility;
+import com.projectkorra.projectkorra.ability.SpiritualAbility;
 import com.projectkorra.projectkorra.attribute.Attribute;
 
 import org.bukkit.Location;
@@ -15,7 +15,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
-public class Meditate extends AirAbility implements AddonAbility {
+public class Meditate extends SpiritualAbility implements AddonAbility {
 
 	private double startHealth;
 
@@ -69,7 +69,7 @@ public class Meditate extends AirAbility implements AddonAbility {
 		}
 		if (player.getHealth() < startHealth) {
 			if (lossFocusMessage) {
-				player.sendMessage(Element.AIR.getColor() + unfocusMsg);
+				player.sendMessage(Element.SPIRITUAL.getColor() + unfocusMsg);
 			}
 			remove();
 			return;
