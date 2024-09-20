@@ -229,8 +229,9 @@ public class MagnetShield extends MetalAbility implements AddonAbility {
 				}
 			} else if (e instanceof Arrow && repelArrows) {
 				Arrow arrow = (Arrow) e;
-				Vector direction = GeneralMethods.getDirection(player.getLocation(), arrow.getLocation()).multiply(velocity);
-				arrow.setVelocity(direction);
+				Vector currentVelocity = arrow.getVelocity();
+				Vector reversedVelocity = currentVelocity.multiply(-1);
+				arrow.setVelocity(reversedVelocity);
 			} else if (e instanceof LivingEntity && repelLivingEntities) {
 				LivingEntity livingEntity = (LivingEntity) e;
 
