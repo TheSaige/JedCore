@@ -270,6 +270,10 @@ public class JedCoreConfig {
 		config.addDefault("Abilities.Earth.EarthKick.Damage", 2.0);
 		config.addDefault("Abilities.Earth.EarthKick.EntityCollisionRadius", 1.5);
 		config.addDefault("Abilities.Earth.EarthKick.AbilityCollisionRadius", 1.5);
+		config.addDefault("Abilities.Earth.EarthKick.MultipleHits", true);
+		config.addDefault("Abilities.Earth.EarthKick.SourceRange", 2.0);
+		config.addDefault("Abilities.Earth.EarthKick.Spread", 20);
+		config.addDefault("Abilities.Earth.EarthKick.Velocity", 0.7);
 		config.addDefault("Abilities.Earth.EarthKick.Collisions.FireBlast.Enabled", true);
 		config.addDefault("Abilities.Earth.EarthKick.Collisions.FireBlast.RemoveFirst", false);
 		config.addDefault("Abilities.Earth.EarthKick.Collisions.FireBlast.RemoveSecond", true);

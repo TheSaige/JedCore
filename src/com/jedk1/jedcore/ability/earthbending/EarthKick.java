@@ -14,6 +14,7 @@ import com.projectkorra.projectkorra.attribute.Attribute;
 import com.projectkorra.projectkorra.region.RegionProtection;
 import com.projectkorra.projectkorra.util.*;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -24,8 +25,11 @@ import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
+import java.util.UUID;
 
 import static java.util.stream.Collectors.toList;
 
@@ -45,6 +49,13 @@ public class EarthKick extends EarthAbility implements AddonAbility {
 	@Attribute("CollisionRadius")
 	private double entityCollisionRadius;
 	private Block block;
+
+	private boolean multipleHits;
+	private int sourceRange;
+	private int spread;
+	private double velocity;
+
+	private Set<UUID> hitEntities = new HashSet<>();
 
 	public EarthKick(Player player) {
 		super(player);
@@ -72,13 +83,18 @@ public class EarthKick extends EarthAbility implements AddonAbility {
 		damage = config.getDouble("Abilities.Earth.EarthKick.Damage");
 		entityCollisionRadius = config.getDouble("Abilities.Earth.EarthKick.EntityCollisionRadius");
 
+		multipleHits = config.getBoolean("Abilities.Earth.EarthKick.MultipleHits");
+		sourceRange = config.getInt("Abilities.Earth.EarthKick.SourceRange");
+		spread = config.getInt("Abilities.Earth.EarthKick.Spread");
+		velocity = config.getDouble("Abilities.Earth.EarthKick.Velocity");
+
 		if (entityCollisionRadius < 1.0) {
 			entityCollisionRadius = 1.0;
 		}
 	}
 
 	private boolean prepare() {
-		block = player.getTargetBlock(getTransparentMaterialSet(), 2);
+		block = player.getTargetBlock(getTransparentMaterialSet(), sourceRange);
 		if (!isEarthbendable(player, block)){
 			return false;
 		}
@@ -138,12 +154,12 @@ public class EarthKick extends EarthAbility implements AddonAbility {
 		playEarthbendingSound(location);
 
 		for (int i = 0; i < earthBlocks; i++) {
-			location.setYaw(yaw + (rand.nextInt((20 - -20) + 1) + -20));
+			location.setYaw(yaw + rand.nextInt((spread * 2) + 1) - spread);
 			location.setPitch(rand.nextInt(25) - 45);
 
 			Vector v = location.clone().add(0, 0.8, 0).getDirection().normalize();
 			Location location1 = location.clone().add(new Vector(v.getX() * 2, v.getY(), v.getZ() * 2));
-			Vector dir = location1.setDirection(location.getDirection()).getDirection();
+			Vector dir = location1.setDirection(location.getDirection()).getDirection().multiply(velocity);
 
 			temps.add(new TempFallingBlock(location, materialData, dir, this));
 		}
@@ -168,7 +184,10 @@ public class EarthKick extends EarthAbility implements AddonAbility {
 			AABB collider = BlockUtil.getFallingBlockBoundsFull(fb).scale(entityCollisionRadius * 2.0);
 
 			CollisionDetector.checkEntityCollisions(player, collider, (entity) -> {
-				DamageHandler.damageEntity(entity, damage, this);
+				UUID uuid = entity.getUniqueId();
+				if (this.multipleHits || hitEntities.add(uuid)) {
+					DamageHandler.damageEntity(entity, damage, this);
+				}
 				return false;
 			});
 		}
