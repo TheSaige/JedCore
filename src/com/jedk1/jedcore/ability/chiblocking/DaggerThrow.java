@@ -148,9 +148,18 @@ public class DaggerThrow extends ChiAbility implements AddonAbility {
 		entity.setNoDamageTicks(0);
 		double prevHealth = entity.getHealth();
 		Player shooter = (Player) arrow.getShooter();
-		DamageAbility da = new DamageAbility(shooter);
-		DamageHandler.damageEntity(entity, damage, da);
-		da.remove();
+
+		// Handle DamageAbility safely
+		/*
+		DamageAbility da;
+		try {
+			da = new DamageAbility(shooter);
+		} catch (Exception e) {
+			JedCore.plugin.getLogger().warning("Failed to initialize DamageAbility: " + e.getMessage());
+			return;
+		}*/
+
+		entity.damage(damage);
 		if (prevHealth > entity.getHealth()) {
 			arrow.remove();
 		}
@@ -319,10 +328,9 @@ public class DaggerThrow extends ChiAbility implements AddonAbility {
 	}
 	
 	public static class DamageAbility extends DaggerThrow {
-		
+
 		public DamageAbility(Player player) {
 			super(player);
-			start();
 		}
 
 		@Override
@@ -366,7 +374,6 @@ public class DaggerThrow extends ChiAbility implements AddonAbility {
 			this.name = abilityName;
 			loadConfig();
 		}
-
 		public void loadConfig() {
 			ConfigurationSection config = JedCoreConfig.getConfig(player);
 			this.enabled = config.getBoolean("Abilities.Chi.DaggerThrow.Interactions." + name + ".Enabled", true);
