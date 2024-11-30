@@ -37,6 +37,7 @@ public class DaggerThrow extends ChiAbility implements AddonAbility {
 	@Attribute(Attribute.COOLDOWN)
 	private long cooldown;
 	private boolean limitEnabled;
+	private boolean requireArrows;
 	@Attribute("MaxShots")
 	private int maxShots;
 	private int hits = 0;
@@ -79,6 +80,7 @@ public class DaggerThrow extends ChiAbility implements AddonAbility {
 		maxShots = config.getInt("Abilities.Chi.DaggerThrow.MaxDaggers.Amount");
 		particles = config.getBoolean("Abilities.Chi.DaggerThrow.ParticleTrail");
 		damage = config.getDouble("Abilities.Chi.DaggerThrow.Damage");
+		requireArrows = config.getBoolean("Abilities.Chi.DaggerThrow.RequireArrows");
 
 		loadInteractions();
 	}
@@ -113,7 +115,7 @@ public class DaggerThrow extends ChiAbility implements AddonAbility {
 	}
 
 	private void shootArrow() {
-		if (JCMethods.removeItemFromInventory(player, Material.ARROW, 1)) {
+		if (!requireArrows || JCMethods.removeItemFromInventory(player, Material.ARROW, 1)) {
 			shots++;
 			Location location = player.getEyeLocation();
 
