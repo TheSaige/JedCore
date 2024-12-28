@@ -127,6 +127,7 @@ public class DaggerThrow extends ChiAbility implements AddonAbility {
 			Arrow arrow = player.launchProjectile(Arrow.class);
 			arrow.setVelocity(vector);
 			arrow.getLocation().setDirection(vector);
+			arrow.setPickupStatus(Arrow.PickupStatus.DISALLOWED); // Prevent players from picking up the arrow
 			arrow.setKnockbackStrength(0);
 			arrow.setBounce(false);
 			arrow.setMetadata("daggerthrow", new FixedMetadataValue(JedCore.plugin, "1"));
@@ -162,9 +163,6 @@ public class DaggerThrow extends ChiAbility implements AddonAbility {
 		}*/
 
 		entity.damage(damage);
-		if (prevHealth > entity.getHealth()) {
-			arrow.remove();
-		}
 
 		if (!(entity instanceof Player)) {
 			return;

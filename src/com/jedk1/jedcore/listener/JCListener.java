@@ -171,7 +171,7 @@ public class JCListener implements Listener {
 					}
 					event.setDamage(0);
 					event.setCancelled(true);
-					arrow.remove();
+					event.getDamager().remove();
 					arrow.removeMetadata("daggerthrow", JedCore.plugin);
 				}
 
