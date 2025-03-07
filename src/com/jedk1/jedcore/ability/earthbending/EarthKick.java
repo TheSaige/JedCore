@@ -8,13 +8,12 @@ import com.jedk1.jedcore.configuration.JedCoreConfig;
 import com.jedk1.jedcore.util.BlockUtil;
 import com.projectkorra.projectkorra.ability.AddonAbility;
 import com.projectkorra.projectkorra.ability.EarthAbility;
-import com.projectkorra.projectkorra.ability.ElementalAbility;
 import com.projectkorra.projectkorra.ability.util.Collision;
 import com.projectkorra.projectkorra.attribute.Attribute;
+import com.projectkorra.projectkorra.earthbending.passive.DensityShift;
 import com.projectkorra.projectkorra.region.RegionProtection;
 import com.projectkorra.projectkorra.util.*;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -95,8 +94,13 @@ public class EarthKick extends EarthAbility implements AddonAbility {
 
 	private boolean prepare() {
 		block = player.getTargetBlock(getTransparentMaterialSet(), sourceRange);
-		if (!isEarthbendable(player, block)){
+
+		if (!isEarthbendable(player, block) && !isBendableEarthTempBlock(block)) {
 			return false;
+		}
+
+		if (DensityShift.isPassiveSand(block)) {
+			DensityShift.revertSand(block);
 		}
 
 		if (block != null && !isMetal(block)) {
