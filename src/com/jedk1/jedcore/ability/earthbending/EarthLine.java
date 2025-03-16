@@ -35,6 +35,7 @@ public class EarthLine extends EarthAbility implements AddonAbility {
 	private Location location;
 	private Location endLocation;
 	private Block sourceBlock;
+	private TempBlock sourceTempBlock;
 	private Material sourceType;
 	private boolean progressing;
 	private boolean hitted;
@@ -133,37 +134,39 @@ public class EarthLine extends EarthAbility implements AddonAbility {
 		if (DensityShift.isPassiveSand(this.sourceBlock)) {
 			DensityShift.revertSand(this.sourceBlock);
 		}
+
 		if (this.sourceBlock.getType() == Material.SAND) {
 			this.sourceType = Material.SAND;
-			this.sourceBlock.setType(Material.SANDSTONE);
+			sourceTempBlock = new TempBlock(sourceBlock, Material.SANDSTONE.createBlockData());
+			//this.sourceBlock.setType(Material.SANDSTONE);
 		} else if (this.sourceBlock.getType() == Material.RED_SAND) {
 			this.sourceType = Material.RED_SAND;
-			this.sourceBlock.setType(Material.RED_SANDSTONE);
+			sourceTempBlock = new TempBlock(sourceBlock, Material.RED_SANDSTONE.createBlockData());
+			//this.sourceBlock.setType(Material.RED_SANDSTONE);
 		} else if (this.sourceBlock.getType() == Material.STONE) {
-			this.sourceBlock.setType(Material.COBBLESTONE);
+			//this.sourceBlock.setType(Material.COBBLESTONE);
 			this.sourceType = Material.STONE;
+			sourceTempBlock = new TempBlock(sourceBlock, Material.COBBLESTONE.createBlockData());
 		} else {
 			this.sourceType = this.sourceBlock.getType();
-			this.sourceBlock.setType(Material.STONE);
+			//this.sourceBlock.setType(Material.STONE);
+			sourceTempBlock = new TempBlock(sourceBlock, Material.STONE.createBlockData());
 		}
 
 		this.location = this.sourceBlock.getLocation();
 	}
 	
 	private void unfocusBlock() {
-		sourceBlock.setType(sourceType);
-	}
-
-	private void breakSourceBlock() {
-		sourceBlock.setType(sourceType);
-		new RegenTempBlock(sourceBlock, Material.AIR, Material.AIR.createBlockData(), 5000L);
+		//sourceBlock.setType(sourceType);
+		sourceTempBlock.revertBlock();
 	}
 
 	@Override
 	public void remove() {
-		if (sourceBlock != null && sourceBlock.getType() != Material.AIR) {
-			sourceBlock.setType(sourceType); // Ensure no duplication of the source block
-		}
+//		if (sourceBlock != null && sourceBlock.getType() != Material.AIR) {
+//			sourceBlock.setType(sourceType); // Ensure no duplication of the source block
+//		}
+		sourceTempBlock.revertBlock();
 		super.remove();
 	}
 
@@ -185,7 +188,6 @@ public class EarthLine extends EarthAbility implements AddonAbility {
 		if (maxDuration > 0) removalTime = System.currentTimeMillis() + maxDuration;
 		this.endLocation = endLocation;
 		progressing = true;
-		breakSourceBlock();
 		sourceBlock.getWorld().playEffect(sourceBlock.getLocation(), Effect.GHAST_SHOOT, 0, 10);
 	}
 
@@ -253,7 +255,8 @@ public class EarthLine extends EarthAbility implements AddonAbility {
 			playEarthbendingSound(location);
 
 			if (isEarthbendable(location.getBlock())) {
-				new RegenTempBlock(location.getBlock(), Material.AIR, Material.AIR.createBlockData(), 700L);
+				//new RegenTempBlock(location.getBlock(), Material.AIR, Material.AIR.createBlockData(), 700L);
+				new TempBlock(location.getBlock(), Material.AIR.createBlockData(), 700L);
 				new TempFallingBlock(locationYUP, cloneType.createBlockData(), new Vector(0.0, 0.35, 0.0), this);
 			}
 
