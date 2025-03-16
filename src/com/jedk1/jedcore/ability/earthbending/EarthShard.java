@@ -55,6 +55,9 @@ public class EarthShard extends EarthAbility implements AddonAbility {
 	private final List<TempBlock> readyBlocksTracker = new ArrayList<>();
 	private final List<TempFallingBlock> fallingBlocks = new ArrayList<>();
 
+	private boolean allowKnockup;
+	private double knockupVelocity;
+
 	public EarthShard(Player player) {
 		super(player);
 
@@ -93,6 +96,8 @@ public class EarthShard extends EarthAbility implements AddonAbility {
 		cooldown = config.getLong("Abilities.Earth.EarthShard.Cooldown");
 		abilityCollisionRadius = config.getDouble("Abilities.Earth.EarthShard.AbilityCollisionRadius");
 		entityCollisionRadius = config.getDouble("Abilities.Earth.EarthShard.EntityCollisionRadius");
+		allowKnockup = config.getBoolean("Abilities.Earth.EarthShard.KnockUp.Allow");
+		knockupVelocity = config.getDouble("Abilities.Earth.EarthShard.KnockUp.Velocity");
 	}
 
 	public void select() {
@@ -147,10 +152,12 @@ public class EarthShard extends EarthAbility implements AddonAbility {
 			TempBlock tb = new TempBlock(block, Material.AIR.createBlockData());
 			tblockTracker.add(tb);
 
+			if (!allowKnockup) return;
 			for (Entity entity : block.getWorld().getNearbyEntities(block.getLocation(), 1.5, 1.5, 1.5)) {
+				if (entity instanceof FallingBlock) continue;
 				Location entityLoc = entity.getLocation();
 				if (entityLoc.getY() >= block.getY()) {
-					Vector velocity = new Vector(0, 1, 0);
+					Vector velocity = new Vector(0, knockupVelocity, 0);
 					entity.setVelocity(entity.getVelocity().add(velocity));
 				}
 			}
