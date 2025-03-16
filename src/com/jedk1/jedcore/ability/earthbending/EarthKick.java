@@ -45,6 +45,8 @@ public class EarthKick extends EarthAbility implements AddonAbility {
 	private int earthBlocks;
 	@Attribute(Attribute.DAMAGE)
 	private double damage;
+	@Attribute(Attribute.DAMAGE)
+	private double metalDmg;
 	@Attribute("CollisionRadius")
 	private double entityCollisionRadius;
 	private Block block;
@@ -80,7 +82,8 @@ public class EarthKick extends EarthAbility implements AddonAbility {
 		
 		cooldown = config.getLong("Abilities.Earth.EarthKick.Cooldown");
 		earthBlocks = config.getInt("Abilities.Earth.EarthKick.EarthBlocks");
-		damage = config.getDouble("Abilities.Earth.EarthKick.Damage");
+		damage = config.getDouble("Abilities.Earth.EarthKick.Damage.Normal");
+		metalDmg = config.getDouble("Abilities.Earth.EarthKick.Damage.Metal");
 		entityCollisionRadius = config.getDouble("Abilities.Earth.EarthKick.EntityCollisionRadius");
 
 		multipleHits = config.getBoolean("Abilities.Earth.EarthKick.MultipleHits");
@@ -97,7 +100,8 @@ public class EarthKick extends EarthAbility implements AddonAbility {
 	private boolean prepare() {
 		block = player.getTargetBlock(getTransparentMaterialSet(), sourceRange);
 
-		if (!isEarthbendable(player, block) && !isBendableEarthTempBlock(block)) {
+		//if (!isEarthbendable(player, block) && !isBendableEarthTempBlock(block)) {
+		if (!isEarthbendable(player, block)) {
 			return false;
 		}
 
@@ -192,7 +196,7 @@ public class EarthKick extends EarthAbility implements AddonAbility {
 			CollisionDetector.checkEntityCollisions(player, collider, (entity) -> {
 				UUID uuid = entity.getUniqueId();
 				if (this.multipleHits || hitEntities.add(uuid)) {
-					DamageHandler.damageEntity(entity, damage, this);
+					DamageHandler.damageEntity(entity, isMetal(fb.getBlockData().getMaterial()) ? metalDmg : damage, this);
 				}
 				return false;
 			});
@@ -288,6 +292,14 @@ public class EarthKick extends EarthAbility implements AddonAbility {
 
 	public void setDamage(double damage) {
 		this.damage = damage;
+	}
+
+	public double getMetalDmg() {
+		return metalDmg;
+	}
+
+	public void setMetalDmg(double metalDmg) {
+		this.metalDmg = metalDmg;
 	}
 
 	public double getEntityCollisionRadius() {

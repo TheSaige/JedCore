@@ -234,7 +234,15 @@ public class JedCoreConfig {
 				+ "your foe!");
 		config.addDefault("Abilities.Earth.EarthKick.Cooldown", 2000);
 		config.addDefault("Abilities.Earth.EarthKick.EarthBlocks", 10);
-		config.addDefault("Abilities.Earth.EarthKick.Damage", 2.0);
+
+		double oldDamage = 0.0;
+		if (config.contains("Abilities.Earth.EarthKick.Damage")) {
+			oldDamage = config.getDouble("Abilities.Earth.EarthKick.Damage");
+			config.set("Abilities.Earth.EarthKick.Damage", null);
+		}
+
+		config.addDefault("Abilities.Earth.EarthKick.Damage.Normal", oldDamage > 0.0 ? oldDamage : 2.0);
+		config.addDefault("Abilities.Earth.EarthKick.Damage.Metal", 3.0);
 		config.addDefault("Abilities.Earth.EarthKick.EntityCollisionRadius", 1.5);
 		config.addDefault("Abilities.Earth.EarthKick.AbilityCollisionRadius", 1.5);
 		config.addDefault("Abilities.Earth.EarthKick.MultipleHits", true);
