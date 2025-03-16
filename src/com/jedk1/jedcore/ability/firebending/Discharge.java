@@ -138,8 +138,8 @@ public class Discharge extends LightningAbility implements AddonAbility {
 					playLightningbendingParticle(l.clone(), 0f, 0f, 0f);
 					JCMethods.emitLight(l.clone());
 
-					if (rand.nextInt(3) == 0) {
-						player.getWorld().playSound(l, Sound.ENTITY_CREEPER_PRIMED, 1, 0);
+					if (rand.nextInt(6) == 0) {
+						player.getWorld().playSound(l, Sound.ENTITY_BEE_HURT, 0.6f, 0.2f);
 					}
 
 					Vector vec = l.toVector();
@@ -158,8 +158,8 @@ public class Discharge extends LightningAbility implements AddonAbility {
 							JCMethods.emitLight(entity.getLocation());
 						}
 
-						entity.getWorld().playSound(entity.getLocation(), Sound.ENTITY_CREEPER_PRIMED, 1, 0);
-						player.getWorld().playSound(player.getLocation(), Sound.ENTITY_CREEPER_PRIMED, 1, 0);
+						entity.getWorld().playSound(entity.getLocation(), Sound.ENTITY_BEE_HURT, 0.8f, 0.2f);
+						player.getWorld().playSound(player.getLocation(), Sound.ENTITY_BEE_HURT, 0.8f, 0.2f);
 
 						return true;
 					});
