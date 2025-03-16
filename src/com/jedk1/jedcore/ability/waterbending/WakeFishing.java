@@ -70,10 +70,9 @@ public class WakeFishing extends WaterAbility implements AddonAbility {
 		}
 	}
 
-	@SuppressWarnings("deprecation")
 	private boolean prepare() {
 		Block block = BlockSource.getWaterSourceBlock(player, range, ClickType.SHIFT_DOWN, true, false, false);
-		if (isWater(block) && block.getData() == 0) {
+		if (isWater(block)) {
 			focusedBlock = block;
 			location = focusedBlock.getLocation();
 			return true;
