@@ -103,7 +103,7 @@ public class EarthKick extends EarthAbility implements AddonAbility {
 			DensityShift.revertSand(block);
 		}
 
-		if (block != null && !isMetal(block)) {
+		if (block != null) {
 			materialData = block.getBlockData().clone();
 			location.setX(block.getX() + 0.5);
 			location.setY(block.getY());
