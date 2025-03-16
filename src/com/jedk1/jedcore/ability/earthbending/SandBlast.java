@@ -90,7 +90,7 @@ public class SandBlast extends SandAbility implements AddonAbility {
 	}
 
 	private boolean prepare() {
-		source = BlockSource.getEarthSourceBlock(player, sourceRange, ClickType.SHIFT_DOWN);
+		source = getEarthSourceBlock(sourceRange);
 
 		if (source != null) {
 			if (isSand(source) && ElementalAbility.isAir(source.getRelative(BlockFace.UP).getType())) {
