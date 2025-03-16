@@ -17,7 +17,6 @@ import com.jedk1.jedcore.configuration.JedCoreConfig;
 import com.jedk1.jedcore.listener.AbilityListener;
 import com.jedk1.jedcore.listener.CommandListener;
 import com.jedk1.jedcore.listener.JCListener;
-import com.jedk1.jedcore.scoreboard.BendingBoard;
 import com.projectkorra.projectkorra.ability.CoreAbility;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -50,8 +49,7 @@ public class JedCore extends JavaPlugin {
 		getServer().getPluginManager().registerEvents(new JCListener(this), this);
 		getServer().getPluginManager().registerEvents(new ChiRestrictor(), this);
 		getServer().getScheduler().scheduleSyncRepeatingTask(this, new JCManager(this), 0, 1);
-		
-		BendingBoard.updateOnline();
+
 		new Commands();
 
 		FireTick.loadMethod();
@@ -66,7 +64,6 @@ public class JedCore extends JavaPlugin {
 			@Override
 			public void run() {
 				JCMethods.registerCombos();
-				BendingBoard.loadOtherCooldowns();
 				initializeCollisions();
 			}
 		}.runTaskLater(this, 1);

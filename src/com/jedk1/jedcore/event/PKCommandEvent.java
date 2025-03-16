@@ -24,8 +24,7 @@ public class PKCommandEvent extends Event{
 		TOGGLE,
 		VERSION,
 		WHO,
-		JEDCORE,
-		SCOREBOARD;
+		JEDCORE;
 		
 		public static CommandType getType(String string) {
 			for (CommandType element : CommandType.values()) {

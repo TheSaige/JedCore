@@ -11,7 +11,6 @@ import com.jedk1.jedcore.ability.firebending.FirePunch;
 import com.jedk1.jedcore.ability.firebending.FireSki;
 import com.jedk1.jedcore.ability.waterbending.IceClaws;
 import com.jedk1.jedcore.ability.waterbending.IceWall;
-import com.jedk1.jedcore.scoreboard.BendingBoard;
 import com.jedk1.jedcore.util.LightManager;
 import com.jedk1.jedcore.util.RegenTempBlock;
 import com.projectkorra.projectkorra.ProjectKorra;
@@ -47,29 +46,6 @@ public class JCListener implements Listener {
 
 	public JCListener(JedCore plugin) {
 		this.plugin = plugin;
-	}
-
-	@EventHandler(priority = EventPriority.NORMAL)
-	public void onPlayerJoin(PlayerJoinEvent event) {
-		if (BendingBoard.isDisabled(event.getPlayer())) {
-			return;
-		}
-		BendingBoard bb = BendingBoard.get(event.getPlayer());
-		if (bb != null) {
-			new BukkitRunnable() {
-				public void run() {
-					bb.update();
-				}
-			}.runTaskLater(JedCore.plugin, 50);
-		}
-	}
-
-	@EventHandler(priority = EventPriority.NORMAL)
-	public void onPlayerQuit(PlayerQuitEvent event){
-		BendingBoard bb = BendingBoard.get(event.getPlayer());
-		if (bb != null) {
-			bb.remove();
-		}
 	}
 
 	@EventHandler
@@ -233,47 +209,6 @@ public class JCListener implements Listener {
 			public void run() {
 				JCMethods.reload();
 				sender.sendMessage(ChatColor.DARK_AQUA + "JedCore config reloaded.");
-			}
-		}.runTaskLater(JedCore.plugin, 1);
-	}
-
-	@EventHandler(priority = EventPriority.NORMAL)
-	public void onPlayerItemHoldEvent(PlayerItemHeldEvent event) {
-		BendingBoard.update(event.getPlayer(), event.getNewSlot());
-	}
-
-	@EventHandler(priority = EventPriority.NORMAL)
-	public void onCooldownChange(PlayerCooldownChangeEvent event) {
-		if (event.getPlayer() == null) return;
-
-		// Fix a bug in ProjectKorra 1.8.4 that keeps IceWave around forever.
-		// It will continuously add a cooldown to WaterWave, which makes this spam tasks / scoreboard updates.
-		// It also happens with FastSwim when the player is a waterbender.
-		if (BendingBoard.shouldIgnoreAbility(event.getAbility())) {
-			return;
-		}
-		new BukkitRunnable() {
-			public void run() {
-				BendingBoard.update(event.getPlayer());
-			}
-		}.runTaskLater(JedCore.plugin, 1);
-	}
-	
-	@EventHandler(priority = EventPriority.NORMAL)
-	public void onWorldChange(PlayerChangedWorldEvent event){
-		new BukkitRunnable() {
-			public void run() {
-				BendingBoard.update(event.getPlayer());
-			}
-		}.runTaskLater(JedCore.plugin, 1);
-	}
-
-	@EventHandler(priority = EventPriority.NORMAL)
-	public void onElementChange(PlayerChangeElementEvent event){
-		if (event.getTarget() == null) return;
-		new BukkitRunnable() {
-			public void run() {
-				BendingBoard.update(event.getTarget());
 			}
 		}.runTaskLater(JedCore.plugin, 1);
 	}

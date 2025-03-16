@@ -31,7 +31,6 @@ permissions:
     description: Access to player commands.
     children:
       bending.command.jedcore: true
-      bending.command.board: true
   jedcore.passive:
     default: true
     description: Access to passive abilities.
