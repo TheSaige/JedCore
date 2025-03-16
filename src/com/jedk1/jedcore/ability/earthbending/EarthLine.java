@@ -100,7 +100,7 @@ public class EarthLine extends EarthAbility implements AddonAbility {
 	}
 
     public boolean prepare() {
-        final Block block = BlockSource.getEarthSourceBlock(this.player, this.range, ClickType.SHIFT_DOWN);
+        final Block block = getEarthSourceBlock(this.range);
         if (block == null || !this.isEarthbendable(block)) {
             return false;
         } else if (TempBlock.isTempBlock(block) && !EarthAbility.isBendableEarthTempBlock(block)) {
