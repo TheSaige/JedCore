@@ -53,6 +53,7 @@ public class EarthKick extends EarthAbility implements AddonAbility {
 	private int sourceRange;
 	private int spread;
 	private double velocity;
+	private boolean allowMetal;
 
 	private Set<UUID> hitEntities = new HashSet<>();
 
@@ -86,6 +87,7 @@ public class EarthKick extends EarthAbility implements AddonAbility {
 		sourceRange = config.getInt("Abilities.Earth.EarthKick.SourceRange");
 		spread = config.getInt("Abilities.Earth.EarthKick.Spread");
 		velocity = config.getDouble("Abilities.Earth.EarthKick.Velocity");
+		allowMetal = config.getBoolean("Abilities.Earth.EarthKick.AllowMetal");
 
 		if (entityCollisionRadius < 1.0) {
 			entityCollisionRadius = 1.0;
@@ -103,7 +105,7 @@ public class EarthKick extends EarthAbility implements AddonAbility {
 			DensityShift.revertSand(block);
 		}
 
-		if (block != null) {
+		if (block != null && (allowMetal || !isMetal(block))) {
 			materialData = block.getBlockData().clone();
 			location.setX(block.getX() + 0.5);
 			location.setY(block.getY());
