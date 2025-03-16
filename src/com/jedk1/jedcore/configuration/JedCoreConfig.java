@@ -597,6 +597,8 @@ public class JedCoreConfig {
 		config.addDefault("Abilities.Fire.Discharge.SlotSwapping", false);
 		config.addDefault("Abilities.Fire.Discharge.EntityCollisionRadius", 1.0);
 		config.addDefault("Abilities.Fire.Discharge.AbilityCollisionRadius", 1.0);
+		config.addDefault("Abilities.Fire.Discharge.Sound.Volume", 0.6);
+		config.addDefault("Abilities.Fire.Discharge.Sound.Interval", 6);
 		
 		config.addDefault("Abilities.Fire.FireBall.Enabled", true);
 		config.addDefault("Abilities.Fire.FireBall.Description", "To use, simply Left-Click to shoot a fireball at your target!");
@@ -700,6 +702,8 @@ public class JedCoreConfig {
 		config.addDefault("Abilities.Fire.LightningBurst.AvatarChargeUp", 1000);
 		config.addDefault("Abilities.Fire.LightningBurst.Radius", 12);
 		config.addDefault("Abilities.Fire.LightningBurst.Damage", 9.0);
+		config.addDefault("Abilities.Fire.LightningBurst.Sound.Volume", 0.6);
+		config.addDefault("Abilities.Fire.LightningBurst.Sound.Interval", 6);
 		
 		config.addDefault("Abilities.Water.Bloodbending.Enabled", true);
 		config.addDefault("Abilities.Water.Bloodbending.Description", "This ability allows a skilled waterbender "

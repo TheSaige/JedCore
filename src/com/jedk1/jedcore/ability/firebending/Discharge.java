@@ -44,6 +44,9 @@ public class Discharge extends LightningAbility implements AddonAbility {
 	@Attribute("CollisionRadius")
 	private double entityCollisionRadius;
 
+	private float soundVolume;
+	private int soundInterval;
+
 	public Discharge(Player player) {
 		super(player);
 
@@ -74,6 +77,9 @@ public class Discharge extends LightningAbility implements AddonAbility {
 		duration = config.getLong("Abilities.Fire.Discharge.Duration");
 		slotSwapping = config.getBoolean("Abilities.Fire.Discharge.SlotSwapping");
 		entityCollisionRadius = config.getDouble("Abilities.Fire.Discharge.EntityCollisionRadius");
+
+		soundVolume = (float) config.getDouble("Abilities.Fire.Discharge.Sound.Volume");
+		soundInterval = config.getInt("Abilities.Fire.Discharge.Sound.Interval");
 		
 		branchSpace = 0.2;
 	}
@@ -138,8 +144,8 @@ public class Discharge extends LightningAbility implements AddonAbility {
 					playLightningbendingParticle(l.clone(), 0f, 0f, 0f);
 					JCMethods.emitLight(l.clone());
 
-					if (rand.nextInt(6) == 0) {
-						player.getWorld().playSound(l, Sound.ENTITY_BEE_HURT, 0.6f, 0.2f);
+					if (rand.nextInt(soundInterval) == 0) {
+						player.getWorld().playSound(l, Sound.ENTITY_BEE_HURT, soundVolume, 0.2f);
 					}
 
 					Vector vec = l.toVector();
@@ -158,8 +164,8 @@ public class Discharge extends LightningAbility implements AddonAbility {
 							JCMethods.emitLight(entity.getLocation());
 						}
 
-						entity.getWorld().playSound(entity.getLocation(), Sound.ENTITY_BEE_HURT, 0.8f, 0.2f);
-						player.getWorld().playSound(player.getLocation(), Sound.ENTITY_BEE_HURT, 0.8f, 0.2f);
+						entity.getWorld().playSound(entity.getLocation(), Sound.ENTITY_BEE_HURT, soundVolume, 0.2f);
+						player.getWorld().playSound(player.getLocation(), Sound.ENTITY_BEE_HURT, soundVolume, 0.2f);
 
 						return true;
 					});
