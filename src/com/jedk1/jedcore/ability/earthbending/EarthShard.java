@@ -17,6 +17,7 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.FallingBlock;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -109,7 +110,6 @@ public class EarthShard extends EarthAbility implements AddonAbility {
 
 		Vector blockVector = block.getLocation().toVector().toBlockVector().setY(0);
 
-		// Don't select from locations that already have an EarthShard block.
 		for (TempBlock tempBlock : tblockTracker) {
 			if (tempBlock.getLocation().getWorld() != block.getWorld()) {
 				continue;
@@ -146,6 +146,14 @@ public class EarthShard extends EarthAbility implements AddonAbility {
 			new TempFallingBlock(loc, material.createBlockData(), new Vector(0, 0.8, 0), this);
 			TempBlock tb = new TempBlock(block, Material.AIR.createBlockData());
 			tblockTracker.add(tb);
+
+			for (Entity entity : block.getWorld().getNearbyEntities(block.getLocation(), 1.5, 1.5, 1.5)) {
+				Location entityLoc = entity.getLocation();
+				if (entityLoc.getY() >= block.getY()) {
+					Vector velocity = new Vector(0, 1, 0);
+					entity.setVelocity(entity.getVelocity().add(velocity));
+				}
+			}
 		}
 	}
 
