@@ -565,7 +565,15 @@ public class JedCoreConfig {
 		config.addDefault("Abilities.Earth.EarthCombo.MagmaBlast.MaxDistanceFromSources", 15);
 		config.addDefault("Abilities.Earth.EarthCombo.MagmaBlast.Combination", Arrays.asList("EarthBlast:SHIFT_DOWN", "LavaFlow:SHIFT_UP", "LavaFlow:SHIFT_DOWN", "LavaFlow:RIGHT_CLICK_BLOCK"));
 		config.addDefault("Abilities.Earth.EarthCombo.MagmaBlast.Instructions", "EarthBlast (Hold sneak) > LavaFlow (Release sneak) > LavaFlow (Hold sneak) > LavaFlow (Right-click a block) > LavaFlow (Left-click multiple times)");
-		
+
+		ArrayList<String> combustionSkipMaterials = new ArrayList<>();
+		combustionSkipMaterials.add("#bee_growables");
+		combustionSkipMaterials.add("#cave_vines");
+		combustionSkipMaterials.add("#crops");
+		combustionSkipMaterials.add("#flowers");
+		combustionSkipMaterials.add("vine");
+		combustionSkipMaterials.add("pale_hanging_moss");
+
 		config.addDefault("Abilities.Fire.Combustion.Enabled", true);
 		config.addDefault("Abilities.Fire.Combustion.Description", "Hold Shift to focus large amounts of energy into your body, "
 				+ "Release Shift to fire Combustion. Move your mouse to "
@@ -588,7 +596,8 @@ public class JedCoreConfig {
 		config.addDefault("Abilities.Fire.Combustion.InstantExplodeIfHit", true);
 		config.addDefault("Abilities.Fire.Combustion.ExplodeOnDeath", true);
 		config.addDefault("Abilities.Fire.Combustion.RemovalPolicy.SwappedSlots.Enabled", false);
-		
+		config.addDefault("Abilities.Fire.Combustion.SkipMaterials", combustionSkipMaterials);
+
 		config.addDefault("Abilities.Fire.Discharge.Enabled", true);
 		config.addDefault("Abilities.Fire.Discharge.Description", "Left-Click to shoot bolts of electricity out "
 				+ "of your fingertips zapping what ever it hits!");
