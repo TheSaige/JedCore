@@ -12,6 +12,7 @@ import org.bukkit.World;
 import org.bukkit.block.BlockFace;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
+import org.bukkit.permissions.Permission;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
@@ -20,7 +21,6 @@ import java.util.Map;
 
 public class IcePassive {
 
-	@SuppressWarnings("deprecation")
 	public static void handleSkating() {
 		Map<World, Pair<Boolean, Integer>> resultCache = new HashMap<>();
 
@@ -40,15 +40,22 @@ public class IcePassive {
 			int speedFactor = result.second;
 
 			if (!enabled) continue;
+			if (JCMethods.isDisabledWorld(player.getWorld())) continue;
+			if (!player.isOnGround()) continue;
+			if (!player.isSprinting()) continue;
+			if (!IceAbility.isIce(player.getLocation().getBlock().getRelative(BlockFace.DOWN))) continue;
 
 			BendingPlayer bPlayer = BendingPlayer.getBendingPlayer(player);
-			if (bPlayer != null && bPlayer.canIcebend() && bPlayer.isElementToggled(Element.WATER) && bPlayer.hasElement(Element.WATER) && !JCMethods.isDisabledWorld(player.getWorld())) {
-				if (player.isSprinting() && IceAbility.isIce(player.getLocation().getBlock().getRelative(BlockFace.DOWN)) && player.isOnGround()) {
-					ParticleEffect.SNOW_SHOVEL.display(player.getLocation().clone().add(0, 0.2, 0), 15, Math.random()/2, Math.random()/2, Math.random()/2, 0);
-					player.removePotionEffect(PotionEffectType.SPEED);
-					player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 60, speedFactor));	
-				}
-			}
+
+			if (bPlayer == null) continue;
+			if (!bPlayer.canIcebend()) continue;
+			if (!bPlayer.isPassiveToggled(Element.WATER)) continue;
+
+			if (!player.hasPermission("bending.ability.IceSkate")) continue;
+
+			ParticleEffect.SNOW_SHOVEL.display(player.getLocation().clone().add(0, 0.2, 0), 15, Math.random()/2, Math.random()/2, Math.random()/2, 0);
+			player.removePotionEffect(PotionEffectType.SPEED);
+			player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 60, speedFactor));
 		}
 	}
 
