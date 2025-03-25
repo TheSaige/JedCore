@@ -1,6 +1,7 @@
 package com.jedk1.jedcore.ability.waterbending;
 
 import com.jedk1.jedcore.JedCore;
+import com.jedk1.jedcore.ability.firebending.FirePunch;
 import com.jedk1.jedcore.configuration.JedCoreConfig;
 import com.projectkorra.projectkorra.GeneralMethods;
 import com.projectkorra.projectkorra.ability.AddonAbility;
@@ -15,6 +16,7 @@ import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.MainHand;
 import org.bukkit.potion.PotionEffectType;
 
 public class IceClaws extends IceAbility implements AddonAbility {
@@ -33,6 +35,8 @@ public class IceClaws extends IceAbility implements AddonAbility {
 	private Location head;
 	private Location origin;
 	private boolean launched;
+
+	private Boolean iceInMainHand = null;
 
 	public IceClaws(Player player) {
 		super(player);
@@ -96,6 +100,22 @@ public class IceClaws extends IceAbility implements AddonAbility {
 		}
 	}
 
+
+	public static void swapHands(Player player) {
+		IceClaws ic = getAbility(player, IceClaws.class);
+		if (ic == null)
+			return;
+		if (ic.iceInMainHand == null)
+			ic.iceInMainHand = true;
+		else ic.iceInMainHand = !ic.iceInMainHand;
+	}
+
+	public Location getRightHandPos() {
+		return (player.getMainHand() == MainHand.RIGHT == ((iceInMainHand == null) || iceInMainHand) ?
+				GeneralMethods.getRightSide(player.getLocation(), .55) :
+				GeneralMethods.getLeftSide(player.getLocation(), .55)).add(0, 1.2, 0);
+	}
+
 	public boolean shoot() {
 		for (double i = 0; i < 1; i+=.5) {
 			head.add(origin.clone().getDirection().multiply(.5));
@@ -124,10 +144,6 @@ public class IceClaws extends IceAbility implements AddonAbility {
 				ic.head = ic.origin.clone();
 			}
 		}
-	}
-
-	public Location getRightHandPos() {
-		return GeneralMethods.getRightSide(player.getLocation(), .55).add(0, 1.2, 0);
 	}
 
 	private void displayClaws() {

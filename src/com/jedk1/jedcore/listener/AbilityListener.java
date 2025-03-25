@@ -393,6 +393,10 @@ public class AbilityListener implements Listener {
 				if (abilClass.equals(FireShots.class)) {
 					FireShots.swapHands(player);
 				}
+
+				if (abilClass.equals(FirePunch.class)) {
+					FirePunch.swapHands(player);
+				}
 			}
 		}
 
@@ -504,6 +508,7 @@ public class AbilityListener implements Listener {
 				}
 				if (abilClass.equals(IceClaws.class)) {
 					new IceClaws(player);
+					IceClaws.swapHands(player);
 				}
 				if (abilClass.equals(IceWall.class)) {
 					new IceWall(player);
