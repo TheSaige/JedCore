@@ -262,7 +262,10 @@ public class AbilityListener implements Listener {
 					new LavaFlux(player);
 				}
 				if (abilClass.equals(LavaThrow.class)) {
-					new LavaThrow(player);
+					LavaThrow lt = CoreAbility.getAbility(player, LavaThrow.class);
+					if (lt != null) {
+						lt.createBlast();
+					}
 				}
 				if (abilClass.equals(MetalFragments.class)) {
 					MetalFragments.shootFragment(player);
@@ -458,6 +461,9 @@ public class AbilityListener implements Listener {
 				}
 				if (abilClass.equals(Crevice.class)) {
 					Crevice.closeCrevice(player);
+				}
+				if (abilClass.equals(LavaThrow.class)) {
+					new LavaThrow(player);
 				}
 			}
 

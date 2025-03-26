@@ -12,8 +12,12 @@ import com.projectkorra.projectkorra.region.RegionProtection;
 import com.projectkorra.projectkorra.util.DamageHandler;
 import com.projectkorra.projectkorra.util.ParticleEffect;
 
+import org.bukkit.FluidCollisionMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Particle;
+import org.bukkit.Sound;
+import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.Levelled;
@@ -21,11 +25,9 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class LavaThrow extends LavaAbility implements AddonAbility {
@@ -45,17 +47,14 @@ public class LavaThrow extends LavaAbility implements AddonAbility {
 
 	private Location location;
 	private int shots;
+	private Block selectedSource;
+	private boolean isInitialState = true;
 
 	private final ConcurrentHashMap<Location, Location> blasts = new ConcurrentHashMap<>();
 
 	public LavaThrow(Player player) {
 		super(player);
 
-		if (hasAbility(player, LavaThrow.class)) {
-			LavaThrow.createBlast(player);
-			return;
-		}
-		
 		if (!bPlayer.canBend(this) || !bPlayer.canLavabend()) {
 			return;
 		}
@@ -64,21 +63,16 @@ public class LavaThrow extends LavaAbility implements AddonAbility {
 
 		location = player.getLocation();
 		location.setPitch(0);
-		location = location.toVector().add(location.getDirection().multiply(sourceRange)).toLocation(location.getWorld());
-
-		sourceRange = Math.round(sourceRange / 2F);
 
 		if (prepare()) {
+			player.getWorld().playSound(selectedSource.getLocation(), Sound.ITEM_BUCKET_FILL_LAVA, 1.0f, 1.0f);
 			start();
-			if (!isRemoved()) {
-				createBlast();
-			}
 		}
 	}
 
 	public void setFields() {
 		ConfigurationSection config = JedCoreConfig.getConfig(this.player);
-		
+
 		cooldown = config.getLong("Abilities.Earth.LavaThrow.Cooldown");
 		range = config.getInt("Abilities.Earth.LavaThrow.Range");
 		damage = config.getDouble("Abilities.Earth.LavaThrow.Damage");
@@ -95,44 +89,67 @@ public class LavaThrow extends LavaAbility implements AddonAbility {
 			return;
 		}
 
-		if (player.getWorld() != location.getWorld()) {
-			bPlayer.addCooldown(this);
+		if (!bPlayer.getBoundAbilityName().equalsIgnoreCase("LAVATHROW")) {
 			remove();
 			return;
 		}
 
-		if (!bPlayer.canBendIgnoreCooldowns(this)) {
-			bPlayer.addCooldown(this);
+		if (player.getLocation().distance(selectedSource.getLocation()) >= sourceRange) {
 			remove();
 			return;
 		}
 
-		if (shots >= shotMax) {
-			bPlayer.addCooldown(this);
+		if (blasts.isEmpty() && shots >= shotMax && !isInitialState) {
+			remove();
+			return;
 		}
+
+		selectedSource.getWorld().spawnParticle(Particle.FLAME, selectedSource.getLocation(), 2, 0.3, 1.0, 0.3, 0.05);
+		selectedSource.getWorld().spawnParticle(Particle.LAVA, selectedSource.getLocation(), 2, 0.2, 0.2, 0.2, 0);
 
 		handleBlasts();
-
-		if (blasts.isEmpty()) {
-			bPlayer.addCooldown(this);
-			remove();
-		}
 	}
 
 	private boolean prepare() {
-		Block block = getRandomSourceBlock(location, 3);
+		Block targetBlock = getTargetLavaBlock(sourceRange);
 
-		return block != null;
+		if (targetBlock != null) {
+			selectedSource = targetBlock;
+		}
+
+		return selectedSource != null;
+	}
+
+	public Block getTargetLavaBlock(int maxDistance) {
+		Location eyeLocation = player.getEyeLocation();
+		Vector direction = eyeLocation.getDirection();
+		World world = player.getWorld();
+
+		RayTraceResult result = world.rayTraceBlocks(
+				eyeLocation, direction, maxDistance,
+				FluidCollisionMode.ALWAYS, true
+		);
+
+		if (result != null) {
+			Block hitBlock = result.getHitBlock();
+			if (LavaAbility.isLava(hitBlock)) {
+				return hitBlock;
+			}
+		}
+		return null;
 	}
 
 	public void createBlast() {
-		// TODO: This is just the worst. Fix it so it's not hidden distance selection.
-		Block source = getRandomSourceBlock(location, 3);
-
-		if (source != null) {
+		if (selectedSource != null && shots < shotMax) {
+			isInitialState = false;
 			shots++;
 
-			Location origin = source.getLocation().clone().add(0, 2, 0);
+			if (shots >= shotMax) {
+				bPlayer.addCooldown(this);
+			}
+
+			Location origin = selectedSource.getLocation().clone().add(0, 2, 0);
+			player.getWorld().playSound(origin, Sound.ITEM_BUCKET_EMPTY_LAVA, 1.0f, 1.0f);
 			double viewRange = range + origin.distance(player.getEyeLocation());
 			Location viewTarget = GeneralMethods.getTargetedLocation(player, viewRange, Material.WATER, Material.LAVA);
 			Vector direction = viewTarget.clone().subtract(origin).toVector().normalize();
@@ -141,8 +158,9 @@ public class LavaThrow extends LavaAbility implements AddonAbility {
 			head.setDirection(direction);
 			blasts.put(head, origin);
 
-			new RegenTempBlock(source.getRelative(BlockFace.UP), Material.LAVA, Material.LAVA.createBlockData(bd -> ((Levelled)bd).setLevel(0)), 200);
-			new RegenTempBlock(source, Material.AIR, Material.AIR.createBlockData(), sourceRegen, false);
+			new RegenTempBlock(selectedSource.getRelative(BlockFace.UP), Material.LAVA,
+					Material.LAVA.createBlockData(bd -> ((Levelled)bd).setLevel(0)), 200);
+			new RegenTempBlock(selectedSource, Material.AIR, Material.AIR.createBlockData(), sourceRegen, false);
 		}
 	}
 
@@ -156,12 +174,12 @@ public class LavaThrow extends LavaAbility implements AddonAbility {
 				continue;
 			}
 
-			if(RegionProtection.isRegionProtected(this, l)){
+			if (RegionProtection.isRegionProtected(this, l)) {
 				blasts.remove(l);
 				continue;
 			}
 
-			if(GeneralMethods.isSolid(l.getBlock())){
+			if (GeneralMethods.isSolid(l.getBlock())) {
 				blasts.remove(l);
 				continue;
 			}
@@ -172,8 +190,8 @@ public class LavaThrow extends LavaAbility implements AddonAbility {
 
 			boolean hit = false;
 
-			for(Entity entity : GeneralMethods.getEntitiesAroundPoint(l, 2.0D)){
-				if(entity instanceof LivingEntity && entity.getEntityId() != player.getEntityId() && !RegionProtection.isRegionProtected(this, entity.getLocation()) && !((entity instanceof Player) && Commands.invincible.contains(((Player) entity).getName()))){
+			for (Entity entity : GeneralMethods.getEntitiesAroundPoint(l, 2.0D)) {
+				if (entity instanceof LivingEntity && entity.getEntityId() != player.getEntityId() && !RegionProtection.isRegionProtected(this, entity.getLocation()) && !((entity instanceof Player) && Commands.invincible.contains(((Player) entity).getName()))) {
 					DamageHandler.damageEntity(entity, damage, this);
 					blasts.remove(l);
 
@@ -185,42 +203,6 @@ public class LavaThrow extends LavaAbility implements AddonAbility {
 			if (!hit) {
 				blasts.remove(l);
 				blasts.put(head, origin);
-			}
-		}
-	}
-
-	public static Block getRandomSourceBlock(Location location, int radius) {
-		Random rand = new Random();
-		List<Integer> checked = new ArrayList<>();
-		List<Block> blocks = GeneralMethods.getBlocksAroundPoint(location, radius);
-
-		for (int i = 0; i < blocks.size(); i++) {
-			int index = rand.nextInt(blocks.size());
-
-			while (checked.contains(index)) {
-				index = rand.nextInt(blocks.size());
-			}
-
-			checked.add(index);
-
-			Block block = blocks.get(index);
-
-			if (!LavaAbility.isLava(block)) {
-				continue;
-			}
-
-			return block;
-		}
-
-		return null;
-	}
-	
-	public static void createBlast(Player player) {
-		if (hasAbility(player, LavaThrow.class)) {
-			LavaThrow lt = getAbility(player, LavaThrow.class);
-
-			if (lt.shots < lt.shotMax) {
-				lt.createBlast();
 			}
 		}
 	}
