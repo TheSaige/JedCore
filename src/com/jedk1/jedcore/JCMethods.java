@@ -4,6 +4,7 @@ import java.util.*;
 
 import com.jedk1.jedcore.util.*;
 import com.projectkorra.projectkorra.ability.ElementalAbility;
+import com.projectkorra.projectkorra.ability.WaterAbility;
 import com.projectkorra.projectkorra.region.RegionProtection;
 import org.bukkit.*;
 import org.bukkit.block.Block;
@@ -23,8 +24,10 @@ import com.projectkorra.projectkorra.ability.util.ComboManager;
 import com.projectkorra.projectkorra.util.TempBlock;
 
 public class JCMethods {
+
+	// todo: either use PKs isPlant or the registry/tags (with config)
 	private static final ArrayList<Material> SMALL_PLANTS = new ArrayList<Material>(){{
-		addAll(Arrays.asList(Material.GRASS_BLOCK, Material.FERN, Material.POPPY, Material.DANDELION, Material.OAK_SAPLING,
+		addAll(Arrays.asList(Material.GRASS, Material.FERN, Material.POPPY, Material.DANDELION, Material.OAK_SAPLING,
 				Material.SPRUCE_SAPLING, Material.BIRCH_SAPLING, Material.JUNGLE_SAPLING, Material.ACACIA_SAPLING,
 				Material.DARK_OAK_SAPLING, Material.ALLIUM, Material.ORANGE_TULIP, Material.PINK_TULIP, Material.RED_TULIP,
 				Material.WHITE_TULIP, Material.ROSE_BUSH, Material.BLUE_ORCHID, Material.LILAC, Material.OXEYE_DAISY,
@@ -32,6 +35,7 @@ public class JCMethods {
 				Material.BROWN_MUSHROOM, Material.PUMPKIN_STEM, Material.MELON_STEM, Material.WHEAT, Material.TALL_GRASS,
 				Material.BEETROOTS, Material.CARROTS, Material.POTATOES, Material.CRIMSON_FUNGUS, Material.WARPED_FUNGUS,
 				Material.BAMBOO, Material.BAMBOO_SAPLING));
+
 		int serverVersion = GeneralMethods.getMCVersion();
 		if (serverVersion >= 1170) {
 			add(Material.getMaterial("AZALEA"));
@@ -305,6 +309,7 @@ public class JCMethods {
 		return false;
 	}
 
+	// todo: see SMALL_PLANTS
 	public static boolean isDoublePlant(Material material) {
 		return material == Material.SUNFLOWER || material == Material.LILAC || material == Material.TALL_GRASS ||
 				material == Material.LARGE_FERN || material == Material.ROSE_BUSH || material == Material.PEONY;
@@ -315,7 +320,8 @@ public class JCMethods {
 	}
 
 	public static boolean isSmallPlant(Material material) {
-		return SMALL_PLANTS.contains(material);
+		return WaterAbility.isPlant(material);
+		//return SMALL_PLANTS.contains(material);
 	}
 
 	public static void displayColoredParticles(String hex, Location location, int amount, double offsetX, double offsetY, double offsetZ, double extra) {
