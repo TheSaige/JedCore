@@ -91,16 +91,19 @@ public class LavaThrow extends LavaAbility implements AddonAbility {
 
 		if (!bPlayer.getBoundAbilityName().equalsIgnoreCase("LAVATHROW")) {
 			remove();
+			if (shots > 0) bPlayer.addCooldown(this);
 			return;
 		}
 
 		if (player.getLocation().distance(selectedSource.getLocation()) >= sourceRange) {
 			remove();
+			if (shots > 0) bPlayer.addCooldown(this);
 			return;
 		}
 
 		if (blasts.isEmpty() && shots >= shotMax && !isInitialState) {
 			remove();
+			bPlayer.addCooldown(this);
 			return;
 		}
 

@@ -463,7 +463,10 @@ public class AbilityListener implements Listener {
 					Crevice.closeCrevice(player);
 				}
 				if (abilClass.equals(LavaThrow.class)) {
-					new LavaThrow(player);
+					LavaThrow lt = CoreAbility.getAbility(player, LavaThrow.class);
+					if (lt == null) {
+						new LavaThrow(player);
+					}
 				}
 			}
 
