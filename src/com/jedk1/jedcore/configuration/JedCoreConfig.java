@@ -413,6 +413,7 @@ public class JedCoreConfig {
 		config.addDefault("Abilities.Earth.LavaThrow.SourceGrabRange", 4);
 		config.addDefault("Abilities.Earth.LavaThrow.SourceRegenDelay", 10000);
 		config.addDefault("Abilities.Earth.LavaThrow.FireTicks", 80);
+		config.addDefault("Abilities.Earth.LavaThrow.CurveFactor", 0.5);
 
 		config.addDefault("Abilities.Earth.MagnetShield.Enabled", true);
 		config.addDefault("Abilities.Earth.MagnetShield.Description", "Repel any metal projectiles using a strong magnetic shield. "

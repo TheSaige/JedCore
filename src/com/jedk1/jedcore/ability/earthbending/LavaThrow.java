@@ -44,6 +44,8 @@ public class LavaThrow extends LavaAbility implements AddonAbility {
 	private int shotMax;
 	@Attribute(Attribute.FIRE_TICK)
 	private int fireTicks;
+	@Attribute("CurveFactor")
+	private double curveFactor;
 
 	private Location location;
 	private int shots;
@@ -80,6 +82,7 @@ public class LavaThrow extends LavaAbility implements AddonAbility {
 		sourceRegen = config.getLong("Abilities.Earth.LavaThrow.SourceRegenDelay");
 		shotMax = config.getInt("Abilities.Earth.LavaThrow.MaxShots");
 		fireTicks = config.getInt("Abilities.Earth.LavaThrow.FireTicks");
+		curveFactor = config.getDouble("Abilities.Earth.LavaThrow.CurveFactor");
 	}
 
 	@Override
@@ -177,17 +180,25 @@ public class LavaThrow extends LavaAbility implements AddonAbility {
 				continue;
 			}
 
-			if (RegionProtection.isRegionProtected(this, l)) {
-				blasts.remove(l);
-				continue;
-			}
-
 			if (GeneralMethods.isSolid(l.getBlock())) {
 				blasts.remove(l);
 				continue;
 			}
 
-			head = head.add(head.getDirection().multiply(1));
+			Vector currentDirection = head.getDirection();
+			Vector playerLookDirection = player.getEyeLocation().getDirection();
+
+			Vector curveVector = playerLookDirection.clone()
+					.subtract(currentDirection)
+					.multiply(curveFactor);
+
+			Vector newDirection = currentDirection.clone()
+					.add(curveVector)
+					.normalize();
+
+			head.setDirection(newDirection);
+			head = head.add(newDirection.multiply(1));
+
 			new RegenTempBlock(l.getBlock(), Material.LAVA, Material.LAVA.createBlockData(bd -> ((Levelled)bd).setLevel(0)), 200);
 			ParticleEffect.LAVA.display(head, 1, Math.random(), Math.random(), Math.random(), 0);
 
