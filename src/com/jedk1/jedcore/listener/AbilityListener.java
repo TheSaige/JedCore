@@ -69,11 +69,13 @@ import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.FallingBlock;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.entity.EntityChangeBlockEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -554,6 +556,13 @@ public class AbilityListener implements Listener {
 	public void onPlayerInteraction(PlayerInteractEvent event) {
 		if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
 			MetalFragments.shootFragment(event.getPlayer());
+		}
+	}
+
+	@EventHandler
+	public void onChange(EntityChangeBlockEvent event) {
+		if (event.getEntity() instanceof FallingBlock) {
+			if (event.getEntity().hasMetadata("magmablast")) event.setCancelled(true);
 		}
 	}
 }
