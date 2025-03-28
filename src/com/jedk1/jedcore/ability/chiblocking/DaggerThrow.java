@@ -146,28 +146,16 @@ public class DaggerThrow extends ChiAbility implements AddonAbility {
 	}
 
 	public void damageEntityFromArrow(LivingEntity entity, Arrow arrow) {
-		if (!(arrow.getShooter() instanceof Player shooter)) {
-			return;
-		}
+		if (!(arrow.getShooter() instanceof Player shooter)) return;
 
-		System.out.println("Shooter: " + shooter.getName());
-		System.out.println("Static Damage Value: " + damage);
-		System.out.println("Entity: " + entity.getName());
-		System.out.println("Entity Health Before: " + entity.getHealth());
-
-		if (RegionProtection.isRegionProtected(shooter, arrow.getLocation(), "DaggerThrow")) {
-			System.out.println("Region Protected");
-			return;
-		}
+		if (RegionProtection.isRegionProtected(shooter, arrow.getLocation(), "DaggerThrow")) return;
 
 		arrow.setVelocity(new Vector(0, 0, 0));
 		entity.setNoDamageTicks(0);
 
 		double prevHealth = entity.getHealth();
 
-		System.out.println("Attempting to damage with: " + damage);
 		DamageHandler.damageEntity(entity, damage, this);
-		System.out.println("Entity Health After: " + entity.getHealth());
 
 		if (prevHealth > entity.getHealth()) {
 			arrow.remove();
