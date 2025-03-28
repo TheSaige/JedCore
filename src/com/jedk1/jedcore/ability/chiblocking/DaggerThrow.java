@@ -30,15 +30,22 @@ import java.util.stream.Collectors;
 public class DaggerThrow extends ChiAbility implements AddonAbility {
 	private static final List<AbilityInteraction> INTERACTIONS = new ArrayList<>();
 	private static boolean particles;
+
 	private static double damage;
 
-	private long endTime;
-	private int shots = 1;
 	@Attribute(Attribute.COOLDOWN)
 	private long cooldown;
 	private boolean limitEnabled;
 	@Attribute("MaxShots")
 	private int maxShots;
+
+	private boolean requireArrows;
+	// require arrows (takes arrows from inv)
+	private boolean allowPickup;
+	// allow arrow pickup (disables pickup and removes the arrow entities)
+
+	private long endTime;
+	private int shots = 1;
 	private int hits = 0;
 	private final List<Arrow> arrows = new ArrayList<>();
 
@@ -79,6 +86,8 @@ public class DaggerThrow extends ChiAbility implements AddonAbility {
 		maxShots = config.getInt("Abilities.Chi.DaggerThrow.MaxDaggers.Amount");
 		particles = config.getBoolean("Abilities.Chi.DaggerThrow.ParticleTrail");
 		damage = config.getDouble("Abilities.Chi.DaggerThrow.Damage");
+		requireArrows = config.getBoolean("Abilities.Chi.DaggerThrow.RequireArrows");
+		allowPickup = config.getBoolean("Abilities.Chi.DaggerThrow.AllowPickup");
 
 		loadInteractions();
 	}
@@ -113,30 +122,30 @@ public class DaggerThrow extends ChiAbility implements AddonAbility {
 	}
 
 	private void shootArrow() {
-		if (JCMethods.removeItemFromInventory(player, Material.ARROW, 1)) {
-			shots++;
-			Location location = player.getEyeLocation();
+		shots++;
+		Location location = player.getEyeLocation();
 
-			Vector vector = location.toVector().
-					add(location.getDirection().multiply(2.5)).
-					toLocation(location.getWorld()).toVector().
-					subtract(player.getEyeLocation().toVector());
+		Vector vector = location.toVector().
+				add(location.getDirection().multiply(2.5)).
+				toLocation(location.getWorld()).toVector().
+				subtract(player.getEyeLocation().toVector());
 
-			Arrow arrow = player.launchProjectile(Arrow.class);
-			arrow.setVelocity(vector);
-			arrow.getLocation().setDirection(vector);
-			arrow.setKnockbackStrength(0);
-			arrow.setBounce(false);
-			arrow.setMetadata("daggerthrow", new FixedMetadataValue(JedCore.plugin, "1"));
+		if (requireArrows) JCMethods.removeItemFromInventory(player, Material.ARROW, 1);
+		Arrow arrow = player.launchProjectile(Arrow.class);
+		arrow.setVelocity(vector);
+		arrow.getLocation().setDirection(vector);
+		arrow.setKnockbackStrength(0);
+		arrow.setBounce(false);
+		arrow.setMetadata("daggerthrow", new FixedMetadataValue(JedCore.plugin, "1"));
+		if (!allowPickup) arrow.setPickupStatus(Arrow.PickupStatus.DISALLOWED);
 
-			if (particles) {
-				arrow.setCritical(true);
-			}
-
-			arrows.add(arrow);
-			endTime = System.currentTimeMillis() + 500;
-			bPlayer.addCooldown("DaggerThrowShot", 100);
+		if (particles) {
+			arrow.setCritical(true);
 		}
+
+		arrows.add(arrow);
+		endTime = System.currentTimeMillis() + 500;
+		bPlayer.addCooldown("DaggerThrowShot", 100);
 	}
 
 	public static void damageEntityFromArrow(LivingEntity entity, Arrow arrow) {

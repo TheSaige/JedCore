@@ -953,6 +953,8 @@ public class JedCoreConfig {
 		config.addDefault("Abilities.Chi.DaggerThrow.MaxDaggers.Amount", 6);
 		config.addDefault("Abilities.Chi.DaggerThrow.Damage", 1.0);
 		config.addDefault("Abilities.Chi.DaggerThrow.ParticleTrail", true);
+		config.addDefault("Abilities.Chi.DaggerThrow.RequireArrows", false);
+		config.addDefault("Abilities.Chi.DaggerThrow.AllowPickup", false);
 		config.addDefault("Abilities.Chi.DaggerThrow.AbilityCollisionRadius", 0.5);
 		config.addDefault("Abilities.Chi.DaggerThrow.Interactions.WaterSpout.Enabled", true);
 		config.addDefault("Abilities.Chi.DaggerThrow.Interactions.WaterSpout.Cooldown", 1000);

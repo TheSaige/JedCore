@@ -11,6 +11,7 @@ import com.jedk1.jedcore.ability.firebending.FirePunch;
 import com.jedk1.jedcore.ability.firebending.FireSki;
 import com.jedk1.jedcore.ability.waterbending.IceClaws;
 import com.jedk1.jedcore.ability.waterbending.IceWall;
+import com.jedk1.jedcore.configuration.JedCoreConfig;
 import com.jedk1.jedcore.util.LightManager;
 import com.jedk1.jedcore.util.RegenTempBlock;
 import com.projectkorra.projectkorra.ProjectKorra;
@@ -36,6 +37,7 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.entity.EntityExplodeEvent;
+import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.inventory.InventoryPickupItemEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -147,15 +149,15 @@ public class JCListener implements Listener {
 					}
 					event.setDamage(0);
 					event.setCancelled(true);
-					arrow.remove();
 					arrow.removeMetadata("daggerthrow", JedCore.plugin);
+					arrow.remove();
 				}
 
 				if (arrow.hasMetadata("metalhook")) {
-					arrow.remove();
 					event.setDamage(0);
 					event.setCancelled(true);
 					arrow.removeMetadata("metalhook", JedCore.plugin);
+					arrow.remove();
 				}
 			}
 		}
