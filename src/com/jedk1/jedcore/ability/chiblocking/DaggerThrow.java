@@ -29,9 +29,10 @@ import java.util.stream.Collectors;
 
 public class DaggerThrow extends ChiAbility implements AddonAbility {
 	private static final List<AbilityInteraction> INTERACTIONS = new ArrayList<>();
-	private static boolean particles;
+	private boolean particles;
 
-	private static double damage;
+	@Attribute(Attribute.DAMAGE)
+	private double damage;
 
 	@Attribute(Attribute.COOLDOWN)
 	private long cooldown;
@@ -51,10 +52,6 @@ public class DaggerThrow extends ChiAbility implements AddonAbility {
 
 	public DaggerThrow(Player player) {
 		super(player);
-
-		if (this instanceof DamageAbility) {
-			return;
-		}
 
 		if (!bPlayer.canBend(this)) {
 			return;
@@ -148,48 +145,63 @@ public class DaggerThrow extends ChiAbility implements AddonAbility {
 		bPlayer.addCooldown("DaggerThrowShot", 100);
 	}
 
-	public static void damageEntityFromArrow(LivingEntity entity, Arrow arrow) {
-		if (RegionProtection.isRegionProtected((Player) arrow.getShooter(), arrow.getLocation(), "DaggerThrow")) {
+	public void damageEntityFromArrow(LivingEntity entity, Arrow arrow) {
+		if (!(arrow.getShooter() instanceof Player shooter)) {
+			return;
+		}
+
+		System.out.println("Shooter: " + shooter.getName());
+		System.out.println("Static Damage Value: " + damage);
+		System.out.println("Entity: " + entity.getName());
+		System.out.println("Entity Health Before: " + entity.getHealth());
+
+		if (RegionProtection.isRegionProtected(shooter, arrow.getLocation(), "DaggerThrow")) {
+			System.out.println("Region Protected");
 			return;
 		}
 
 		arrow.setVelocity(new Vector(0, 0, 0));
 		entity.setNoDamageTicks(0);
+
 		double prevHealth = entity.getHealth();
-		Player shooter = (Player) arrow.getShooter();
-		DamageAbility da = new DamageAbility(shooter);
-		DamageHandler.damageEntity(entity, damage, da);
-		da.remove();
+
+		System.out.println("Attempting to damage with: " + damage);
+		DamageHandler.damageEntity(entity, damage, this);
+		System.out.println("Entity Health After: " + entity.getHealth());
+
 		if (prevHealth > entity.getHealth()) {
 			arrow.remove();
 		}
 
-		if (!(entity instanceof Player)) {
+		if (!(entity instanceof Player target)) {
 			return;
 		}
 
-		DaggerThrow dt = CoreAbility.getAbility(shooter, DaggerThrow.class);
-		if (dt == null) {
+		DaggerThrow daggerThrow = CoreAbility.getAbility(shooter, DaggerThrow.class);
+		if (daggerThrow == null) {
 			return;
 		}
 
-		++dt.hits;
-
-		Player target = (Player)entity;
-		BendingPlayer bPlayer = BendingPlayer.getBendingPlayer(target);
+		daggerThrow.hits++;
+		BendingPlayer targetBPlayer = BendingPlayer.getBendingPlayer(target);
 
 		for (AbilityInteraction interaction : INTERACTIONS) {
-			if (!interaction.enabled) continue;
-			if (dt.hits < interaction.hitRequirement) continue;
+			if (!interaction.enabled || daggerThrow.hits < interaction.hitRequirement) {
+				continue;
+			}
 
 			CoreAbility abilityDefinition = AbilitySelector.getAbility(interaction.name);
-			if (abilityDefinition == null) continue;
+			if (abilityDefinition == null) {
+				continue;
+			}
 
 			CoreAbility ability = CoreAbility.getAbility(target, abilityDefinition.getClass());
-			if (ability == null) continue;
+			if (ability == null) {
+				continue;
+			}
 
 			ability.remove();
-			bPlayer.addCooldown(ability, interaction.cooldown);
+			targetBPlayer.addCooldown(ability, interaction.cooldown);
 		}
 	}
 	
@@ -259,11 +271,11 @@ public class DaggerThrow extends ChiAbility implements AddonAbility {
 		return "* JedCore Addon *\n" + config.getString("Abilities.Chi.DaggerThrow.Description");
 	}
 
-	public static boolean hasParticleTrail() {
+	public boolean hasParticleTrail() {
 		return particles;
 	}
 
-	public static double getDamage() {
+	public double getDamage() {
 		return damage;
 	}
 
@@ -325,44 +337,6 @@ public class DaggerThrow extends ChiAbility implements AddonAbility {
 	public boolean isEnabled() {
 		ConfigurationSection config = JedCoreConfig.getConfig(this.player);
 		return config.getBoolean("Abilities.Chi.DaggerThrow.Enabled");
-	}
-	
-	public static class DamageAbility extends DaggerThrow {
-		
-		public DamageAbility(Player player) {
-			super(player);
-			start();
-		}
-
-		@Override
-		public long getCooldown() {
-			return 0;
-		}
-
-		@Override
-		public Location getLocation() {
-			return null;
-		}
-
-		@Override
-		public String getName() {
-			return "DaggerThrow";
-		}
-
-		@Override
-		public boolean isHarmlessAbility() {
-			return false;
-		}
-
-		@Override
-		public boolean isSneakAbility() {
-			return false;
-		}
-
-		@Override
-		public void progress() {
-			remove();
-		}
 	}
 
 	private class AbilityInteraction {

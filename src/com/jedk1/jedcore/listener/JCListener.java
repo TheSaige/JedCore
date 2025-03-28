@@ -14,8 +14,10 @@ import com.jedk1.jedcore.ability.waterbending.IceWall;
 import com.jedk1.jedcore.configuration.JedCoreConfig;
 import com.jedk1.jedcore.util.LightManager;
 import com.jedk1.jedcore.util.RegenTempBlock;
+import com.projectkorra.projectkorra.BendingPlayer;
 import com.projectkorra.projectkorra.ProjectKorra;
 import com.projectkorra.projectkorra.ability.CoreAbility;
+import com.projectkorra.projectkorra.ability.ElementalAbility;
 import com.projectkorra.projectkorra.ability.IceAbility;
 import com.projectkorra.projectkorra.earthbending.lava.LavaFlow;
 import com.projectkorra.projectkorra.event.*;
@@ -139,25 +141,23 @@ public class JCListener implements Listener {
 			}
 		}
 
-		if (event.getDamager() instanceof Arrow) {
-			Arrow arrow = (Arrow) event.getDamager();
-
-			if (event.getEntity() instanceof LivingEntity) {
-				if (arrow.hasMetadata("daggerthrow") && arrow.getShooter() instanceof Player) {
-					if (event.getEntity().getEntityId() != ((Player) arrow.getShooter()).getEntityId()) {
-						DaggerThrow.damageEntityFromArrow(((LivingEntity) event.getEntity()), arrow);
-					}
+		if (event.getDamager() instanceof Arrow arrow) {
+            if (event.getEntity() instanceof LivingEntity) {
+				if (arrow.hasMetadata("daggerthrow")) {
 					event.setDamage(0);
-					event.setCancelled(true);
-					arrow.removeMetadata("daggerthrow", JedCore.plugin);
-					arrow.remove();
+					if (!(arrow.getShooter() instanceof Player shooter)) return;
+                    if (!CoreAbility.hasAbility(shooter, DaggerThrow.class)) return;
+					DaggerThrow daggerThrow = CoreAbility.getAbility(shooter, DaggerThrow.class);
+					if (daggerThrow != null) {
+						daggerThrow.damageEntityFromArrow(((LivingEntity) event.getEntity()), arrow);
+						arrow.remove();
+						event.setCancelled(true);
+					}
 				}
-
 				if (arrow.hasMetadata("metalhook")) {
 					event.setDamage(0);
-					event.setCancelled(true);
-					arrow.removeMetadata("metalhook", JedCore.plugin);
 					arrow.remove();
+					event.setCancelled(true);
 				}
 			}
 		}
