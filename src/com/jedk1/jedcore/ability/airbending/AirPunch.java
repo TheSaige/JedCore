@@ -11,12 +11,12 @@ import com.projectkorra.projectkorra.ability.util.Collision;
 import com.projectkorra.projectkorra.attribute.Attribute;
 import com.projectkorra.projectkorra.region.RegionProtection;
 import com.projectkorra.projectkorra.util.DamageHandler;
-
 import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -24,6 +24,9 @@ import java.util.concurrent.ConcurrentHashMap;
 public class AirPunch extends AirAbility implements AddonAbility {
 
 	private final Map<Location, Double> locations = new ConcurrentHashMap<>();
+
+	private int shots;
+	private long lastShotTime;
 
 	@Attribute(Attribute.COOLDOWN)
 	private long cooldown;
@@ -34,9 +37,6 @@ public class AirPunch extends AirAbility implements AddonAbility {
 	private double damage;
 	@Attribute("CollisionRadius")
 	private double entityCollisionRadius;
-
-	private int shots;
-	private long lastShotTime;
 
 	public AirPunch(Player player) {
 		super(player);
@@ -54,8 +54,8 @@ public class AirPunch extends AirAbility implements AddonAbility {
 		setFields();
 
 		start();
-		if (!isRemoved())
-			createShot();
+
+		if (!isRemoved()) createShot();
 	}
 	
 	public void setFields() {
@@ -107,38 +107,70 @@ public class AirPunch extends AirAbility implements AddonAbility {
 	}
 
 	private void progressShots() {
-		for (Location l : locations.keySet()) {
-			Location loc = l.clone();
-			double dist = locations.get(l);
-			boolean cancel = false;
-			for (int i = 0; i < 3; i++) {
-				dist++;
-				if (cancel || dist >= range) {
-					cancel = true;
-					break;
-				}
-				loc = loc.add(loc.getDirection().clone().multiply(1));
-				if (GeneralMethods.isSolid(loc.getBlock()) || isWater(loc.getBlock()) || RegionProtection.isRegionProtected(player, loc, this)) {
-					cancel = true;
-					break;
-				}
+		Iterator<Map.Entry<Location, Double>> iterator = locations.entrySet().iterator();
+		while (iterator.hasNext()) {
+			Map.Entry<Location, Double> entry = iterator.next();
+			Location originalLoc = entry.getKey();
+			double dist = entry.getValue();
+			ShotResult result = simulateShotProgression(originalLoc, dist);
 
-				getAirbendingParticles().display(loc, 2, Math.random() / 5, Math.random() / 5, Math.random() / 5, 0.0);
-				playAirbendingSound(loc);
+			iterator.remove();
 
-				cancel = CollisionDetector.checkEntityCollisions(player, new Sphere(loc.toVector(), entityCollisionRadius), (entity) -> {
-					DamageHandler.damageEntity(entity, damage, this);
-					return true;
-				});
-			}
-
-			if (cancel) {
-				locations.remove(l);
-			} else {
-				locations.remove(l);
-				locations.put(loc, dist);
+			if (result.moved) {
+				locations.put(result.newLoc, result.newDist);
 			}
 		}
+	}
+
+	private record ShotResult(Location newLoc, double newDist, boolean moved) {}
+
+	private ShotResult simulateShotProgression(Location startLoc, double startDist) {
+		Location loc = startLoc.clone();
+		double dist = startDist;
+		boolean shouldRemove = false;
+		boolean moved = false;
+
+		for (int i = 0; i < 3 && !shouldRemove; i++) {
+			dist++;
+			if (dist >= range) {
+				shouldRemove = true;
+			} else {
+				Location nextLoc = calculateNextLocation(loc);
+				if (isPathBlocked(nextLoc)) {
+					shouldRemove = true;
+				} else {
+					applyShotEffects(nextLoc);
+					if (checkAndHandleCollision(nextLoc)) {
+						shouldRemove = true;
+					} else {
+						loc = nextLoc;
+						moved = true;
+					}
+				}
+			}
+		}
+
+		return new ShotResult(loc, dist, moved);
+	}
+
+	private Location calculateNextLocation(Location currentLocation) {
+		return currentLocation.add(currentLocation.getDirection().clone().multiply(1));
+	}
+
+	private boolean isPathBlocked(Location location) {
+		return GeneralMethods.isSolid(location.getBlock()) || isWater(location.getBlock()) || RegionProtection.isRegionProtected(player, location, this);
+	}
+
+	private void applyShotEffects(Location location) {
+		getAirbendingParticles().display(location, 2, Math.random() / 5, Math.random() / 5, Math.random() / 5, 0.0);
+		playAirbendingSound(location);
+	}
+
+	private boolean checkAndHandleCollision(Location location) {
+		return CollisionDetector.checkEntityCollisions(player, new Sphere(location.toVector(), entityCollisionRadius), entity -> {
+			DamageHandler.damageEntity(entity, damage, this);
+			return true;
+		});
 	}
 	
 	@Override

@@ -9,7 +9,6 @@ import com.projectkorra.projectkorra.ability.AirAbility;
 import com.projectkorra.projectkorra.attribute.Attribute;
 import com.projectkorra.projectkorra.region.RegionProtection;
 import com.projectkorra.projectkorra.util.DamageHandler;
-
 import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
@@ -77,58 +76,67 @@ public class AirBlade extends AirAbility implements AddonAbility {
 
 	private void progressBlade() {
 		for (int j = 0; j < 2; j++) {
-			location = location.add(direction.multiply(1));
-			playAirbendingSound(location);
-			travelled++;
-			growth += 0.125;
-			if (travelled >= range) {
-				remove();
-				return;
-			}
-
-			if (!isTransparent(location.getBlock())) {
-				remove();
-				return;
-			}
-
-			if (RegionProtection.isRegionProtected(player, player.getLocation(), this)) {
-				remove();
+			if (!moveAndCheckCollision()) {
 				return;
 			}
 
 			double pitch = -location.getPitch();
 			Location lastLoc = location.clone();
+
 			for (double i = -90 + pitch; i <= 90 + pitch; i += 8) {
-				Location tempLoc = location.clone();
-				tempLoc.setPitch(0);
-				Vector tempDir = tempLoc.getDirection().clone();
-				tempDir.setY(0);
-				Vector newDir = tempDir.clone().multiply(growth * Math.cos(Math.toRadians(i)));
-				tempLoc.add(newDir);
-				tempLoc.setY(tempLoc.getY() + (growth * Math.sin(Math.toRadians(i))));
+				Location tempLoc = calculateParticleLocation(i);
 				playAirbendingParticles(tempLoc, 1, (float) Math.random() / 2, (float) Math.random() / 2, (float) Math.random() / 2);
 
-				if (j == 0) {
-					// Only check collisions for each block.
-					if (!lastLoc.getBlock().getLocation().equals(tempLoc.getBlock().getLocation())) {
-						lastLoc = tempLoc;
-
-						boolean hit = CollisionDetector.checkEntityCollisions(player, new Sphere(tempLoc.toVector(), entityCollisionRadius), (entity) -> {
-							DamageHandler.damageEntity(entity, damage, this);
-							remove();
-							return true;
-						});
-
-						if (hit) {
-							remove();
-							return;
-						}
+				if (j == 0 && !lastLoc.getBlock().getLocation().equals(tempLoc.getBlock().getLocation())) {
+					if (handleEntityCollision(tempLoc)) {
+						return;
 					}
+					lastLoc = tempLoc;
 				}
 			}
 		}
 	}
 
+	private boolean moveAndCheckCollision() {
+		location = location.add(direction.multiply(1));
+		playAirbendingSound(location);
+		travelled++;
+		growth += 0.125;
+
+		if (travelled >= range ||
+				!isTransparent(location.getBlock()) ||
+				RegionProtection.isRegionProtected(player, player.getLocation(), this)) {
+			remove();
+			return false;
+		}
+		return true;
+	}
+
+	private Location calculateParticleLocation(double angle) {
+		Location tempLoc = location.clone();
+		tempLoc.setPitch(0);
+		Vector tempDir = tempLoc.getDirection().clone();
+		tempDir.setY(0);
+		Vector newDir = tempDir.clone().multiply(growth * Math.cos(Math.toRadians(angle)));
+		tempLoc.add(newDir);
+		tempLoc.setY(tempLoc.getY() + (growth * Math.sin(Math.toRadians(angle))));
+		return tempLoc;
+	}
+
+	private boolean handleEntityCollision(Location tempLoc) {
+		boolean hit = CollisionDetector.checkEntityCollisions(player, new Sphere(tempLoc.toVector(), entityCollisionRadius), entity -> {
+			DamageHandler.damageEntity(entity, damage, this);
+			remove();
+			return true;
+		});
+		if (hit) {
+			remove();
+			return true;
+		}
+		return false;
+	}
+
+	@Override
 	public Player getPlayer() {
 		return player;
 	}
@@ -143,11 +151,14 @@ public class AirBlade extends AirAbility implements AddonAbility {
 		List<Location> locations = new ArrayList<>();
 
 		double pitch = -location.getPitch();
+
 		for (double i = -90 + pitch; i <= 90 + pitch; i += 8) {
 			Location tempLoc = location.clone();
 			tempLoc.setPitch(0);
+
 			Vector tempDir = tempLoc.getDirection().clone();
 			tempDir.setY(0);
+
 			Vector newDir = tempDir.clone().multiply(growth * Math.cos(Math.toRadians(i)));
 			tempLoc.add(newDir);
 			tempLoc.setY(tempLoc.getY() + (growth * Math.sin(Math.toRadians(i))));

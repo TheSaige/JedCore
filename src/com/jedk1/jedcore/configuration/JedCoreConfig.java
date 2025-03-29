@@ -1,8 +1,6 @@
 package com.jedk1.jedcore.configuration;
 
 import com.jedk1.jedcore.JedCore;
-
-import com.projectkorra.projectkorra.attribute.Attribute;
 import com.projectkorra.projectkorra.configuration.ConfigManager;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -60,7 +58,7 @@ public class JedCoreConfig {
 		config.addDefault("Abilities.Avatar.ElementSphere.Enabled", true);
 		config.addDefault("Abilities.Avatar.ElementSphere.Description", "ElementSphere is a very all round ability, being "
 				+ "able to shoot attacks of each element, each with a "
-				+ "different affect. To use, simply Left-Click. Once active, "
+				+ "different effect. To use, simply Left-Click. Once active, "
 				+ "Sneak (Default: Shift) to fly around. Sneak and double "
 				+ "Left-Click to disable the ability! "
 				+ "To use each element, simply select hotbar slots 1-4 and Left-Click. "
@@ -118,7 +116,7 @@ public class JedCoreConfig {
 		
 		config.addDefault("Abilities.Air.AirBlade.Enabled", true);
 		config.addDefault("Abilities.Air.AirBlade.Description", "With this ability bound, Left-Click to shoot "
-				+ "a strong blade of air at your targets doing some damage!");
+				+ "a strong blade of air at your targets to deal some damage!");
 		config.addDefault("Abilities.Air.AirBlade.Cooldown", 3000);
 		config.addDefault("Abilities.Air.AirBlade.Range", 30.0);
 		config.addDefault("Abilities.Air.AirBlade.Damage", 4.0);
@@ -133,7 +131,7 @@ public class JedCoreConfig {
 		
 		config.addDefault("Abilities.Air.AirBreath.Enabled", true);
 		config.addDefault("Abilities.Air.AirBreath.Description", "To use, hold Sneak (Default: Shift) to release "
-				+ "a strong breath of wind knocking your opponents "
+				+ "a strong breath of wind, knocking your opponents "
 				+ "back. This ability also has a longer range and "
 				+ "stronger knockback while in AvatarState!");
 		config.addDefault("Abilities.Air.AirBreath.Cooldown", 3000);
@@ -155,7 +153,7 @@ public class JedCoreConfig {
 		
 		config.addDefault("Abilities.Air.AirGlide.Enabled", true);
 		config.addDefault("Abilities.Air.AirGlide.Description", "While falling, tap Sneak for a "
-				+ "slow and steady descent, tap Sneak again to stop gliding.");
+				+ "slow and steady descent. Tap Sneak again to stop gliding.");
 		config.addDefault("Abilities.Air.AirGlide.Speed", 0.5);
 		config.addDefault("Abilities.Air.AirGlide.FallSpeed", 0.1);
 		config.addDefault("Abilities.Air.AirGlide.Particles", 4);
@@ -166,7 +164,7 @@ public class JedCoreConfig {
 		
 		config.addDefault("Abilities.Air.AirPunch.Enabled", true);
 		config.addDefault("Abilities.Air.AirPunch.Description", "Left-Click in rapid succession to punch high desnity packets of air "
-				+ "at enemies to do slight damage to them. A few punches can be thrown before the ability has a cooldown.");
+				+ "at enemies to do slight damage. A few punches can be thrown before the ability goes on cooldown.");
 		config.addDefault("Abilities.Air.AirPunch.Cooldown", 5000);
 		config.addDefault("Abilities.Air.AirPunch.Threshold", 500);
 		config.addDefault("Abilities.Air.AirPunch.Shots", 4);
@@ -187,7 +185,7 @@ public class JedCoreConfig {
 		config.addDefault("Abilities.Air.Meditate.Enabled", true);
 		config.addDefault("Abilities.Air.Meditate.Description", "Hold Sneak (Default: Shift) to start meditating. "
 				+ "After you have focused your energy, you will obtain several buffs.");
-		config.addDefault("Abilities.Air.Meditate.UnfocusMessage", "You have become unfocused from taking damage!");
+		config.addDefault("Abilities.Air.Meditate.UnfocusMessage", "You have become unfocused due to taking damage!");
 		config.addDefault("Abilities.Air.Meditate.LossFocusMessage", true);
 		config.addDefault("Abilities.Air.Meditate.ChargeTime", 5000);
 		config.addDefault("Abilities.Air.Meditate.Cooldown", 60000);
@@ -199,9 +197,9 @@ public class JedCoreConfig {
 		
 		config.addDefault("Abilities.Air.SonicBlast.Enabled", true);
 		config.addDefault("Abilities.Air.SonicBlast.Description", "SonicBlast is a soundbending ability, known by very few airbenders. "
-			+ "It allows the airbender to stun and deafen an opponent by creating a sonic blast, "
-			+ "this is achieved by creating two regions of high and low pressure and bringing them together. "
-			+ "To use, hold Sneak (Default: Shift) in the direction of the target. Once particles start appearing "
+			+ "It allows the airbender to stun and deafen an opponent by creating a sonic blast. "
+			+ "This is achieved by creating two regions of high and low pressure and bringing them together. "
+			+ "To use, hold Sneak (Default: Shift) in the direction of the target. Once particles appear "
 			+ "around you, let go of Sneak to shoot a SonicBlast at your target! The technique is very powerful, "
 			+ "even if it doesn't seem it, and comes with a short cooldown.");
 		config.addDefault("Abilities.Air.SonicBlast.ChargeTime", 2000);
@@ -1014,8 +1012,8 @@ public class JedCoreConfig {
 
 		//Air
 		lang.addDefault("Abilities.Air.AirBlade.DeathMessage", "{victim} was sliced in two by {attacker}'s {ability}");
-		lang.addDefault("Abilities.Air.AirPunch.DeathMessage", "{victim} was exploded from {attacker}'s {ability}");
-		lang.addDefault("Abilities.Air.SonicBlast.DeathMessage", "{victim}'s ears burst from {attacker}'s {ability}");
+		lang.addDefault("Abilities.Air.AirPunch.DeathMessage", "{victim} was exploded by {attacker}'s {ability}");
+		lang.addDefault("Abilities.Air.SonicBlast.DeathMessage", "{victim}'s ears burst after {attacker}'s {ability}");
 
 		//Chi
 		lang.addDefault("Abilities.Chi.DaggerThrow.DeathMessage", "{victim} got stabbed too many times from {attacker}'s {ability}");

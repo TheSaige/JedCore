@@ -13,8 +13,6 @@ import com.projectkorra.projectkorra.attribute.Attribute;
 import com.projectkorra.projectkorra.command.Commands;
 import com.projectkorra.projectkorra.object.HorizontalVelocityTracker;
 import com.projectkorra.projectkorra.region.RegionProtection;
-import com.projectkorra.projectkorra.util.ClickType;
-
 import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Entity;
@@ -44,14 +42,16 @@ public class AirSlam extends AirAbility implements AddonAbility, ComboAbility {
 		
 		setFields();
 
-		Entity target = GeneralMethods.getTargetedEntity(player, range, new ArrayList<>());
-		if (!(target instanceof LivingEntity)
-				|| RegionProtection.isRegionProtected(this, target.getLocation())
-				|| ((target instanceof Player) && Commands.invincible.contains(target.getName())))
+		Entity targetEntity = GeneralMethods.getTargetedEntity(player, range, new ArrayList<>());
+		if (!(targetEntity instanceof LivingEntity)
+				|| RegionProtection.isRegionProtected(this, targetEntity.getLocation())
+				|| ((targetEntity instanceof Player) && Commands.invincible.contains(targetEntity.getName())))
 			return;
-		this.target = (LivingEntity) target;
+
+		this.target = (LivingEntity) targetEntity;
 
 		start();
+
 		if (!isRemoved()) {
 			bPlayer.addCooldown(this);
 			GeneralMethods.setVelocity(this, target, new Vector(0, 2, 0));
@@ -72,6 +72,7 @@ public class AirSlam extends AirAbility implements AddonAbility, ComboAbility {
 			remove();
 			return;
 		}
+
 		if (System.currentTimeMillis() > getStartTime() + 50) {
 			Vector dir = player.getLocation().getDirection();
 			GeneralMethods.setVelocity(this, target, new Vector(dir.getX(), 0.05, dir.getZ()).multiply(power));
@@ -79,10 +80,12 @@ public class AirSlam extends AirAbility implements AddonAbility, ComboAbility {
 			new ThrownEntityTracker(this, target, player, 0L);
 			target.setFallDistance(0);
 		}
+
 		if (System.currentTimeMillis() > getStartTime() + 400) {
 			remove();
 			return;
 		}
+
 		playAirbendingParticles(target.getLocation(), 10);
 	}
 
