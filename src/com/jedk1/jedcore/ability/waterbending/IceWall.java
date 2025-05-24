@@ -3,16 +3,12 @@ package com.jedk1.jedcore.ability.waterbending;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Random;
 
 import com.jedk1.jedcore.configuration.JedCoreConfig;
 import com.projectkorra.projectkorra.ability.*;
 import com.projectkorra.projectkorra.attribute.Attribute;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.Sound;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.configuration.ConfigurationSection;
@@ -23,7 +19,6 @@ import org.bukkit.util.Vector;
 
 import com.jedk1.jedcore.JedCore;
 import com.projectkorra.projectkorra.GeneralMethods;
-import com.projectkorra.projectkorra.airbending.AirBlast;
 import com.projectkorra.projectkorra.earthbending.EarthSmash;
 import com.projectkorra.projectkorra.firebending.FireBlast;
 import com.projectkorra.projectkorra.firebending.FireBlastCharged;
@@ -35,19 +30,25 @@ import com.projectkorra.projectkorra.waterbending.Torrent;
 import com.projectkorra.projectkorra.waterbending.ice.IceBlast;
 
 public class IceWall extends IceAbility implements AddonAbility {
-
 	public static List<IceWall> instances = new ArrayList<>();
+
 	@Attribute(Attribute.HEIGHT)
 	private int maxHeight;
 	private int minHeight;
+
+	@Attribute(Attribute.WIDTH)
 	private int width;
+
 	@Attribute(Attribute.RANGE)
 	private int range;
+
 	@Attribute("Health")
 	private int maxHealth;
 	private int minHealth;
+
 	@Attribute(Attribute.DAMAGE)
 	private double damage;
+
 	@Attribute(Attribute.COOLDOWN)
 	private long cooldown;
 
@@ -74,6 +75,7 @@ public class IceWall extends IceAbility implements AddonAbility {
 	private long lifetime = 0;
 	private int wallHealth;
 	private int tankedDamage;
+
 	private final List<Block> lastBlocks = new ArrayList<>();
 	private final List<TempBlock> tempBlocks = new ArrayList<>();
 
@@ -87,37 +89,29 @@ public class IceWall extends IceAbility implements AddonAbility {
 
 		setFields();
 		Block b = getSourceBlock(player, (int) (range * getNightFactor(player.getWorld())));
+		if (b == null) return;
 
-		if (b == null)
-			return;
-
-		else {
-			for (IceWall iw : instances) {
-				if (iw.affectedBlocks.contains(b)) {
-					iw.collapse(player, false);
-					return;
-				}
-			}
-
-			if (isWaterbendable(b)) {
-				if (!bPlayer.canBend(this)) {
-					return;
-				}
-
-				wallHealth = (int) (((rand.nextInt((maxHealth - minHealth) + 1)) + minHealth) * getNightFactor(player.getWorld()));
-				loadAffectedBlocks(player, b);
-				lifetime = System.currentTimeMillis() + lifetimeTime;
+		for (IceWall iw : instances) {
+			if (iw.affectedBlocks.contains(b)) {
+				iw.collapse(player, false);
+				return;
 			}
 		}
+
+		if (!bPlayer.canBend(this) || !isWaterbendable(b)) return;
+
+		wallHealth = (int) (((rand.nextInt((maxHealth - minHealth) + 1)) + minHealth) * getNightFactor(player.getWorld()));
+		loadAffectedBlocks(player, b);
+		lifetime = System.currentTimeMillis() + lifetimeTime;
 		start();
 	}
 
 	public void setFields() {
 		ConfigurationSection config = JedCoreConfig.getConfig(this.player);
 
-		setMaxHeight(config.getInt("Abilities.Water.IceWall.MaxHeight"));
-		setMinHeight(config.getInt("Abilities.Water.IceWall.MinHeight"));
-		setWidth(config.getInt("Abilities.Water.IceWall.Width"));
+		maxHeight = (config.getInt("Abilities.Water.IceWall.MaxHeight"));
+		minHeight = (config.getInt("Abilities.Water.IceWall.MinHeight"));
+		width = (config.getInt("Abilities.Water.IceWall.Width"));
 		range = config.getInt("Abilities.Water.IceWall.Range");
 		maxHealth = config.getInt("Abilities.Water.IceWall.MaxWallHealth");
 		minHealth = config.getInt("Abilities.Water.IceWall.MinWallHealth");
@@ -232,23 +226,21 @@ public class IceWall extends IceAbility implements AddonAbility {
 		if (rising) {
 			if (lastBlocks.isEmpty()) {
 				rising = false;
-				return;
-			}
+			} else {
+				List<Block> theseBlocks = new ArrayList<>(lastBlocks);
+				lastBlocks.clear();
 
-			List<Block> theseBlocks = new ArrayList<>(lastBlocks);
+				for (Block b : theseBlocks) {
+					TempBlock tb = new TempBlock(b, Material.ICE.createBlockData());
+					tempBlocks.add(tb);
 
-			lastBlocks.clear();
+					playIcebendingSound(b.getLocation());
 
-			for (Block b : theseBlocks) {
-				TempBlock tb = new TempBlock(b, Material.ICE.createBlockData());
-				tempBlocks.add(tb);
+					Block up = b.getRelative(BlockFace.UP);
 
-				playIcebendingSound(b.getLocation());
-
-				Block up = b.getRelative(BlockFace.UP);
-
-				if (affectedBlocks.contains(up))
-					lastBlocks.add(up);
+					if (affectedBlocks.contains(up))
+						lastBlocks.add(up);
+				}
 			}
 		}
 
@@ -264,65 +256,37 @@ public class IceWall extends IceAbility implements AddonAbility {
 
 		lastDamageTime = System.currentTimeMillis();
 		tankedDamage += damage;
+
 		if (tankedDamage >= wallHealth) {
 			collapse(player, true);
 		}
 	}
 
 	public void collapse(Player player, boolean forceful) {
-		if (rising)
-			return;
+		if (rising) return;
 
-		remove(player, forceful);
-	}
-
-	public void remove(Player player, boolean forceful) {
 		for (TempBlock tb : tempBlocks) {
-			if (tb != null) {
-				tb.revertBlock();
+			tb.revertBlock();
+			tb.getLocation().getWorld().spawnParticle(Particle.BLOCK_CRACK, tb.getLocation(), 5, 0, 0, 0, 0, Material.PACKED_ICE.createBlockData());
+			tb.getLocation().getWorld().playSound(tb.getLocation(), Sound.BLOCK_GLASS_BREAK, 5f, 5f);
 
-				ParticleEffect.BLOCK_CRACK.display(tb.getLocation(), 5, 0, 0, 0, 0, Material.PACKED_ICE.createBlockData());
-				tb.getLocation().getWorld().playSound(tb.getLocation(), Sound.BLOCK_GLASS_BREAK, 5f, 5f);
-
-				for (Entity e : GeneralMethods.getEntitiesAroundPoint(tb.getLocation(), 2.5)) {
-					if (e.getEntityId() != player.getEntityId()) {
-						if (e instanceof LivingEntity) {
-							DamageHandler.damageEntity(e, damage * getNightFactor(player.getWorld()), this);
-							if (forceful) {
-								((LivingEntity) e).setNoDamageTicks(0);
-							}
-						}
+			for (Entity e : GeneralMethods.getEntitiesAroundPoint(tb.getLocation(), 2.5)) {
+				if (e.getEntityId() != player.getEntityId() && e instanceof LivingEntity) {
+					DamageHandler.damageEntity(e, damage * getNightFactor(player.getWorld()), this);
+					if (forceful) {
+						((LivingEntity) e).setNoDamageTicks(0);
 					}
 				}
 			}
 		}
 
 		tempBlocks.clear();
-
 		isWallDoneFor = true;
-		remove();
 	}
 
+	@Override
 	public void remove() {
-		for (TempBlock tb : tempBlocks) {
-			if (tb != null) {
-				tb.revertBlock();
-			}
-		}
-
-		tempBlocks.clear();
-
-		instances.remove(this);
 		super.remove();
-	}
-
-	public static void removeDeadInstances() {
-		for (int i = 0; i < instances.size(); i++) {
-			IceWall iw = instances.get(i);
-			if (iw.isWallDoneFor) {
-				instances.remove(i);
-			}
-		}
 	}
 
 	public static void collisionDamage(Entity entity, double travelledDistance, Vector difference, Player instigator) {
@@ -362,142 +326,124 @@ public class IceWall extends IceAbility implements AddonAbility {
 		return false;
 	}
 
-	public static void removeAll() {
+	public static void progressAll() {
+        for (IceWall iw : new ArrayList<>(instances)) {
+			if (iw.isWallDoneFor) continue; // Skip already collapsed walls
+            for (Torrent t : getAbilities(Torrent.class)) {
+                if (t.getLocation() == null) continue;
+                for (int i = 0; i < t.getLaunchedBlocks().size(); i++) {
+                    TempBlock tb = t.getLaunchedBlocks().get(i);
+
+                    for (Block ice : iw.affectedBlocks) {
+                        if (ice.getLocation().getWorld() == tb.getLocation().getWorld() && ice.getLocation().distance(tb.getLocation()) <= 2) {
+                            if (t.isFreeze())
+                                iw.damageWall(t.getPlayer(), (int) (iw.torrentFreezeDamage * getNightFactor(ice.getWorld())));
+                            else
+                                iw.damageWall(t.getPlayer(), (int) (iw.torrentDamage * getNightFactor(ice.getWorld())));
+
+                            if (!iw.isWallDoneFor)
+                                t.setFreeze(false);
+                        }
+                    }
+                }
+            }
+
+            for (IceBlast ib : getAbilities(IceBlast.class)) {
+                if (ib.getLocation() == null) continue;
+                for (Block ice : iw.affectedBlocks) {
+                    if (ib.source == null)
+                        break;
+
+                    if (ice.getLocation().getWorld() == ib.source.getLocation().getWorld() && ice.getLocation().distance(ib.source.getLocation()) <= 2) {
+                        iw.damageWall(ib.getPlayer(), (int) (iw.iceBlastDamage * getNightFactor(ice.getWorld())));
+
+                        if (!iw.isWallDoneFor)
+                            ib.remove();
+                    }
+                }
+            }
+
+            for (FireBlastCharged fb : getAbilities(FireBlastCharged.class)) {
+                if (fb.getLocation() == null) continue;
+                for (Block ice : iw.affectedBlocks) {
+                    if (ice.getLocation().getWorld() == fb.getLocation().getWorld() && fb.getLocation().distance(ice.getLocation()) <= 1.5) {
+                        iw.damageWall(fb.getPlayer(), iw.fireBlastChargedDamage);
+
+                        if (!iw.isWallDoneFor)
+                            fb.remove();
+                    }
+                }
+            }
+
+            for (FireBlast fb : getAbilities(FireBlast.class)) {
+                if (fb.getLocation() == null) continue;
+                for (Block ice : iw.affectedBlocks) {
+                    if (ice.getLocation().getWorld() == fb.getLocation().getWorld() && fb.getLocation().distance(ice.getLocation()) <= 1.5) {
+                        iw.damageWall(fb.getPlayer(), iw.fireBlastDamage);
+
+                        if (!iw.isWallDoneFor)
+                            fb.remove();
+                    }
+                }
+            }
+
+            for (EarthSmash es : getAbilities(EarthSmash.class)) {
+                if (es.getLocation() == null) continue;
+                for (Block ice : iw.affectedBlocks) {
+                    if (es.getState() == EarthSmash.State.SHOT) {
+                        for (int j = 0; j < es.getBlocks().size(); j++) {
+                            Block b = es.getBlocks().get(j);
+                            if (ice.getLocation().getWorld() == b.getLocation().getWorld() && b.getLocation().distance(ice.getLocation()) <= 2) {
+                                iw.damageWall(es.getPlayer(), iw.earthSmashDamage);
+
+                                if (!iw.isWallDoneFor) {
+                                    for (Block block : es.getBlocksIncludingInner()) {
+                                        if (block != null && !ElementalAbility.isAir(block.getType())) {
+                                            ParticleEffect.BLOCK_CRACK.display(block.getLocation(), 5, 0, 0, 0, 0, block.getBlockData().clone());
+                                        }
+                                    }
+                                    es.remove();
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            for (Lightning l : getAbilities(Lightning.class)) {
+                for (Lightning.Arc arc : l.getArcs()) {
+                    for (Block ice : iw.affectedBlocks) {
+                        for (Location loc : arc.getPoints()) {
+                            if (ice.getLocation().getWorld() == loc.getWorld() && loc.distance(ice.getLocation()) <= 1.5) {
+                                iw.damageWall(l.getPlayer(), (int) (FireAbility.getDayFactor(iw.lightningDamage, ice.getWorld())));
+
+                                if (!iw.isWallDoneFor)
+                                    l.remove();
+                            }
+                        }
+                    }
+                }
+            }
+
+            for (CoreAbility ca : getAbilities(getAbility("Combustion").getClass())) {
+                if (ca.getLocation() == null) continue;
+                for (Block ice : iw.affectedBlocks) {
+                    if (ice.getLocation().getWorld() == ca.getLocation().getWorld() && ca.getLocation().distance(ice.getLocation()) <= 1.5) {
+                        iw.damageWall(ca.getPlayer(), iw.combustionDamage);
+                        if (!iw.isWallDoneFor) ca.remove();
+                    }
+                }
+            }
+        }
+
 		Iterator<IceWall> it = instances.iterator();
 		while (it.hasNext()) {
-			it.next().remove();
-			it.remove();
-		}
-	}
-
-	public static void progressAll() {
-		/*
-		for (IceWall iw : IceWall.instances) {
-			iw.progress();
-		}
-		*/
-
-		ListIterator<IceWall> iwli = IceWall.instances.listIterator();
-
-		while (iwli.hasNext()) {
-			IceWall iw = iwli.next();
-			for (Torrent t : getAbilities(Torrent.class)) {
-				if (t.getLocation() == null) continue;
-				for (int i = 0; i < t.getLaunchedBlocks().size(); i++) {
-					TempBlock tb = t.getLaunchedBlocks().get(i);
-
-					for (Block ice : iw.affectedBlocks) {
-						if (ice.getLocation().getWorld() == tb.getLocation().getWorld() && ice.getLocation().distance(tb.getLocation()) <= 2) {
-							if (t.isFreeze())
-								iw.damageWall(t.getPlayer(), (int) (iw.torrentFreezeDamage * getNightFactor(ice.getWorld())));
-							else
-								iw.damageWall(t.getPlayer(), (int) (iw.torrentDamage * getNightFactor(ice.getWorld())));
-
-							if (!iw.isWallDoneFor)
-								t.setFreeze(false);
-						}
-					}
-				}
-			}
-
-			for (IceBlast ib : getAbilities(IceBlast.class)) {
-				if (ib.getLocation() == null) continue;
-				for (Block ice : iw.affectedBlocks) {
-					if (ib.source == null)
-						break;
-
-					if (ice.getLocation().getWorld() == ib.source.getLocation().getWorld() && ice.getLocation().distance(ib.source.getLocation()) <= 2) {
-						iw.damageWall(ib.getPlayer(), (int) (iw.iceBlastDamage * getNightFactor(ice.getWorld())));
-
-						if (!iw.isWallDoneFor)
-							ib.remove();
-					}
-				}
-			}
-
-			for (FireBlastCharged fb : getAbilities(FireBlastCharged.class)) {
-				if (fb.getLocation() == null) continue;
-				for (Block ice : iw.affectedBlocks) { 
-					if (ice.getLocation().getWorld() == fb.getLocation().getWorld() && fb.getLocation().distance(ice.getLocation()) <= 1.5) {
-						iw.damageWall(fb.getPlayer(), iw.fireBlastChargedDamage);
-
-						if (!iw.isWallDoneFor) fb.remove();
-					} 
-				}
-			}
-			
-			for (FireBlast fb : getAbilities(FireBlast.class)) {
-				if (fb.getLocation() == null) continue;
-				for (Block ice : iw.affectedBlocks) { 
-					if (ice.getLocation().getWorld() == fb.getLocation().getWorld() && fb.getLocation().distance(ice.getLocation()) <= 1.5) {
-						iw.damageWall(fb.getPlayer(), iw.fireBlastDamage);
-
-						if (!iw.isWallDoneFor) fb.remove();
-					} 
-				}
-			}
-
-			for (EarthSmash es : getAbilities(EarthSmash.class)) {
-				if (es.getLocation() == null) continue;
-				for (Block ice : iw.affectedBlocks) {
-					if (es.getState() == EarthSmash.State.SHOT) {
-						for (int j = 0; j < es.getBlocks().size(); j++) {
-							Block b = es.getBlocks().get(j);
-							if (ice.getLocation().getWorld() == b.getLocation().getWorld() && b.getLocation().distance(ice.getLocation()) <= 2) {
-								iw.damageWall(es.getPlayer(), iw.earthSmashDamage);
-
-								if (!iw.isWallDoneFor) {
-									for (Block block : es.getBlocksIncludingInner()) {
-										if (block != null && !ElementalAbility.isAir(block.getType())) {
-											ParticleEffect.BLOCK_CRACK.display(block.getLocation(), 5, 0, 0, 0, 0, block.getBlockData().clone());
-										}
-									}
-									es.remove();
-								}
-							}
-						}
-					}
-				}
-			}
-
-			for (Lightning l : getAbilities(Lightning.class)) {
-				for (Lightning.Arc arc : l.getArcs()) {
-					for (Block ice : iw.affectedBlocks) {
-						for (Location loc : arc.getPoints()) {
-							if (ice.getLocation().getWorld() == loc.getWorld() && loc.distance(ice.getLocation()) <= 1.5) {
-								iw.damageWall(l.getPlayer(), (int) (FireAbility.getDayFactor(iw.lightningDamage, ice.getWorld())));
-
-								if (!iw.isWallDoneFor)
-									l.remove();
-							}
-						}
-					}
-				}
-			}
-
-			for (AirBlast ab : getAbilities(AirBlast.class)) {
-				if (ab.getLocation() == null) continue;
-				for (Block ice : iw.affectedBlocks) { 
-					if (ice.getLocation().getWorld() == ab.getLocation().getWorld() && ab.getLocation().distance(ice.getLocation()) <= 1.5) {
-						iw.damageWall(ab.getPlayer(), iw.airBlastDamage);
-
-						if (!iw.isWallDoneFor) ab.remove();
-					} 
-				}
-			}
-
-			for (CoreAbility ca : getAbilities(getAbility("Combustion").getClass())) {
-				if (ca.getLocation() == null) continue;
-				for (Block ice : iw.affectedBlocks) { 
-					if (ice.getLocation().getWorld() == ca.getLocation().getWorld() && ca.getLocation().distance(ice.getLocation()) <= 1.5) {
-						iw.damageWall(ca.getPlayer(), iw.combustionDamage);
-						if (!iw.isWallDoneFor) ca.remove();
-					} 
-				}
+			IceWall iw = it.next();
+			if (iw.isWallDoneFor) {
+				iw.affectedBlocks.clear();
+				it.remove();
 			}
 		}
-
-		IceWall.removeDeadInstances();
 	}
 
 	@Override
