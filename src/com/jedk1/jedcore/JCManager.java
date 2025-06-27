@@ -1,5 +1,6 @@
 package com.jedk1.jedcore;
 
+import com.jedk1.jedcore.ability.waterbending.IceWall;
 import org.bukkit.Bukkit;
 
  import com.jedk1.jedcore.ability.firebending.LightningBurst;
@@ -20,7 +21,7 @@ public class JCManager implements Runnable {
 		
 		HealingWaters.heal(Bukkit.getServer());
 		IcePassive.handleSkating();
-//		IceWall.progressAll();
+		IceWall.progressAll();
 		
 		RegenTempBlock.manage();
 	}
