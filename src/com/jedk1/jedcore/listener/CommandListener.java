@@ -5,7 +5,6 @@ import com.jedk1.jedcore.command.JedCoreCommand;
 import com.jedk1.jedcore.event.PKCommandEvent;
 import com.jedk1.jedcore.event.PKCommandEvent.CommandType;
 import com.projectkorra.projectkorra.command.PKCommand;
-
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.event.EventHandler;

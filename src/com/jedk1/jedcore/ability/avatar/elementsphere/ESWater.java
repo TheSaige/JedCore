@@ -14,6 +14,7 @@ import com.projectkorra.projectkorra.util.DamageHandler;
 import com.projectkorra.projectkorra.util.ParticleEffect;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Particle;
 import org.bukkit.block.data.Levelled;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.ArmorStand;
@@ -132,6 +133,8 @@ public class ESWater extends AvatarAbility implements AddonAbility {
         WaterAbility.playWaterbendingSound(location);
         if (isWater(location.getBlock())) {
             ParticleEffect.WATER_BUBBLE.display(location, 3, 0.5, 0.5, 0.5);
+			location.getWorld().spawnParticle(Particle.WATER_WAKE, location, 3, 0.0, 0.0, 0.0, 0.005F);
+			GeneralMethods.displayColoredParticle("06C1FF", location);
         }
     }
 

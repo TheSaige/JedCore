@@ -1,22 +1,20 @@
 package com.jedk1.jedcore.ability.earthbending.combo;
 
+import com.jedk1.jedcore.JedCore;
 import com.jedk1.jedcore.configuration.JedCoreConfig;
 import com.jedk1.jedcore.util.MaterialUtil;
-import com.projectkorra.projectkorra.ability.ElementalAbility;
-import com.projectkorra.projectkorra.ability.util.ComboUtil;
-import com.projectkorra.projectkorra.attribute.Attribute;
-import com.projectkorra.projectkorra.earthbending.lava.LavaFlow;
-
-import com.jedk1.jedcore.JedCore;
 import com.projectkorra.projectkorra.GeneralMethods;
 import com.projectkorra.projectkorra.ability.AddonAbility;
 import com.projectkorra.projectkorra.ability.ComboAbility;
+import com.projectkorra.projectkorra.ability.ElementalAbility;
 import com.projectkorra.projectkorra.ability.LavaAbility;
 import com.projectkorra.projectkorra.ability.util.ComboManager.AbilityInformation;
+import com.projectkorra.projectkorra.ability.util.ComboUtil;
+import com.projectkorra.projectkorra.attribute.Attribute;
+import com.projectkorra.projectkorra.earthbending.lava.LavaFlow;
 import com.projectkorra.projectkorra.util.DamageHandler;
 import com.projectkorra.projectkorra.util.ParticleEffect;
 import com.projectkorra.projectkorra.util.TempBlock;
-
 import com.projectkorra.projectkorra.util.TempFallingBlock;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -31,31 +29,23 @@ import org.bukkit.entity.Player;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.util.Vector;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
 public class MagmaBlast extends LavaAbility implements AddonAbility, ComboAbility {
 	private static final int PARTICLE_COUNT = 20;
 	private static final int RAISE_HEIGHT = 3;
-	private static final Random rand = new Random();
 
 	private final Set<TempFallingBlock> sources = new HashSet<>();
 	private final List<TempBlock> blocks = new ArrayList<>();
 	private final List<TempFallingBlock> firedBlocks = new ArrayList<>();
 
-	@Attribute(Attribute.COOLDOWN)
-	private long cooldown;
-	@Attribute(Attribute.DURATION)
-	private long maxDuration;
-	private long shotCooldown;
-	@Attribute("MaxSources")
-	private int maxSources;
-	@Attribute(Attribute.SELECT_RANGE)
-	private int sourceRange;
-	@Attribute(Attribute.SELECT_RANGE)
-	private double selectRange;
-	@Attribute(Attribute.DAMAGE)
-	private double damage;
 	private double fireSpeed;
 	// How far away the player is allowed to be from the sources before the ability is destroyed.
 	private double maxDistanceFromSources;
@@ -64,12 +54,25 @@ public class MagmaBlast extends LavaAbility implements AddonAbility, ComboAbilit
 	private boolean requireLavaFlow;
 	private boolean playerCollisions;
 	private boolean entitySelection;
-
 	private Location origin;
 	private int counter;
 	private long canLavaFlowTime;
 	private long lastShot;
 	private boolean stopFiring;
+	private long shotCooldown;
+
+	@Attribute(Attribute.COOLDOWN)
+	private long cooldown;
+	@Attribute(Attribute.DURATION)
+	private long maxDuration;
+	@Attribute("MaxSources")
+	private int maxSources;
+	@Attribute(Attribute.SELECT_RANGE)
+	private int sourceRange;
+	@Attribute(Attribute.SELECT_RANGE)
+	private double selectRange;
+	@Attribute(Attribute.DAMAGE)
+	private double damage;
 
 	public MagmaBlast(Player player) {
 		super(player);
@@ -230,9 +233,7 @@ public class MagmaBlast extends LavaAbility implements AddonAbility, ComboAbilit
 			}
 		}
 
-		for (TempBlock tb : blocks) {
-			playParticles(tb.getLocation());
-		}
+		for (TempBlock tb : blocks) playParticles(tb.getLocation());
 	}
 
 	private void doPlayerCollisions() {
@@ -260,8 +261,10 @@ public class MagmaBlast extends LavaAbility implements AddonAbility, ComboAbilit
 
 	private void playParticles(Location location) {
 		location.add(.5,.5,.5);
+
 		ParticleEffect.LAVA.display(location, 2, Math.random(), Math.random(), Math.random(), 0f);
 		ParticleEffect.SMOKE_NORMAL.display(location, 2, Math.random(), Math.random(), Math.random(), 0f);
+
 		for (int i = 0; i < 10; i++) {
 			GeneralMethods.displayColoredParticle("FFA400", getOffsetLocation(location, 2));
 			GeneralMethods.displayColoredParticle("FF8C00", getOffsetLocation(location, 2));
@@ -395,6 +398,8 @@ public class MagmaBlast extends LavaAbility implements AddonAbility, ComboAbilit
 		ParticleEffect.SMOKE_LARGE.display(location, PARTICLE_COUNT, randomBinomial(radius), randomBinomial(radius), randomBinomial(radius), speed);
 		ParticleEffect.FIREWORKS_SPARK.display(location, PARTICLE_COUNT, randomBinomial(radius), randomBinomial(radius), randomBinomial(radius), speed);
 
+		ThreadLocalRandom rand = ThreadLocalRandom.current();
+
 		location.getWorld().playSound(location,
 				(rand.nextBoolean()) ? Sound.ENTITY_FIREWORK_ROCKET_BLAST : Sound.ENTITY_FIREWORK_ROCKET_BLAST_FAR,
 				1f, 1f);
@@ -405,6 +410,7 @@ public class MagmaBlast extends LavaAbility implements AddonAbility, ComboAbilit
 
 	// Generates a random number between -max and max.
 	private static float randomBinomial(float max) {
+		ThreadLocalRandom rand = ThreadLocalRandom.current();
 		return (rand.nextFloat() * max) - (rand.nextFloat() * max);
 	}
 	

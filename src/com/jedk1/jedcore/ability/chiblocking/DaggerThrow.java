@@ -12,7 +12,6 @@ import com.projectkorra.projectkorra.ability.util.Collision;
 import com.projectkorra.projectkorra.attribute.Attribute;
 import com.projectkorra.projectkorra.region.RegionProtection;
 import com.projectkorra.projectkorra.util.DamageHandler;
-
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
@@ -29,26 +28,23 @@ import java.util.stream.Collectors;
 
 public class DaggerThrow extends ChiAbility implements AddonAbility {
 	private static final List<AbilityInteraction> INTERACTIONS = new ArrayList<>();
-	private boolean particles;
 
-	@Attribute(Attribute.DAMAGE)
-	private double damage;
+	private final List<Arrow> arrows = new ArrayList<>();
 
-	@Attribute(Attribute.COOLDOWN)
-	private long cooldown;
 	private boolean limitEnabled;
-	@Attribute("MaxShots")
-	private int maxShots;
-
 	private boolean requireArrows;
-	// require arrows (takes arrows from inv)
 	private boolean allowPickup;
-	// allow arrow pickup (disables pickup and removes the arrow entities)
-
+	private boolean particles;
 	private long endTime;
 	private int shots = 1;
 	private int hits = 0;
-	private final List<Arrow> arrows = new ArrayList<>();
+
+	@Attribute(Attribute.DAMAGE)
+	private double damage;
+	@Attribute(Attribute.COOLDOWN)
+	private long cooldown;
+	@Attribute("MaxShots")
+	private int maxShots;
 
 	public DaggerThrow(Player player) {
 		super(player);
@@ -70,6 +66,7 @@ public class DaggerThrow extends ChiAbility implements AddonAbility {
 		setFields();
 
 		start();
+
 		if (!isRemoved()) {
 			shootArrow();
 		}
@@ -96,6 +93,7 @@ public class DaggerThrow extends ChiAbility implements AddonAbility {
 
 		ConfigurationSection config = JedCoreConfig.getConfig(this.player);
 		ConfigurationSection section = config.getConfigurationSection(path);
+
 		for (String abilityName : section.getKeys(false)) {
 			INTERACTIONS.add(new AbilityInteraction(abilityName));
 		}
@@ -107,11 +105,13 @@ public class DaggerThrow extends ChiAbility implements AddonAbility {
 			remove();
 			return;
 		}
+
 		if (System.currentTimeMillis() > endTime) {
 			bPlayer.addCooldown(this);
 			remove();
 			return;
 		}
+
 		if (shots > maxShots && limitEnabled) {
 			bPlayer.addCooldown(this);
 			remove();
@@ -128,12 +128,14 @@ public class DaggerThrow extends ChiAbility implements AddonAbility {
 				subtract(player.getEyeLocation().toVector());
 
 		if (requireArrows) JCMethods.removeItemFromInventory(player, Material.ARROW, 1);
+
 		Arrow arrow = player.launchProjectile(Arrow.class);
 		arrow.setVelocity(vector);
 		arrow.getLocation().setDirection(vector);
 		arrow.setKnockbackStrength(0);
 		arrow.setBounce(false);
 		arrow.setMetadata("daggerthrow", new FixedMetadataValue(JedCore.plugin, "1"));
+
 		if (!allowPickup) arrow.setPickupStatus(Arrow.PickupStatus.DISALLOWED);
 
 		if (particles) {

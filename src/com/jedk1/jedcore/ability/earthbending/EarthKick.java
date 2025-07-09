@@ -12,8 +12,10 @@ import com.projectkorra.projectkorra.ability.util.Collision;
 import com.projectkorra.projectkorra.attribute.Attribute;
 import com.projectkorra.projectkorra.earthbending.passive.DensityShift;
 import com.projectkorra.projectkorra.region.RegionProtection;
-import com.projectkorra.projectkorra.util.*;
-
+import com.projectkorra.projectkorra.util.DamageHandler;
+import com.projectkorra.projectkorra.util.ParticleEffect;
+import com.projectkorra.projectkorra.util.TempBlock;
+import com.projectkorra.projectkorra.util.TempFallingBlock;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -26,18 +28,24 @@ import org.bukkit.util.Vector;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ThreadLocalRandom;
 
 import static java.util.stream.Collectors.toList;
 
 public class EarthKick extends EarthAbility implements AddonAbility {
 	private final List<TempFallingBlock> temps = new ArrayList<>();
+	private final Set<UUID> hitEntities = new HashSet<>();
 
 	private BlockData materialData;
 	private Location location;
-	private final Random rand = new Random();
+	private Block block;
+	private boolean multipleHits;
+	private int sourceRange;
+	private int spread;
+	private double velocity;
+	private boolean allowMetal;
 
 	@Attribute(Attribute.COOLDOWN)
 	private long cooldown;
@@ -49,15 +57,6 @@ public class EarthKick extends EarthAbility implements AddonAbility {
 	private double metalDmg;
 	@Attribute("CollisionRadius")
 	private double entityCollisionRadius;
-	private Block block;
-
-	private boolean multipleHits;
-	private int sourceRange;
-	private int spread;
-	private double velocity;
-	private boolean allowMetal;
-
-	private Set<UUID> hitEntities = new HashSet<>();
 
 	public EarthKick(Player player) {
 		super(player);
@@ -67,7 +66,9 @@ public class EarthKick extends EarthAbility implements AddonAbility {
 		}
 
 		setFields();
+
 		location = player.getLocation();
+
 		if ((player.getLocation().getPitch() > -5) && prepare()) {
 			if (RegionProtection.isRegionProtected(this, block.getLocation())) {
 				return;
@@ -85,7 +86,6 @@ public class EarthKick extends EarthAbility implements AddonAbility {
 		damage = config.getDouble("Abilities.Earth.EarthKick.Damage.Normal");
 		metalDmg = config.getDouble("Abilities.Earth.EarthKick.Damage.Metal");
 		entityCollisionRadius = config.getDouble("Abilities.Earth.EarthKick.EntityCollisionRadius");
-
 		multipleHits = config.getBoolean("Abilities.Earth.EarthKick.MultipleHits");
 		sourceRange = config.getInt("Abilities.Earth.EarthKick.SourceRange");
 		spread = config.getInt("Abilities.Earth.EarthKick.Spread");
@@ -137,6 +137,7 @@ public class EarthKick extends EarthAbility implements AddonAbility {
 		}
 
 		bPlayer.addCooldown(this);
+
 		track();
 
 		if (temps.isEmpty()) {
@@ -148,6 +149,7 @@ public class EarthKick extends EarthAbility implements AddonAbility {
 		if (getMovedEarth().containsKey(block)) {
 			block.setType(Material.AIR);
 		}
+
 		if (block.getType() != Material.AIR) {
 			TempBlock air = new TempBlock(block, Material.AIR);
 			air.setRevertTime(5000L);
@@ -165,6 +167,8 @@ public class EarthKick extends EarthAbility implements AddonAbility {
 		int yaw = Math.round(location.getYaw());
 
 		playEarthbendingSound(location);
+
+		ThreadLocalRandom rand = ThreadLocalRandom.current();
 
 		for (int i = 0; i < earthBlocks; i++) {
 			location.setYaw(yaw + rand.nextInt((spread * 2) + 1) - spread);

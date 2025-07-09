@@ -3,7 +3,12 @@ package com.jedk1.jedcore.ability.earthbending;
 import com.jedk1.jedcore.JedCore;
 import com.jedk1.jedcore.collision.CollisionUtil;
 import com.jedk1.jedcore.configuration.JedCoreConfig;
-import com.jedk1.jedcore.policies.removal.*;
+import com.jedk1.jedcore.policies.removal.CannotBendRemovalPolicy;
+import com.jedk1.jedcore.policies.removal.CompositeRemovalPolicy;
+import com.jedk1.jedcore.policies.removal.IsDeadRemovalPolicy;
+import com.jedk1.jedcore.policies.removal.IsOfflineRemovalPolicy;
+import com.jedk1.jedcore.policies.removal.OutOfRangeRemovalPolicy;
+import com.jedk1.jedcore.policies.removal.SwappedSlotsRemovalPolicy;
 import com.projectkorra.projectkorra.BendingPlayer;
 import com.projectkorra.projectkorra.Element;
 import com.projectkorra.projectkorra.GeneralMethods;
@@ -17,7 +22,6 @@ import com.projectkorra.projectkorra.command.Commands;
 import com.projectkorra.projectkorra.region.RegionProtection;
 import com.projectkorra.projectkorra.util.DamageHandler;
 import com.projectkorra.projectkorra.util.TempBlock;
-
 import com.projectkorra.projectkorra.util.TempFallingBlock;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -32,7 +36,14 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.ListIterator;
+import java.util.Random;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class MudSurge extends EarthAbility implements AddonAbility {

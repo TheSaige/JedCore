@@ -12,10 +12,12 @@ import com.projectkorra.projectkorra.ability.util.MultiAbilityManager;
 import com.projectkorra.projectkorra.ability.util.MultiAbilityManager.MultiAbilityInfoSub;
 import com.projectkorra.projectkorra.attribute.Attribute;
 import com.projectkorra.projectkorra.region.RegionProtection;
+import com.projectkorra.projectkorra.util.FlightHandler;
 import com.projectkorra.projectkorra.util.ParticleEffect;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
+import org.bukkit.Particle;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -367,8 +369,8 @@ public class ElementSphere extends AvatarAbility implements AddonAbility, MultiA
 			rotateAroundAxisY(v, yawRadians);
 			rotateAroundAxisX(v1, -xRotation);
 			rotateAroundAxisY(v1, yawRadians);
-
 			if (waterUses != 0) {
+				centerLoc.getWorld().spawnParticle(Particle.WATER_WAKE, centerLoc.clone().add(v), 3, 0.0, 0.0, 0.0, 0.005F);
 				GeneralMethods.displayColoredParticle("06C1FF", centerLoc.clone().add(v));
 			}
 			if (earthUses != 0) {
