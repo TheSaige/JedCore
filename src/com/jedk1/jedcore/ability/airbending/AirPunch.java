@@ -37,6 +37,8 @@ public class AirPunch extends AirAbility implements AddonAbility {
 	private double damage;
 	@Attribute("CollisionRadius")
 	private double entityCollisionRadius;
+	@Attribute("Speed")
+	private double speed;
 
 	public AirPunch(Player player) {
 		super(player);
@@ -50,14 +52,14 @@ public class AirPunch extends AirAbility implements AddonAbility {
 			ap.createShot();
 			return;
 		}
-		
+
 		setFields();
 
 		start();
 
 		if (!isRemoved()) createShot();
 	}
-	
+
 	public void setFields() {
 		ConfigurationSection config = JedCoreConfig.getConfig(this.player);
 
@@ -67,6 +69,7 @@ public class AirPunch extends AirAbility implements AddonAbility {
 		range = config.getDouble("Abilities.Air.AirPunch.Range");
 		damage = config.getDouble("Abilities.Air.AirPunch.Damage");
 		entityCollisionRadius = config.getDouble("Abilities.Air.AirPunch.EntityCollisionRadius");
+		speed = config.getDouble("Abilities.Air.AirPunch.Speed");
 	}
 
 	@Override
@@ -131,7 +134,7 @@ public class AirPunch extends AirAbility implements AddonAbility {
 		boolean moved = false;
 
 		for (int i = 0; i < 3 && !shouldRemove; i++) {
-			dist++;
+			dist += speed;
 			if (dist >= range) {
 				shouldRemove = true;
 			} else {
@@ -154,7 +157,7 @@ public class AirPunch extends AirAbility implements AddonAbility {
 	}
 
 	private Location calculateNextLocation(Location currentLocation) {
-		return currentLocation.add(currentLocation.getDirection().clone().multiply(1));
+		return currentLocation.add(currentLocation.getDirection().clone().multiply(speed));
 	}
 
 	private boolean isPathBlocked(Location location) {
@@ -172,7 +175,7 @@ public class AirPunch extends AirAbility implements AddonAbility {
 			return true;
 		});
 	}
-	
+
 	@Override
 	public long getCooldown() {
 		return cooldown;
@@ -282,12 +285,20 @@ public class AirPunch extends AirAbility implements AddonAbility {
 		this.lastShotTime = lastShotTime;
 	}
 
+	public double getSpeed() {
+		return speed;
+	}
+
+	public void setSpeed(double speed) {
+		this.speed = speed;
+	}
+
 	@Override
 	public void load() {}
 
 	@Override
 	public void stop() {}
-	
+
 	@Override
 	public boolean isEnabled() {
 		ConfigurationSection config = JedCoreConfig.getConfig(this.player);

@@ -120,6 +120,7 @@ public class JedCoreConfig {
 		config.addDefault("Abilities.Air.AirBlade.Cooldown", 3000);
 		config.addDefault("Abilities.Air.AirBlade.Range", 30.0);
 		config.addDefault("Abilities.Air.AirBlade.Damage", 4.0);
+		config.addDefault("Abilities.Air.AirBlade.Speed", 1.0);
 		config.addDefault("Abilities.Air.AirBlade.EntityCollisionRadius", 1.0);
 		config.addDefault("Abilities.Air.AirBlade.AbilityCollisionRadius", 1.0);
 		config.addDefault("Abilities.Air.AirBlade.Collisions.FireBlast.Enabled",true);
@@ -170,6 +171,7 @@ public class JedCoreConfig {
 		config.addDefault("Abilities.Air.AirPunch.Shots", 4);
 		config.addDefault("Abilities.Air.AirPunch.Range", 30);
 		config.addDefault("Abilities.Air.AirPunch.Damage", 1.0);
+		config.addDefault("Abilities.Air.AirPunch.Speed", 1.0);
 		config.addDefault("Abilities.Air.AirPunch.EntityCollisionRadius", 1.0);
 		config.addDefault("Abilities.Air.AirPunch.AbilityCollisionRadius", 1.0);
 		config.addDefault("Abilities.Air.AirPunch.Collisions.FireBlast.Enabled", true);

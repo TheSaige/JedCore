@@ -33,15 +33,17 @@ public class AirBlade extends AirAbility implements AddonAbility {
 	private double damage;
 	@Attribute("CollisionRadius")
 	private double entityCollisionRadius;
+	@Attribute("Speed")
+	private double speed;
 
 	public AirBlade(Player player) {
 		super(player);
 		if (!bPlayer.canBend(this)) {
 			return;
 		}
-		
+
 		setFields();
-		
+
 		this.location = player.getEyeLocation().clone();
 		this.direction = player.getEyeLocation().getDirection().clone();
 
@@ -57,8 +59,9 @@ public class AirBlade extends AirAbility implements AddonAbility {
 		range = config.getDouble("Abilities.Air.AirBlade.Range");
 		damage = config.getDouble("Abilities.Air.AirBlade.Damage");
 		entityCollisionRadius = config.getDouble("Abilities.Air.AirBlade.EntityCollisionRadius");
+		speed = config.getDouble("Abilities.Air.AirBlade.Speed");
 	}
-	
+
 	@Override
 	public void progress() {
 		if (player.isDead() || !player.isOnline()) {
@@ -98,9 +101,9 @@ public class AirBlade extends AirAbility implements AddonAbility {
 	}
 
 	private boolean moveAndCheckCollision() {
-		location = location.add(direction.multiply(1));
+		location = location.add(direction.multiply(speed));
 		playAirbendingSound(location);
-		travelled++;
+		travelled += speed;
 		growth += 0.125;
 
 		if (travelled >= range ||
@@ -178,7 +181,7 @@ public class AirBlade extends AirAbility implements AddonAbility {
 	public long getCooldown() {
 		return cooldown;
 	}
-	
+
 	public void setCooldown(long cooldown) {
 		this.cooldown = cooldown;
 	}
@@ -262,12 +265,20 @@ public class AirBlade extends AirAbility implements AddonAbility {
 		this.entityCollisionRadius = entityCollisionRadius;
 	}
 
+	public double getSpeed() {
+		return speed;
+	}
+
+	public void setSpeed(double speed) {
+		this.speed = speed;
+	}
+
 	@Override
 	public void load() {}
 
 	@Override
 	public void stop() {}
-	
+
 	@Override
 	public boolean isEnabled() {
 		ConfigurationSection config = JedCoreConfig.getConfig(this.player);
