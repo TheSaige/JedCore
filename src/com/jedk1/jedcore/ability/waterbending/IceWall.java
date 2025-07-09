@@ -173,7 +173,7 @@ public class IceWall extends IceAbility implements AddonAbility {
 
 			if (ElementalAbility.isAir(b.getType())) {
 				while (ElementalAbility.isAir(b.getType())) {
-					if (b.getY() < 0)
+					if (b.getY() < world.getMinHeight())
 						return;
 
 					b = b.getRelative(BlockFace.DOWN);
