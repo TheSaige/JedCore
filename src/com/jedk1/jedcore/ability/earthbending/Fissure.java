@@ -116,7 +116,7 @@ public class Fissure extends LavaAbility implements AddonAbility {
 			while (bi.hasNext()) {
 				Block b = bi.next();
 
-				if (b.getY() > 1 && b.getY() < 255 && !RegionProtection.isRegionProtected(this, b.getLocation())) {
+				if (b.getY() > b.getWorld().getMinHeight()  && b.getY() < b.getWorld().getMaxHeight() && !RegionProtection.isRegionProtected(this, b.getLocation())) {
 					if (EarthAbility.getMovedEarth().containsKey(b)){
 						Information info = EarthAbility.getMovedEarth().get(b);
 						if(!info.getBlock().equals(b)) {
@@ -196,7 +196,7 @@ public class Fissure extends LavaAbility implements AddonAbility {
 	}
 
 	private void expand(Block block) {
-		if (block != null && block.getY() > 1 && block.getY() < 255 && !RegionProtection.isRegionProtected(this, block.getLocation())) {
+		if (block != null && block.getY() > block.getWorld().getMinHeight() && block.getY() < block.getWorld().getMaxHeight() && !RegionProtection.isRegionProtected(this, block.getLocation())) {
 			if (EarthAbility.getMovedEarth().containsKey(block)){
 				Information info = EarthAbility.getMovedEarth().get(block);
 				if(!info.getBlock().equals(block)) {
@@ -206,7 +206,7 @@ public class Fissure extends LavaAbility implements AddonAbility {
 
 			while (!isEarthbendable(player, block)) {
 				block = block.getRelative(BlockFace.DOWN);
-				if (block.getY() < 1 || block.getY() > 255) {
+				if (block.getY() < block.getWorld().getMinHeight() || block.getY() > block.getWorld().getMaxHeight()) {
 					break;
 				}
 				if (isEarthbendable(player, block)) {
@@ -216,7 +216,7 @@ public class Fissure extends LavaAbility implements AddonAbility {
 
 			while (!isTransparent(player, block.getRelative(BlockFace.UP))) {
 				block = block.getRelative(BlockFace.UP);
-				if (block.getY() < 1 || block.getY() > 255) {
+				if (block.getY() < block.getWorld().getMinHeight() || block.getY() > block.getWorld().getMaxHeight()) {
 					break;
 				}
 				if (isEarthbendable(player, block.getRelative(BlockFace.UP))) {
