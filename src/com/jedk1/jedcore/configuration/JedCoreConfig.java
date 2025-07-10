@@ -286,6 +286,7 @@ public class JedCoreConfig {
 		config.addDefault("Abilities.Earth.EarthKick.Spread", 20);
 		config.addDefault("Abilities.Earth.EarthKick.Velocity", 0.7);
 		config.addDefault("Abilities.Earth.EarthKick.AllowMetal", true);
+		config.addDefault("Abilities.Earth.EarthKick.ReplaceSource", false);
 		config.addDefault("Abilities.Earth.EarthKick.Collisions.FireBlast.Enabled", true);
 		config.addDefault("Abilities.Earth.EarthKick.Collisions.FireBlast.RemoveFirst", false);
 		config.addDefault("Abilities.Earth.EarthKick.Collisions.FireBlast.RemoveSecond", true);

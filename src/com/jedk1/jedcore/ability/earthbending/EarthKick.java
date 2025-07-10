@@ -46,6 +46,7 @@ public class EarthKick extends EarthAbility implements AddonAbility {
 	private int spread;
 	private double velocity;
 	private boolean allowMetal;
+	private boolean replaceSource;
 
 	@Attribute(Attribute.COOLDOWN)
 	private long cooldown;
@@ -91,6 +92,7 @@ public class EarthKick extends EarthAbility implements AddonAbility {
 		spread = config.getInt("Abilities.Earth.EarthKick.Spread");
 		velocity = config.getDouble("Abilities.Earth.EarthKick.Velocity");
 		allowMetal = config.getBoolean("Abilities.Earth.EarthKick.AllowMetal");
+		replaceSource = config.getBoolean("Abilities.Earth.EarthKick.ReplaceSource");
 
 		if (entityCollisionRadius < 1.0) {
 			entityCollisionRadius = 1.0;
@@ -146,13 +148,15 @@ public class EarthKick extends EarthAbility implements AddonAbility {
 	}
 
 	private void launchBlocks() {
-		if (getMovedEarth().containsKey(block)) {
-			block.setType(Material.AIR);
-		}
+		if (replaceSource) {
+			if (getMovedEarth().containsKey(block)) {
+				block.setType(Material.AIR);
+			}
 
-		if (block.getType() != Material.AIR) {
-			TempBlock air = new TempBlock(block, Material.AIR);
-			air.setRevertTime(5000L);
+			if (block.getType() != Material.AIR) {
+				TempBlock air = new TempBlock(block, Material.AIR);
+				air.setRevertTime(5000L);
+			}
 		}
 
 		location.setPitch(0);
