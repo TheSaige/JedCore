@@ -9,19 +9,31 @@ import com.projectkorra.projectkorra.ability.AirAbility;
 import com.projectkorra.projectkorra.attribute.Attribute;
 import com.projectkorra.projectkorra.region.RegionProtection;
 import com.projectkorra.projectkorra.util.DamageHandler;
+import com.projectkorra.projectkorra.util.TempBlock;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
+import org.bukkit.Tag;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class AirBlade extends AirAbility implements AddonAbility {
+
+	private Set<Material> cuttableBlocks;
 
 	private Location location;
 	private Vector direction;
 	private double travelled;
+	private boolean blockCuttingEnabled;
+	private boolean revertCutBlocks;
+	private long revertTime;
 
 	@Attribute("Growth")
 	private double growth = 1;
@@ -33,8 +45,10 @@ public class AirBlade extends AirAbility implements AddonAbility {
 	private double damage;
 	@Attribute("CollisionRadius")
 	private double entityCollisionRadius;
-	@Attribute("Speed")
+	@Attribute(Attribute.SPEED)
 	private double speed;
+	@Attribute(Attribute.KNOCKBACK)
+	private double knockback;
 
 	public AirBlade(Player player) {
 		super(player);
@@ -60,6 +74,14 @@ public class AirBlade extends AirAbility implements AddonAbility {
 		damage = config.getDouble("Abilities.Air.AirBlade.Damage");
 		entityCollisionRadius = config.getDouble("Abilities.Air.AirBlade.EntityCollisionRadius");
 		speed = config.getDouble("Abilities.Air.AirBlade.Speed");
+		knockback = config.getDouble("Abilities.Air.AirBlade.Knockback");
+
+		ConfigurationSection cuttingConfig = config.getConfigurationSection("Abilities.Air.AirBlade.BlockCutting");
+
+		blockCuttingEnabled = cuttingConfig.getBoolean("Enabled");
+		revertCutBlocks = cuttingConfig.getBoolean("Revert");
+		revertTime = cuttingConfig.getLong("RevertTime");
+		cuttableBlocks = loadCuttableBlocks(cuttingConfig.getStringList("Materials"));
 	}
 
 	@Override
@@ -89,6 +111,14 @@ public class AirBlade extends AirAbility implements AddonAbility {
 			for (double i = -90 + pitch; i <= 90 + pitch; i += 8) {
 				Location tempLoc = calculateParticleLocation(i);
 				playAirbendingParticles(tempLoc, 1, (float) Math.random() / 2, (float) Math.random() / 2, (float) Math.random() / 2);
+
+				if (j == 0 && blockCuttingEnabled && cuttableBlocks.contains(tempLoc.getBlock().getType()) && !RegionProtection.isRegionProtected(this.player, tempLoc)) {
+					if (revertCutBlocks) {
+						new TempBlock(tempLoc.getBlock(), Material.AIR.createBlockData(), revertTime);
+					} else {
+						tempLoc.getBlock().breakNaturally();
+					}
+				}
 
 				if (j == 0 && !lastLoc.getBlock().getLocation().equals(tempLoc.getBlock().getLocation())) {
 					if (handleEntityCollision(tempLoc)) {
@@ -127,16 +157,34 @@ public class AirBlade extends AirAbility implements AddonAbility {
 	}
 
 	private boolean handleEntityCollision(Location tempLoc) {
-		boolean hit = CollisionDetector.checkEntityCollisions(player, new Sphere(tempLoc.toVector(), entityCollisionRadius), entity -> {
+		return CollisionDetector.checkEntityCollisions(player, new Sphere(tempLoc.toVector(), entityCollisionRadius), entity -> {
 			DamageHandler.damageEntity(entity, damage, this);
+
+			if (knockback > 0) {
+				Vector knockDir = entity.getLocation().toVector().subtract(location.toVector()).normalize();
+				entity.setVelocity(entity.getVelocity().add(knockDir.multiply(knockback)));
+			}
+
 			remove();
 			return true;
 		});
-		if (hit) {
-			remove();
-			return true;
+	}
+
+	private Set<Material> loadCuttableBlocks(List<String> entries) {
+		Set<Material> result = new HashSet<>();
+		for (String entry : entries) {
+			if (entry.startsWith("#")) {
+				String tagKey = entry.substring(1).toLowerCase();
+				NamespacedKey ns = NamespacedKey.minecraft(tagKey);
+				Tag<Material> tag = Bukkit.getTag(Tag.REGISTRY_BLOCKS, ns, Material.class);
+				if (tag != null) tag.getValues().forEach(result::add);
+			} else {
+				try {
+					result.add(Material.valueOf(entry.toUpperCase()));
+				} catch (IllegalArgumentException ignored) {}
+			}
 		}
-		return false;
+		return result;
 	}
 
 	@Override

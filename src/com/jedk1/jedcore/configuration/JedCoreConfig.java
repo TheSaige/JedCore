@@ -113,7 +113,7 @@ public class JedCoreConfig {
 		config.addDefault("Abilities.Avatar.SpiritBeam.BlockDamage.Enabled", true);
 		config.addDefault("Abilities.Avatar.SpiritBeam.BlockDamage.Radius", 3);
 		config.addDefault("Abilities.Avatar.SpiritBeam.BlockDamage.Regen", 20000);
-		
+
 		config.addDefault("Abilities.Air.AirBlade.Enabled", true);
 		config.addDefault("Abilities.Air.AirBlade.Description", "With this ability bound, Left-Click to shoot "
 				+ "a strong blade of air at your targets to deal some damage!");
@@ -121,14 +121,39 @@ public class JedCoreConfig {
 		config.addDefault("Abilities.Air.AirBlade.Range", 30.0);
 		config.addDefault("Abilities.Air.AirBlade.Damage", 4.0);
 		config.addDefault("Abilities.Air.AirBlade.Speed", 1.0);
+		config.addDefault("Abilities.Air.AirBlade.Knockback", 0.0);
 		config.addDefault("Abilities.Air.AirBlade.EntityCollisionRadius", 1.0);
 		config.addDefault("Abilities.Air.AirBlade.AbilityCollisionRadius", 1.0);
-		config.addDefault("Abilities.Air.AirBlade.Collisions.FireBlast.Enabled",true);
-		config.addDefault("Abilities.Air.AirBlade.Collisions.FireBlast.RemoveFirst",true);
-		config.addDefault("Abilities.Air.AirBlade.Collisions.FireBlast.RemoveSecond",true);
-		config.addDefault("Abilities.Air.AirBlade.Collisions.FireBlastCharged.Enabled",true);
-		config.addDefault("Abilities.Air.AirBlade.Collisions.FireBlastCharged.RemoveFirst",true);
-		config.addDefault("Abilities.Air.AirBlade.Collisions.FireBlastCharged.RemoveSecond",false);
+		config.addDefault("Abilities.Air.AirBlade.Collisions.FireBlast.Enabled", true);
+		config.addDefault("Abilities.Air.AirBlade.Collisions.FireBlast.RemoveFirst", true);
+		config.addDefault("Abilities.Air.AirBlade.Collisions.FireBlast.RemoveSecond", true);
+		config.addDefault("Abilities.Air.AirBlade.Collisions.FireBlastCharged.Enabled", true);
+		config.addDefault("Abilities.Air.AirBlade.Collisions.FireBlastCharged.RemoveFirst", true);
+		config.addDefault("Abilities.Air.AirBlade.Collisions.FireBlastCharged.RemoveSecond", false);
+		config.addDefault("Abilities.Air.AirBlade.BlockCutting.Enabled", true);
+		config.addDefault("Abilities.Air.AirBlade.BlockCutting.Revert", true);
+		config.addDefault("Abilities.Air.AirBlade.BlockCutting.RevertTime", 5000);
+		config.addDefault("Abilities.Air.AirBlade.BlockCutting.Materials", Arrays.asList(
+				"#small_flowers",
+				"#flowers",
+				"#crops",
+				"#saplings",
+				"BIG_DRIPLEAF_STEM",
+				"BIG_DRIPLEAF",
+				"CAVE_VINES",
+				"CAVE_VINES_PLANT",
+				"VINE",
+				"FERN",
+				"LARGE_FERN",
+				"SHORT_GRASS",
+				"TALL_GRASS",
+				"DEAD_BUSH",
+				"SEA_PICKLE",
+				"CACTUS_FLOWER",
+				"BERRY_BUSH",
+				"RED_MUSHROOM",
+				"BROWN_MUSHROOM"
+		));
 		
 		config.addDefault("Abilities.Air.AirBreath.Enabled", true);
 		config.addDefault("Abilities.Air.AirBreath.Description", "To use, hold Sneak (Default: Shift) to release "
