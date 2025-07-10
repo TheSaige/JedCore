@@ -323,8 +323,14 @@ public class JedCoreConfig {
 		config.addDefault("Abilities.Earth.EarthShard.PrepareRange", 5);
 		config.addDefault("Abilities.Earth.EarthShard.AbilityRange", 30);
 		config.addDefault("Abilities.Earth.EarthShard.MaxShards", 3);
-		config.addDefault("Abilities.Earth.EarthShard.KnockUp.Allow", true);
-		config.addDefault("Abilities.Earth.EarthShard.KnockUp.Velocity", 1.0);
+		config.addDefault("Abilities.Earth.EarthShard.KnockUp.Others.Allow", true);
+		config.addDefault("Abilities.Earth.EarthShard.KnockUp.Others.Velocity", 1.0);
+		config.addDefault("Abilities.Earth.EarthShard.KnockUp.Others.Range", 1.5);
+		config.addDefault("Abilities.Earth.EarthShard.KnockUp.Self.Allow", true);
+		config.addDefault("Abilities.Earth.EarthShard.KnockUp.Self.Velocity", 1.0);
+		config.addDefault("Abilities.Earth.EarthShard.KnockUp.Self.Range", 1.5);
+//		config.addDefault("Abilities.Earth.EarthShard.KnockUp.Allow", true);
+//		config.addDefault("Abilities.Earth.EarthShard.KnockUp.Velocity", 1.0);
 		config.addDefault("Abilities.Earth.EarthShard.AbilityCollisionRadius", 2.0);
 		config.addDefault("Abilities.Earth.EarthShard.EntityCollisionRadius", 1.4);
 		
