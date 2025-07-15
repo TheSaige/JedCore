@@ -14,6 +14,7 @@ import com.projectkorra.projectkorra.ability.AddonAbility;
 import com.projectkorra.projectkorra.ability.CoreAbility;
 import com.projectkorra.projectkorra.ability.ElementalAbility;
 import com.projectkorra.projectkorra.ability.LavaAbility;
+import com.projectkorra.projectkorra.ability.EarthAbility;
 import com.projectkorra.projectkorra.attribute.Attribute;
 import com.projectkorra.projectkorra.earthbending.passive.DensityShift;
 import com.projectkorra.projectkorra.firebending.util.FireDamageTimer;
@@ -25,6 +26,7 @@ import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
+import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.Levelled;
 import org.bukkit.configuration.ConfigurationSection;
@@ -85,7 +87,7 @@ public class LavaDisc extends LavaAbility implements AddonAbility {
 
 	public void setFields() {
 		ConfigurationSection config = JedCoreConfig.getConfig(this.player);
-		
+
 		damage = config.getDouble("Abilities.Earth.LavaDisc.Damage");
 		cooldown = config.getLong("Abilities.Earth.LavaDisc.Cooldown");
 		duration = config.getLong("Abilities.Earth.LavaDisc.Duration");
@@ -109,16 +111,16 @@ public class LavaDisc extends LavaAbility implements AddonAbility {
 		boolean lavaOnly = config.getBoolean("Abilities.Earth.LavaDisc.Source.LavaOnly");
 		double sourceRange = config.getDouble("Abilities.Earth.LavaDisc.Source.Range");
 
-		if (getLavaSourceBlock(player, sourceRange) != null) {
-			Block block = getLavaSourceBlock(player, sourceRange);
-			new RegenTempBlock(block, Material.LAVA, Material.LAVA.createBlockData(bd -> ((Levelled)bd).setLevel(4)), sourceRegen);
+		Block lavaSource = getLavaSourceBlock(player, sourceRange);
+		if (lavaSource != null && !EarthAbility.getMovedEarth().containsKey(lavaSource)) {
+			new RegenTempBlock(lavaSource, Material.LAVA, Material.LAVA.createBlockData(bd -> ((Levelled)bd).setLevel(4)), sourceRegen);
 			return true;
-		} else if (getEarthSourceBlock(sourceRange) != null) {
-			if (lavaOnly)
-				return false;
-			Block block = getEarthSourceBlock(sourceRange);
-			new RegenTempBlock(block, Material.LAVA, Material.LAVA.createBlockData(bd -> ((Levelled)bd).setLevel(4)), sourceRegen);
-			return true;
+		} else {
+			Block earthSource = getEarthSourceBlock(sourceRange);
+			if (earthSource != null && !lavaOnly && !EarthAbility.getMovedEarth().containsKey(earthSource)) {
+				new RegenTempBlock(earthSource, Material.LAVA, Material.LAVA.createBlockData(bd -> ((Levelled)bd).setLevel(4)), sourceRegen);
+				return true;
+			}
 		}
 
 		return false;
@@ -188,7 +190,7 @@ public class LavaDisc extends LavaAbility implements AddonAbility {
 		new FireDamageTimer(entity, player, this);
 		ParticleEffect.LAVA.display(entity.getLocation(), 15, Math.random(), Math.random(), Math.random(), 0.1);
 	}
-	
+
 	@Override
 	public long getCooldown() {
 		return cooldown;
@@ -534,18 +536,24 @@ public class LavaDisc extends LavaAbility implements AddonAbility {
 		}
 
 		private void damageBlocks(Location l) {
+			Block block = l.getBlock();
+			if (EarthAbility.getMovedEarth().containsKey(block)) {
+				ParticleEffect.LAVA.display(l, 20, 0.5, 0.5, 0.5, 0.2);
+				ParticleEffect.BLOCK_CRACK.display(l, 15, 0.3, 0.3, 0.3, 0.15, Material.LAVA.createBlockData());
+				return;
+			}
 			if (!RegionProtection.isRegionProtected(player, l, LavaDisc.this)) {
-				if (!TempBlock.isTempBlock(l.getBlock()) && (isEarthbendable(player, l.getBlock()) || isMetal(l.getBlock()) || meltable.contains(l.getBlock().getType().name()))) {
-					if (DensityShift.isPassiveSand(l.getBlock())) {
-						DensityShift.revertSand(l.getBlock());
+				if (!TempBlock.isTempBlock(block) && (isEarthbendable(player, block) || isMetal(block) || meltable.contains(block.getType().name()))) {
+					if (DensityShift.isPassiveSand(block)) {
+						DensityShift.revertSand(block);
 					}
 
 					if (lavaTrail) {
-						new RegenTempBlock(l.getBlock(), Material.LAVA, Material.LAVA.createBlockData(bd -> ((Levelled) bd).setLevel(4)), regenTime);
+						new RegenTempBlock(block, Material.LAVA, Material.LAVA.createBlockData(bd -> ((Levelled) bd).setLevel(4)), regenTime);
 
-						trailBlocks.add(l.getBlock());
+						trailBlocks.add(block);
 					} else {
-						new RegenTempBlock(l.getBlock(), Material.AIR, Material.AIR.createBlockData(), regenTime);
+						new RegenTempBlock(block, Material.AIR, Material.AIR.createBlockData(), regenTime);
 					}
 
 					ParticleEffect.LAVA.display(l, particles * 2, Math.random(), Math.random(), Math.random(), 0.2);

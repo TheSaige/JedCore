@@ -11,6 +11,7 @@ import com.projectkorra.projectkorra.command.Commands;
 import com.projectkorra.projectkorra.region.RegionProtection;
 import com.projectkorra.projectkorra.util.DamageHandler;
 import com.projectkorra.projectkorra.util.ParticleEffect;
+import com.projectkorra.projectkorra.util.TempBlock;
 import org.bukkit.FluidCollisionMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -118,11 +119,12 @@ public class LavaThrow extends LavaAbility implements AddonAbility {
 	private boolean prepare() {
 		Block targetBlock = getTargetLavaBlock(sourceRange);
 
-		if (targetBlock != null) {
+		if (targetBlock != null && !TempBlock.isTempBlock(targetBlock)) {
 			selectedSource = targetBlock;
+			return true;
 		}
 
-		return selectedSource != null;
+		return false;
 	}
 
 	public Block getTargetLavaBlock(int maxDistance) {
@@ -164,8 +166,7 @@ public class LavaThrow extends LavaAbility implements AddonAbility {
 			blasts.put(head, origin);
 
 			new RegenTempBlock(selectedSource.getRelative(BlockFace.UP), Material.LAVA,
-					Material.LAVA.createBlockData(bd -> ((Levelled)bd).setLevel(0)), 200);
-			new RegenTempBlock(selectedSource, Material.AIR, Material.AIR.createBlockData(), sourceRegen, false);
+					Material.LAVA.createBlockData(), 200);
 		}
 	}
 
