@@ -864,10 +864,18 @@ public class JedCoreConfig {
 				+ "tips, then attack an enemy to slow them down and do a bit of damage!");
 		config.addDefault("Abilities.Water.IceClaws.Cooldown", 6000);
 		config.addDefault("Abilities.Water.IceClaws.ChargeTime", 1000);
-		config.addDefault("Abilities.Water.IceClaws.SlowDuration", 5000);
-		config.addDefault("Abilities.Water.IceClaws.Damage", 3.0);
 		config.addDefault("Abilities.Water.IceClaws.Range", 10);
 		config.addDefault("Abilities.Water.IceClaws.Throwable", true);
+		config.addDefault("Abilities.Water.IceClaws.Punch.Cooldown", 4000);
+		config.addDefault("Abilities.Water.IceClaws.Punch.Damage", 2.0);
+		config.addDefault("Abilities.Water.IceClaws.Punch.Slowness", 3);
+		config.addDefault("Abilities.Water.IceClaws.Punch.SlowDuration", 5000);
+		config.addDefault("Abilities.Water.IceClaws.Throw.Cooldown", 4000);
+		config.addDefault("Abilities.Water.IceClaws.Throw.Damage", 2.0);
+		config.addDefault("Abilities.Water.IceClaws.Throw.Slowness", 3);
+		config.addDefault("Abilities.Water.IceClaws.Throw.SlowDuration", 5000);
+		config.addDefault("Abilities.Water.IceClaws.Throw.Speed", 1.0);
+		config.addDefault("Abilities.Water.IceClaws.AllowHandSwap", true);
 		
 		config.addDefault("Abilities.Water.IceWall.Enabled", true);
 		config.addDefault("Abilities.Water.IceWall.Description", "IceWall allows an icebender to create a wall of ice, similar to "
