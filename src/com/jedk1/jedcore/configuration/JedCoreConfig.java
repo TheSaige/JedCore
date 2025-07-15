@@ -718,7 +718,8 @@ public class JedCoreConfig {
 		config.addDefault("Abilities.Fire.FirePunch.Cooldown", 4000);
 		config.addDefault("Abilities.Fire.FirePunch.FireTicks", 2000);
 		config.addDefault("Abilities.Fire.FirePunch.Damage", 2.0);
-		
+		config.addDefault("Abilities.Fire.FirePunch.BurnsDroppedItems", true);
+
 		config.addDefault("Abilities.Fire.FireShots.Enabled", true);
 		config.addDefault("Abilities.Fire.FireShots.Description", "To use, tap Sneak (Default: Shift) to summon a "
 				+ "FireBalls at your hand, then Left Click to shoot off each ball! "

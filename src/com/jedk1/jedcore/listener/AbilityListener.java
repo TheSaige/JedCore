@@ -63,6 +63,7 @@ import com.projectkorra.projectkorra.earthbending.EarthArmor;
 import com.projectkorra.projectkorra.earthbending.lava.LavaFlow;
 import com.projectkorra.projectkorra.firebending.FireJet;
 import com.projectkorra.projectkorra.util.MovementHandler;
+import com.projectkorra.projectkorra.util.ParticleEffect;
 import com.projectkorra.projectkorra.waterbending.blood.Bloodbending;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -156,6 +157,21 @@ public class AbilityListener implements Listener {
 	@EventHandler(priority = EventPriority.LOWEST)
 	public void onPlayerDropItemEvent(PlayerDropItemEvent event) {
 		recentlyDropped.add(event.getPlayer().getUniqueId());
+
+		// FirePunch item burn effect
+		Player player = event.getPlayer();
+		FirePunch fp = FirePunch.getAbility(player, FirePunch.class);
+		boolean burnEnabled = com.jedk1.jedcore.configuration.JedCoreConfig.getConfig((Player)null).getBoolean("Abilities.Fire.FirePunch.BurnsDroppedItems", true);
+		if (fp != null && burnEnabled) {
+			var item = event.getItemDrop();
+			var loc = fp.getRightHandPos();
+			ParticleEffect.LAVA.display(loc, 5, 0.1, 0.1, 0.1, 0.05);
+			ParticleEffect.FLAME.display(loc, 3, 0.1, 0.1, 0.1, 0.01);
+			ParticleEffect.SMOKE_NORMAL.display(loc, 2, 0.05, 0.05, 0.05, 0.01);
+			loc.getWorld().playSound(loc, Sound.BLOCK_FIRE_EXTINGUISH, 0.3f, 1.4f);
+			item.remove();
+		}
+
 		Bukkit.getScheduler().runTaskLater(ProjectKorra.plugin, () -> recentlyDropped.remove(event.getPlayer().getUniqueId()), 2L);
 	}
 
