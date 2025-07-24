@@ -19,6 +19,7 @@ import com.projectkorra.projectkorra.util.DamageHandler;
 
 import com.projectkorra.projectkorra.util.TempFallingBlock;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Effect;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -273,14 +274,20 @@ public class EarthLine extends EarthAbility implements AddonAbility {
 				}
 			} else {
 				for (Entity entity : GeneralMethods.getEntitiesAroundPoint(location, affectingRadius)) {
-					if (RegionProtection.isRegionProtected(this, entity.getLocation()) || ((entity instanceof Player) && Commands.invincible.contains(entity.getName()))){
-						return;
+					System.out.println("Entity: " + entity.getName());
+					double distanceX = Math.abs(entity.getLocation().getX() - location.getX());
+					System.out.println("Blocks Away on X: " + distanceX);
+					if (distanceX <= 1) {
+						if (RegionProtection.isRegionProtected(this, entity.getLocation()) || ((entity instanceof Player) && Commands.invincible.contains(entity.getName()))){
+							return;
+						}
+						if ((entity instanceof LivingEntity) && entity.getEntityId() != player.getEntityId()) {
+							GeneralMethods.setVelocity(this, entity, push.normalize().multiply(2));
+							DamageHandler.damageEntity(entity, damage, this);
+							hitted = true;
+						}
 					}
-					if ((entity instanceof LivingEntity) && entity.getEntityId() != player.getEntityId()) {
-						GeneralMethods.setVelocity(this, entity, push.normalize().multiply(2));
-						DamageHandler.damageEntity(entity, damage, this);
-						hitted = true;
-					}
+
 				}
 			}
 		} else {
