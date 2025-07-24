@@ -50,6 +50,7 @@ public class EarthLine extends EarthAbility implements AddonAbility {
 	private double range;
 	@Attribute(Attribute.SELECT_RANGE)
 	private double prepareRange;
+	private double xhitboxRadius;
 	private double sourceKeepRange;
 	@Attribute(Attribute.RADIUS)
 	private int affectingRadius;
@@ -98,6 +99,7 @@ public class EarthLine extends EarthAbility implements AddonAbility {
 		damage = config.getDouble("Abilities.Earth.EarthLine.Damage");
 		allowChangeDirection = config.getBoolean("Abilities.Earth.EarthLine.AllowChangeDirection");
 		maxDuration = config.getLong("Abilities.Earth.EarthLine.MaxDuration");
+		xhitboxRadius = config.getDouble("Abilities.Earth.EarthLine.xHitboxRadius");
 	}
 
     public boolean prepare() {
@@ -277,7 +279,7 @@ public class EarthLine extends EarthAbility implements AddonAbility {
 					System.out.println("Entity: " + entity.getName());
 					double distanceX = Math.abs(entity.getLocation().getX() - location.getX());
 					System.out.println("Blocks Away on X: " + distanceX);
-					if (distanceX <= 1) {
+					if (distanceX <= xhitboxRadius) {
 						if (RegionProtection.isRegionProtected(this, entity.getLocation()) || ((entity instanceof Player) && Commands.invincible.contains(entity.getName()))){
 							return;
 						}
