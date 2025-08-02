@@ -276,9 +276,7 @@ public class EarthLine extends EarthAbility implements AddonAbility {
 				}
 			} else {
 				for (Entity entity : GeneralMethods.getEntitiesAroundPoint(location, affectingRadius)) {
-					System.out.println("Entity: " + entity.getName());
 					double distanceX = Math.abs(entity.getLocation().getX() - location.getX());
-					System.out.println("Blocks Away on X: " + distanceX);
 					if (distanceX <= xhitboxRadius) {
 						if (RegionProtection.isRegionProtected(this, entity.getLocation()) || ((entity instanceof Player) && Commands.invincible.contains(entity.getName()))){
 							return;
