@@ -64,8 +64,10 @@ public class MudSurge extends EarthAbility implements AddonAbility {
 	public static int surgeInterval = 300;
 	public static int mudPoolRadius = 2;
 	public static Set<Material> mudTypes = new HashSet<>();
+	private static Material mudType;
 
 	static {
+		mudType = Material.valueOf("BROWN_TERRACOTTA");
 		mudTypes.addAll(Arrays.asList(Material.SAND, Material.RED_SAND, Material.CLAY, Material.TERRACOTTA, Material.BLACK_TERRACOTTA, Material.BLUE_TERRACOTTA,
 				Material.BROWN_TERRACOTTA, Material.CYAN_TERRACOTTA, Material.GRAY_TERRACOTTA, Material.GREEN_TERRACOTTA,
 				Material.LIGHT_BLUE_TERRACOTTA, Material.LIGHT_GRAY_TERRACOTTA, Material.LIME_TERRACOTTA,
@@ -82,6 +84,7 @@ public class MudSurge extends EarthAbility implements AddonAbility {
 			mudTypes.add(Material.getMaterial("MUD"));
 			mudTypes.add(Material.getMaterial("MUDDY_MANGROVE_ROOTS"));
 			mudTypes.add(Material.getMaterial("PACKED_MUD"));
+		    mudType = Material.valueOf("MUD");
 		}
 	}
 
@@ -226,7 +229,7 @@ public class MudSurge extends EarthAbility implements AddonAbility {
 	}
 
 	public static boolean isSurgeBlock(Block block) {
-		if (block.getType() != Material.BROWN_TERRACOTTA) {
+		if (block.getType() != Material.MUD) {
 			return false;
 		}
 
@@ -294,7 +297,7 @@ public class MudSurge extends EarthAbility implements AddonAbility {
 	}
 
 	private void createMud(Block block) {
-		mudBlocks.add(new TempBlock(block, Material.BROWN_TERRACOTTA.createBlockData()));
+		mudBlocks.add(new TempBlock(block, mudType.createBlockData()));
 	}
 
 	private void loadMudPool() {
@@ -368,7 +371,7 @@ public class MudSurge extends EarthAbility implements AddonAbility {
 			x = (rand.nextBoolean()) ? -x : x;
 			z = (rand.nextBoolean()) ? -z : z;
 
-			fallingBlocks.add(new TempFallingBlock(tb.getLocation().add(0.5, 1, 0.5), Material.BROWN_TERRACOTTA.createBlockData(), direction.clone().add(new Vector(x, 0.2, z)), this));
+			fallingBlocks.add(new TempFallingBlock(tb.getLocation().add(0.5, 1, 0.5), mudType.createBlockData(), direction.clone().add(new Vector(x, 0.2, z)), this));
 			
 			playEarthbendingSound(tb.getLocation());
 		}
