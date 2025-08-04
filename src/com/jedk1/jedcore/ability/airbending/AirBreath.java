@@ -11,7 +11,6 @@ import com.projectkorra.projectkorra.command.Commands;
 import com.projectkorra.projectkorra.region.RegionProtection;
 import com.projectkorra.projectkorra.util.DamageHandler;
 import com.projectkorra.projectkorra.util.ParticleEffect;
-
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.configuration.ConfigurationSection;
@@ -25,36 +24,29 @@ import org.bukkit.util.Vector;
 
 public class AirBreath extends AirAbility implements AddonAbility {
 
-	private boolean isAvatar;
-
-	@Attribute(Attribute.COOLDOWN)
-	private long cooldown;
-	@Attribute(Attribute.DURATION)
-	private long duration;
 	private int particles;
-
 	private boolean coolLava;
 	private boolean extinguishFire;
 	private boolean extinguishMobs;
-
 	private boolean damageEnabled;
+	private double launch;
+	private boolean regenOxygen;
+	private boolean avatarAmplify;
+	private int avatarRange;
+	private double avatarKnockback;
+
+    @Attribute(Attribute.COOLDOWN)
+	private long cooldown;
+	@Attribute(Attribute.DURATION)
+	private long duration;
 	@Attribute(Attribute.DAMAGE)
 	private double playerDamage;
 	@Attribute(Attribute.DAMAGE)
 	private double mobDamage;
-
 	@Attribute(Attribute.KNOCKBACK)
 	private double knockback;
 	@Attribute(Attribute.RANGE)
 	private int range;
-
-	private double launch;
-
-	private boolean regenOxygen;
-
-	private boolean avatarAmplify;
-	private int avatarRange;
-	private double avatarKnockback;
 
 	public AirBreath(Player player) {
 		super(player);
@@ -63,8 +55,8 @@ public class AirBreath extends AirAbility implements AddonAbility {
 		}
 
 		setFields();
-		isAvatar = bPlayer.isAvatarState();
-		if (isAvatar && avatarAmplify) {
+
+		if (bPlayer.isAvatarState() && avatarAmplify) {
 			range = avatarRange;
 			knockback = avatarKnockback;
 		}
@@ -98,16 +90,19 @@ public class AirBreath extends AirAbility implements AddonAbility {
 			remove();
 			return;
 		}
+
 		if (!(bPlayer.getBoundAbility() instanceof AirBreath)) {
 			bPlayer.addCooldown(this);
 			remove();
 			return;
 		}
+
 		if (!player.isSneaking()) {
 			bPlayer.addCooldown(this);
 			remove();
 			return;
 		}
+
 		if (System.currentTimeMillis() < getStartTime() + duration) {
 			playAirbendingSound(player.getLocation());
 			createBeam();
@@ -119,9 +114,11 @@ public class AirBreath extends AirAbility implements AddonAbility {
 
 	private boolean isLocationSafe(Location loc) {
 		Block block = loc.getBlock();
+
 		if (RegionProtection.isRegionProtected(player, loc, this)) {
 			return false;
 		}
+
 		return isTransparent(block);
 	}
 
@@ -137,61 +134,91 @@ public class AirBreath extends AirAbility implements AddonAbility {
 			size += 0.005;
 			damageregion += 0.01;
 
-			if (!isLocationSafe(loc)) {
-				if (!isTransparent(loc.getBlock())) {
-					if (player.getLocation().getPitch() > 30) {
-						GeneralMethods.setVelocity(this, player, player.getLocation().getDirection().multiply(-launch));
-					}
-				}
+			if (!handleLocationSafety(loc)) {
 				return;
 			}
 
-			for (Entity entity : GeneralMethods.getEntitiesAroundPoint(loc, damageregion)) {
-				if (entity.getEntityId() != player.getEntityId() && !(entity instanceof ArmorStand)) {
-					if (RegionProtection.isRegionProtected(this, entity.getLocation()) || ((entity instanceof Player) && Commands.invincible.contains(entity.getName()))){
-						continue;
-					}
-					if (entity instanceof LivingEntity) {
-						if (damageEnabled) {
-							if (entity instanceof Player)
-								DamageHandler.damageEntity(entity, playerDamage, this);
-							else
-								DamageHandler.damageEntity(entity, mobDamage, this);
-						}
+			handleEntityCollisions(loc, dir, damageregion);
+			displayBeamParticles(loc, size);
+			handleBlockEffects();
+		}
+	}
 
-						if (regenOxygen && isWater(entity.getLocation().getBlock())) {
-							if (!((LivingEntity) entity).hasPotionEffect(PotionEffectType.WATER_BREATHING))
-								((LivingEntity) entity).addPotionEffect(new PotionEffect(PotionEffectType.WATER_BREATHING, 100, 2));
-						}
+	private boolean handleLocationSafety(Location loc) {
+		if (!isLocationSafe(loc)) {
+			if (!isTransparent(loc.getBlock()) && player.getLocation().getPitch() > 30) {
+				GeneralMethods.setVelocity(this, player, player.getLocation().getDirection().multiply(-launch));
+			}
+			return false;
+		}
+		return true;
+	}
 
-						if (extinguishMobs)
-							entity.setFireTicks(0);
-					}
-
-					dir.multiply(knockback);
-					GeneralMethods.setVelocity(this, entity, dir);
+	private void handleEntityCollisions(Location loc, Vector dir, double damageregion) {
+		for (Entity entity : GeneralMethods.getEntitiesAroundPoint(loc, damageregion)) {
+			if (isValidTarget(entity)) {
+				if (isEntityProtected(entity)) {
+					continue;
 				}
-			}
-
-			if (isWater(loc.getBlock())) {
-				ParticleEffect.WATER_BUBBLE.display(loc, particles, Math.random(), Math.random(), Math.random(), size);
-			}
-
-			JCMethods.extinguishBlocks(player, "AirBreath", range, 2, extinguishFire, coolLava);
-
-			if (getAirbendingParticles() == ParticleEffect.CLOUD) {
-				ParticleEffect.CLOUD.display(loc, particles, Math.random(), Math.random(), Math.random(), size);
-				ParticleEffect.SPELL.display(loc, particles, Math.random(), Math.random(), Math.random(), size);
-			} else {
-				getAirbendingParticles().display(loc, particles, Math.random(), Math.random(), Math.random(), size);
+				applyEntityEffects(entity, dir);
 			}
 		}
 	}
 
-	/*
-	 * @Override public void remove() { if (player.isOnline()) {
-	 * bPlayer.addCooldown("AirBreath", cooldown); } super.remove(); }
-	 */
+	private boolean isValidTarget(Entity entity) {
+		return entity.getEntityId() != player.getEntityId() && !(entity instanceof ArmorStand);
+	}
+
+	private boolean isEntityProtected(Entity entity) {
+		return RegionProtection.isRegionProtected(this, entity.getLocation()) || (entity instanceof Player && Commands.invincible.contains(entity.getName()));
+	}
+
+	private void applyEntityEffects(Entity entity, Vector dir) {
+		if (entity instanceof LivingEntity livingEntity) {
+			applyDamage(livingEntity);
+			applyOxygenRegen(livingEntity);
+			if (extinguishMobs) {
+				livingEntity.setFireTicks(0);
+			}
+		}
+		dir.multiply(knockback);
+		GeneralMethods.setVelocity(this, entity, dir);
+	}
+
+	private void applyDamage(LivingEntity entity) {
+		if (damageEnabled) {
+			if (entity instanceof Player) {
+				DamageHandler.damageEntity(entity, playerDamage, this);
+			} else {
+				DamageHandler.damageEntity(entity, mobDamage, this);
+			}
+		}
+	}
+
+	private void applyOxygenRegen(LivingEntity entity) {
+		if (regenOxygen && isWater(entity.getLocation().getBlock()) && !entity.hasPotionEffect(PotionEffectType.WATER_BREATHING)) {
+			entity.addPotionEffect(new PotionEffect(PotionEffectType.WATER_BREATHING, 100, 2));
+		}
+	}
+
+	private void displayBeamParticles(Location loc, double size) {
+		if (isWater(loc.getBlock())) {
+			ParticleEffect.WATER_BUBBLE.display(loc, particles, Math.random(), Math.random(), Math.random(), size);
+		}
+
+		ParticleEffect mainParticle = getAirbendingParticles();
+		if (mainParticle == ParticleEffect.CLOUD) {
+			ParticleEffect.CLOUD.display(loc, particles, Math.random(), Math.random(), Math.random(), size);
+			JCMethods.displayColoredParticles("#FFFFFF", loc, particles, Math.random(), Math.random(), Math.random(), 0f);
+			JCMethods.displayColoredParticles("#FFFFFF", player.getLocation(), particles, Math.random(), Math.random(), Math.random(), size, 50);
+		} else if (mainParticle != null) {
+			mainParticle.display(loc, particles, Math.random(), Math.random(), Math.random(), size);
+		}
+	}
+
+	private void handleBlockEffects() {
+		JCMethods.extinguishBlocks(player, "AirBreath", range, 2, extinguishFire, coolLava);
+	}
 
 	@Override
 	public long getCooldown() {

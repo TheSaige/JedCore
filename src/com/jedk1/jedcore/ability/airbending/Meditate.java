@@ -1,34 +1,34 @@
 package com.jedk1.jedcore.ability.airbending;
 
+import com.jedk1.jedcore.JCMethods;
 import com.jedk1.jedcore.JedCore;
 import com.jedk1.jedcore.configuration.JedCoreConfig;
 import com.projectkorra.projectkorra.Element;
 import com.projectkorra.projectkorra.ability.AddonAbility;
-import com.projectkorra.projectkorra.ability.AirAbility;
+import com.projectkorra.projectkorra.ability.SpiritualAbility;
 import com.projectkorra.projectkorra.attribute.Attribute;
-import com.projectkorra.projectkorra.util.ParticleEffect;
-
 import org.bukkit.Location;
+import org.bukkit.Particle;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
-public class Meditate extends AirAbility implements AddonAbility {
+public class Meditate extends SpiritualAbility implements AddonAbility {
 
 	private double startHealth;
-
 	private String unfocusMsg;
 	private long warmup;
-	@Attribute(Attribute.COOLDOWN)
-	private long cooldown;
-	@Attribute(Attribute.DURATION)
-	private int boostDuration;
 	private int particleDensity;
 	private boolean lossFocusMessage;
 	private int absorptionBoost;
 	private int speedBoost;
 	private int jumpBoost;
+
+	@Attribute(Attribute.COOLDOWN)
+	private long cooldown;
+	@Attribute(Attribute.DURATION)
+	private int boostDuration;
 
 	public Meditate(Player player) {
 		super(player);
@@ -62,26 +62,30 @@ public class Meditate extends AirAbility implements AddonAbility {
 			remove();
 			return;
 		}
+
 		if (!bPlayer.canBendIgnoreCooldowns(this)) {
 			remove();
 			return;
 		}
+
 		if (player.getHealth() < startHealth) {
-			if (lossFocusMessage) {
-				player.sendMessage(Element.AIR.getColor() + unfocusMsg);
-			}
+			if (lossFocusMessage) player.sendMessage(Element.SPIRITUAL.getColor() + unfocusMsg);
 			remove();
 			return;
 		}
+
 		if (System.currentTimeMillis() > getStartTime() + warmup) {
-			ParticleEffect.SPELL_INSTANT.display(player.getLocation(), particleDensity, Math.random(), Math.random(), Math.random(), 0.0);
+			player.spawnParticle(Particle.ELECTRIC_SPARK, player.getLocation(), 3, 0.5, 0.5, 0.5, 0.003F);
+
+			JCMethods.displayColoredParticles("#FFFFFF", player.getLocation(), particleDensity, Math.random(), Math.random(), Math.random(), 0f);
+
 			if (!player.isSneaking()) {
 				bPlayer.addCooldown(this);
 				givePlayerBuffs();
 				remove();
 			}
 		} else if (player.isSneaking()) {
-			ParticleEffect.SPELL_MOB_AMBIENT.display(player.getLocation(), particleDensity, Math.random(), Math.random(), Math.random(), 0.0);
+			JCMethods.displayColoredParticles("#FFFFFF", player.getLocation(), particleDensity, Math.random(), Math.random(), Math.random(), 0f, 50);
 		} else {
 			remove();
 		}
@@ -91,16 +95,15 @@ public class Meditate extends AirAbility implements AddonAbility {
 		if (player.hasPotionEffect(PotionEffectType.SPEED)) {
 			player.removePotionEffect(PotionEffectType.SPEED);
 		}
+
 		player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, boostDuration/50, speedBoost - 1));
 
-		if (player.hasPotionEffect(PotionEffectType.JUMP)) {
-			player.removePotionEffect(PotionEffectType.JUMP);
-		}
-		player.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, boostDuration/50, jumpBoost - 1));
+		JedCore.plugin.getPotionEffectAdapter().applyJumpBoost(player, boostDuration, jumpBoost);
 
 		if (player.hasPotionEffect(PotionEffectType.ABSORPTION)) {
 			player.removePotionEffect(PotionEffectType.ABSORPTION);
 		}
+
 		player.addPotionEffect(new PotionEffect(PotionEffectType.ABSORPTION, boostDuration/50, absorptionBoost - 1));
 	}
 	

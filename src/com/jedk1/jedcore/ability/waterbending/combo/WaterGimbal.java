@@ -17,9 +17,8 @@ import com.projectkorra.projectkorra.attribute.Attribute;
 import com.projectkorra.projectkorra.util.BlockSource;
 import com.projectkorra.projectkorra.util.ClickType;
 import com.projectkorra.projectkorra.util.TempBlock;
-import com.projectkorra.projectkorra.waterbending.WaterManipulation;
 import com.projectkorra.projectkorra.waterbending.Torrent;
-
+import com.projectkorra.projectkorra.waterbending.WaterManipulation;
 import com.projectkorra.projectkorra.waterbending.ice.PhaseChange;
 import com.projectkorra.projectkorra.waterbending.plant.PlantRegrowth;
 import com.projectkorra.projectkorra.waterbending.util.WaterReturn;
@@ -30,10 +29,7 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.Levelled;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
-import org.bukkit.inventory.meta.PotionMeta;
-import org.bukkit.potion.PotionType;
 import org.bukkit.util.Vector;
 
 import java.util.ArrayList;
@@ -218,6 +214,7 @@ public class WaterGimbal extends WaterAbility implements AddonAbility, ComboAbil
 		}
 
 		// Try to use bottles if no source blocks nearby.
+		// todo: works the first time, requires actual sources and still consumes water bottle afterwards
 		if (canUseBottle && hasWaterBottle(player)){
 			Location eye = player.getEyeLocation();
 			Location forward = eye.clone().add(eye.getDirection());
@@ -237,13 +234,7 @@ public class WaterGimbal extends WaterAbility implements AddonAbility, ComboAbil
 	// This is to get around the WaterReturn limitation since OctopusForm will currently be using the bottle.
 	private boolean hasWaterBottle(Player player) {
 		PlayerInventory inventory = player.getInventory();
-		if (inventory.contains(Material.POTION)) {
-			ItemStack item = inventory.getItem(inventory.first(Material.POTION));
-			PotionMeta meta = (PotionMeta) item.getItemMeta();
-			return meta.getBasePotionData().getType().equals(PotionType.WATER);
-		}
-
-		return false;
+		return JedCore.plugin.getPotionEffectAdapter().hasWaterPotion(inventory);
 	}
 
 	public static void prepareBlast(Player player) {

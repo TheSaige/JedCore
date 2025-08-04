@@ -11,11 +11,9 @@ import com.projectkorra.projectkorra.attribute.Attribute;
 import com.projectkorra.projectkorra.region.RegionProtection;
 import com.projectkorra.projectkorra.util.DamageHandler;
 import com.projectkorra.projectkorra.util.ParticleEffect;
-
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -23,33 +21,31 @@ import org.bukkit.util.Vector;
 
 public class SpiritBeam extends AvatarAbility implements AddonAbility {
 
-	private Location location;
+    private Location location;
 	private Vector direction;
+	private boolean damagesBlocks;
+	private long regen;
+	private boolean avatarOnly;
+
 	@Attribute(Attribute.DURATION)
 	private long duration;
 	@Attribute(Attribute.COOLDOWN)
 	private long cooldown;
 	@Attribute(Attribute.RANGE)
 	private double range;
-	private boolean avatarOnly;
 	@Attribute(Attribute.DAMAGE)
 	private double damage;
-	private boolean damagesBlocks;
-	private long regen;
 	@Attribute(Attribute.RADIUS)
 	private double radius;
 
 	public SpiritBeam(Player player) {
 		super(player);
-		if (bPlayer.isOnCooldown(this)) {
-			return;
-		}
+
+		if (bPlayer.isOnCooldown(this)) return;
 
 		setFields();
 
-		if (avatarOnly && !bPlayer.isAvatarState()) {
-			return;
-		}
+		if (avatarOnly && !bPlayer.isAvatarState()) return;
 
 		start();
 	}
@@ -73,61 +69,93 @@ public class SpiritBeam extends AvatarAbility implements AddonAbility {
 			remove();
 			return;
 		}
+
 		if (!bPlayer.canBendIgnoreBindsCooldowns(this)) {
 			bPlayer.addCooldown(this);
 			remove();
 			return;
 		}
+
 		if (System.currentTimeMillis() > getStartTime() + duration) {
 			bPlayer.addCooldown(this);
 			remove();
 			return;
 		}
+
 		if (!player.isSneaking()) {
 			bPlayer.addCooldown(this);
 			remove();
 			return;
 		}
+
 		if (avatarOnly && !bPlayer.isAvatarState()) {
 			bPlayer.addCooldown(this);
 			remove();
 			return;
 		}
+
 		createBeam();
 	}
 
 	private void createBeam() {
 		location = player.getLocation().add(0, 1.2, 0);
-		direction = location.getDirection();
+		Vector beamDirection = location.getDirection().normalize().multiply(0.5);
+
 		for (double i = 0; i < range; i += 0.5) {
-			location = location.add(direction.multiply(0.5).normalize());
+			location = location.add(beamDirection);
 
-			if (RegionProtection.isRegionProtected(player, location, this)) {
+			if (isBeamObstructed(location)) {
 				return;
 			}
 
-			ParticleEffect.SPELL_WITCH.display(location, 1, 0f, 0f, 0f, 0f);
-			ParticleEffect.SPELL_WITCH.display(location, 1, (float) Math.random() / 3, (float) Math.random() / 3, (float) Math.random() / 3, 0f);
-			ParticleEffect.BLOCK_CRACK.display(location, 1,(float) Math.random() / 3, (float) Math.random() / 3, (float) Math.random() / 3, 0.1F, Material.NETHER_PORTAL.createBlockData());
-			ParticleEffect.BLOCK_CRACK.display(location, 1, direction.getX(), direction.getY(), direction.getZ(), 0.1F, Material.NETHER_PORTAL.createBlockData());
+			displayBeamParticles(location, beamDirection);
+			JCMethods.emitLight(location);
+			damageNearbyEntities(location);
 
-			for (Entity entity : GeneralMethods.getEntitiesAroundPoint(location, 2)) {
-				if (entity instanceof LivingEntity && entity.getEntityId() != player.getEntityId() && !(entity instanceof ArmorStand)) {
-					entity.setFireTicks(100);
-					DamageHandler.damageEntity(entity, damage, this);
-				}
-			}
-
-			if (location.getBlock().getType().isSolid()) {
-				location.getWorld().createExplosion(location, 0F);
-				if (damagesBlocks) {
-					//new TempExplosion(player, location.getBlock(), "SpiritBeam", radius, regen, damage, false);
-					for (Location loc : GeneralMethods.getCircle(location, (int) radius, 0, false, true, 0)) {
-						if (JCMethods.isUnbreakable(loc.getBlock())) continue;
-						new RegenTempBlock(loc.getBlock(), Material.AIR, Material.AIR.createBlockData(), regen, false);
-					}
-				}
+			if (handleBlockCollision(location)) {
 				return;
+			}
+		}
+	}
+
+	private boolean isBeamObstructed(Location location) {
+		return RegionProtection.isRegionProtected(player, location, this);
+	}
+
+	private void displayBeamParticles(Location location, Vector direction) {
+		String purple = "#A020F0";
+		JCMethods.displayColoredParticles(purple, location, 1, 0f, 0f, 0f, 0f);
+		JCMethods.displayColoredParticles(purple, location, 1, (float) Math.random() / 3, (float) Math.random() / 3, (float) Math.random() / 3, 0f);
+
+		float randomOffset = (float) Math.random() / 3;
+		ParticleEffect.BLOCK_CRACK.display(location, 1, randomOffset, randomOffset, randomOffset, 0.1F, Material.NETHER_PORTAL.createBlockData());
+		ParticleEffect.BLOCK_CRACK.display(location, 1, (float) direction.getX(), (float) direction.getY(), (float) direction.getZ(), 0.1F, Material.NETHER_PORTAL.createBlockData());
+	}
+
+	private void damageNearbyEntities(Location location) {
+		for (Entity entity : GeneralMethods.getEntitiesAroundPoint(location, 2)) {
+			if (entity instanceof LivingEntity livingEntity && livingEntity.getEntityId() != player.getEntityId()) {
+				livingEntity.setFireTicks(100);
+				DamageHandler.damageEntity(livingEntity, damage, this);
+			}
+		}
+	}
+
+	private boolean handleBlockCollision(Location location) {
+		if (location.getBlock().getType().isSolid()) {
+			location.getWorld().createExplosion(location, 0F);
+			if (damagesBlocks) {
+				damageBlocksInRadius(location);
+			}
+			return true;
+		}
+		return false;
+	}
+
+	private void damageBlocksInRadius(Location center) {
+		for (Location loc : GeneralMethods.getCircle(center, (int) radius, 0, false, true, 0)) {
+			if (!JCMethods.isUnbreakable(loc.getBlock())) {
+				new RegenTempBlock(loc.getBlock(), Material.AIR, Material.AIR.createBlockData(), regen, false);
 			}
 		}
 	}

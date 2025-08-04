@@ -1,18 +1,17 @@
 package com.jedk1.jedcore.command;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
-
+import com.jedk1.jedcore.JedCore;
+import com.projectkorra.projectkorra.command.PKCommand;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import com.jedk1.jedcore.JedCore;
-import com.projectkorra.projectkorra.command.PKCommand;
+import java.util.Arrays;
+import java.util.List;
+import java.util.UUID;
 
 public class JedCoreCommand extends PKCommand {
-	private static final String DOWNLOAD_URL = "https://github.com/Aztlon/JedCore";
+	private static final String DOWNLOAD_URL = "https://github.com/CozmycDev/JedCore";
 
 	public JedCoreCommand() {
 		super("jedcore", "/bending jedcore", "This command will show the statistics and version of JedCore.", new String[] { "jedcore", "jc" });
@@ -39,7 +38,7 @@ public class JedCoreCommand extends PKCommand {
 		sender.sendMessage(ChatColor.GRAY + "Running JedCore Build: " + ChatColor.RED + JedCore.plugin.getDescription().getVersion());
 		sender.sendMessage(ChatColor.GRAY + "Developed by: " + ChatColor.RED + JedCore.plugin.getDescription().getAuthors().toString().replace("[", "").replace("]", ""));
 		sender.sendMessage(ChatColor.GRAY + "Modified by: " + ChatColor.RED + "plushmonkey");
-		sender.sendMessage(ChatColor.GRAY + "Maintained by: " + ChatColor.RED + "Aztl");
+		sender.sendMessage(ChatColor.GRAY + "Maintained by: " + ChatColor.RED + "Cozmyc");
 		sender.sendMessage(ChatColor.GRAY + "URL: " + ChatColor.RED + ChatColor.ITALIC + DOWNLOAD_URL);
 	}
 	

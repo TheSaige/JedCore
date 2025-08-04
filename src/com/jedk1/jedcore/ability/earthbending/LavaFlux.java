@@ -1,16 +1,17 @@
 package com.jedk1.jedcore.ability.earthbending;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-
+import com.jedk1.jedcore.JedCore;
 import com.jedk1.jedcore.configuration.JedCoreConfig;
+import com.projectkorra.projectkorra.GeneralMethods;
+import com.projectkorra.projectkorra.ability.AddonAbility;
 import com.projectkorra.projectkorra.ability.EarthAbility;
+import com.projectkorra.projectkorra.ability.LavaAbility;
 import com.projectkorra.projectkorra.attribute.Attribute;
+import com.projectkorra.projectkorra.firebending.util.FireDamageTimer;
 import com.projectkorra.projectkorra.region.RegionProtection;
+import com.projectkorra.projectkorra.util.DamageHandler;
 import com.projectkorra.projectkorra.util.Information;
+import com.projectkorra.projectkorra.util.ParticleEffect;
 import com.projectkorra.projectkorra.util.TempBlock;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -26,14 +27,11 @@ import org.bukkit.entity.Player;
 import org.bukkit.util.BlockIterator;
 import org.bukkit.util.Vector;
 
-import com.jedk1.jedcore.JedCore;
-import com.jedk1.jedcore.util.RegenTempBlock;
-import com.projectkorra.projectkorra.GeneralMethods;
-import com.projectkorra.projectkorra.ability.AddonAbility;
-import com.projectkorra.projectkorra.ability.LavaAbility;
-import com.projectkorra.projectkorra.firebending.util.FireDamageTimer;
-import com.projectkorra.projectkorra.util.DamageHandler;
-import com.projectkorra.projectkorra.util.ParticleEffect;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
 
 public class LavaFlux extends LavaAbility implements AddonAbility {
 
@@ -55,6 +53,9 @@ public class LavaFlux extends LavaAbility implements AddonAbility {
 	private int counter;
 	private long time;
 	private boolean complete;
+
+	private double knockUp;
+	private double knockBack;
 
 	Random rand = new Random();
 
@@ -93,6 +94,8 @@ public class LavaFlux extends LavaAbility implements AddonAbility {
 		cleanup = config.getLong("Abilities.Earth.LavaFlux.Cleanup");
 		damage = config.getDouble("Abilities.Earth.LavaFlux.Damage");
 		wave = config.getBoolean("Abilities.Earth.LavaFlux.Wave");
+		knockUp = config.getDouble("Abilities.Earth.LavaFlux.KnockUp");
+		knockBack = config.getDouble("Abilities.Earth.LavaFlux.KnockBack");
 	}
 
 	@Override
@@ -217,12 +220,19 @@ public class LavaFlux extends LavaAbility implements AddonAbility {
 			}
 		}
 	}
-	
+
 	private void applyDamageFromWave(Location location) {
 		for (Entity entity : GeneralMethods.getEntitiesAroundPoint(location, 1.5)) {
 			if (entity instanceof LivingEntity && entity.getEntityId() != player.getEntityId()) {
+				LivingEntity livingEntity = (LivingEntity) entity;
+
 				DamageHandler.damageEntity(entity, damage, this);
 				new FireDamageTimer(entity, player, this);
+
+				Vector direction = livingEntity.getLocation().toVector().subtract(player.getLocation().toVector()).normalize();
+				Vector knockbackVelocity = direction.multiply(knockBack).setY(knockUp);
+
+				livingEntity.setVelocity(knockbackVelocity);
 			}
 		}
 	}

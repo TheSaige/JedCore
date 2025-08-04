@@ -1,10 +1,11 @@
 package com.jedk1.jedcore.ability.avatar.elementsphere;
 
+import com.jedk1.jedcore.JCMethods;
 import com.jedk1.jedcore.JedCore;
 import com.jedk1.jedcore.configuration.JedCoreConfig;
 import com.projectkorra.projectkorra.Element;
-import com.projectkorra.projectkorra.GeneralMethods;
 import com.projectkorra.projectkorra.Element.SubElement;
+import com.projectkorra.projectkorra.GeneralMethods;
 import com.projectkorra.projectkorra.ability.AddonAbility;
 import com.projectkorra.projectkorra.ability.AvatarAbility;
 import com.projectkorra.projectkorra.ability.BlueFireAbility;
@@ -15,7 +16,6 @@ import com.projectkorra.projectkorra.firebending.BlazeArc;
 import com.projectkorra.projectkorra.region.RegionProtection;
 import com.projectkorra.projectkorra.util.DamageHandler;
 import com.projectkorra.projectkorra.util.ParticleEffect;
-
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.BlockFace;
@@ -31,6 +31,7 @@ public class ESFire extends AvatarAbility implements AddonAbility {
 	private Location location;
 	private Vector direction;
 	private double travelled;
+	private boolean controllable;
 
 	@Attribute(Attribute.COOLDOWN)
 	private long cooldown;
@@ -42,22 +43,26 @@ public class ESFire extends AvatarAbility implements AddonAbility {
 	private long burnTime;
 	@Attribute(Attribute.SPEED)
 	private int speed;
-	private boolean controllable;
 
 	public ESFire(Player player) {
 		super(player);
+
 		if (!hasAbility(player, ElementSphere.class)) {
 			return;
 		}
+
 		ElementSphere currES = getAbility(player, ElementSphere.class);
 		if (currES.getFireUses() == 0) {
 			return;
 		}
+
 		if (bPlayer.isOnCooldown("ESFire")) {
 			return;
 		}
+
 		setFields();
 		start();
+
 		if (!isRemoved()) {
 			bPlayer.addCooldown("ESFire", getCooldown());
 			currES.setFireUses(currES.getFireUses() - 1);
@@ -81,7 +86,7 @@ public class ESFire extends AvatarAbility implements AddonAbility {
 	
 	private void applyModifiers() {
 		if (bPlayer.canUseSubElement(SubElement.BLUE_FIRE)) {
-			cooldown *= BlueFireAbility.getCooldownFactor();
+			cooldown *= (long) BlueFireAbility.getCooldownFactor();
 			range *= BlueFireAbility.getRangeFactor();
 			damage *= BlueFireAbility.getDamageFactor();
 		}
@@ -93,47 +98,83 @@ public class ESFire extends AvatarAbility implements AddonAbility {
 			remove();
 			return;
 		}
+
 		if (travelled >= range) {
 			remove();
 			return;
 		}
+
 		advanceAttack();
 	}
 
 	private void advanceAttack() {
 		for (int i = 0; i < speed; i++) {
-			travelled++;
-			if (travelled >= range)
-				return;
-
-			if (!player.isDead() && controllable)
-				direction = GeneralMethods.getDirection(player.getLocation(), GeneralMethods.getTargetedLocation(player, range, Material.WATER)).normalize();
-
-			location = location.add(direction.clone().multiply(1));
-			if (RegionProtection.isRegionProtected(this, location)) {
-				travelled = range;
-				return;
-			}
-			if (GeneralMethods.isSolid(location.getBlock()) || isWater(location.getBlock())) {
-				travelled = range;
+			if (!incrementTravelledAndCheckRange()) {
 				return;
 			}
 
-			ParticleEffect flame = bPlayer.hasSubElement(Element.BLUE_FIRE) ? ParticleEffect.SOUL_FIRE_FLAME : ParticleEffect.FLAME;
-			flame.display(location, 5, Math.random(), Math.random(), Math.random(), 0.02);
-			ParticleEffect.SMOKE_LARGE.display(location, 2, Math.random(), Math.random(), Math.random(), 0.01);
-			FireAbility.playFirebendingSound(location);
+			updateDirectionIfControllable();
 
+			location.add(direction.clone().multiply(1));
+
+			if (checkEnvironmentCollision()) {
+				return;
+			}
+
+			displayAttackParticles();
+			playAttackSoundsAndLight();
 			placeFire();
+			handleEntityCollisions();
+		}
+	}
 
-			for (Entity entity : GeneralMethods.getEntitiesAroundPoint(location, 2.5)) {
-				if (entity instanceof LivingEntity && entity.getEntityId() != player.getEntityId() && !(entity instanceof ArmorStand) && !RegionProtection.isRegionProtected(this, entity.getLocation()) && !((entity instanceof Player) && Commands.invincible.contains(((Player) entity).getName()))) {
-					DamageHandler.damageEntity(entity, damage, this);
-					entity.setFireTicks(Math.round(burnTime / 50F));
-					travelled = range;
-				}
+	private boolean incrementTravelledAndCheckRange() {
+		travelled++;
+		return travelled < range;
+	}
+
+	private void updateDirectionIfControllable() {
+		if (!player.isDead() && controllable) {
+			direction = GeneralMethods.getDirection(player.getLocation(), GeneralMethods.getTargetedLocation(player, range, Material.WATER)).normalize();
+		}
+	}
+
+	private boolean checkEnvironmentCollision() {
+		if (RegionProtection.isRegionProtected(this, location) || GeneralMethods.isSolid(location.getBlock()) || isWater(location.getBlock())) {
+			travelled = range;
+			return true;
+		}
+		return false;
+	}
+
+	private void displayAttackParticles() {
+		ParticleEffect flame = bPlayer.hasSubElement(Element.BLUE_FIRE) ? ParticleEffect.SOUL_FIRE_FLAME : ParticleEffect.FLAME;
+		flame.display(location, 5, Math.random(), Math.random(), Math.random(), 0.02);
+		ParticleEffect.SMOKE_LARGE.display(location, 2, Math.random(), Math.random(), Math.random(), 0.01);
+	}
+
+	private void playAttackSoundsAndLight() {
+		FireAbility.playFirebendingSound(location);
+		JCMethods.emitLight(location);
+	}
+
+	private void handleEntityCollisions() {
+		for (Entity entity : GeneralMethods.getEntitiesAroundPoint(location, 2.5)) {
+			if (isAttackableEntity(entity)) {
+				DamageHandler.damageEntity(entity, damage, this);
+				entity.setFireTicks(Math.round(burnTime / 50F));
+				travelled = range;
+				return;
 			}
 		}
+	}
+
+	private boolean isAttackableEntity(Entity entity) {
+		return entity instanceof LivingEntity &&
+				entity.getEntityId() != player.getEntityId() &&
+				!(entity instanceof ArmorStand) &&
+				!RegionProtection.isRegionProtected(this, entity.getLocation()) &&
+				!((entity instanceof Player targetPlayer) && Commands.invincible.contains((targetPlayer).getName()));
 	}
 
 	private void placeFire() {

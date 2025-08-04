@@ -5,16 +5,14 @@ import com.jedk1.jedcore.configuration.JedCoreConfig;
 import com.projectkorra.projectkorra.GeneralMethods;
 import com.projectkorra.projectkorra.ability.AddonAbility;
 import com.projectkorra.projectkorra.ability.ElementalAbility;
+import com.projectkorra.projectkorra.ability.EarthAbility;
 import com.projectkorra.projectkorra.ability.SandAbility;
 import com.projectkorra.projectkorra.ability.util.Collision;
 import com.projectkorra.projectkorra.attribute.Attribute;
 import com.projectkorra.projectkorra.earthbending.passive.DensityShift;
 import com.projectkorra.projectkorra.region.RegionProtection;
-import com.projectkorra.projectkorra.util.BlockSource;
-import com.projectkorra.projectkorra.util.ClickType;
 import com.projectkorra.projectkorra.util.DamageHandler;
 import com.projectkorra.projectkorra.util.TempBlock;
-
 import com.projectkorra.projectkorra.util.TempFallingBlock;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -90,9 +88,12 @@ public class SandBlast extends SandAbility implements AddonAbility {
 	}
 
 	private boolean prepare() {
-		source = BlockSource.getEarthSourceBlock(player, sourceRange, ClickType.SHIFT_DOWN);
+		source = getEarthSourceBlock(sourceRange);
 
 		if (source != null) {
+			if (EarthAbility.getMovedEarth().containsKey(source)) {
+				return false;
+			}
 			if (isSand(source) && ElementalAbility.isAir(source.getRelative(BlockFace.UP).getType())) {
 				this.sourceData = source.getBlockData().clone();
 				if (DensityShift.isPassiveSand(source)) {

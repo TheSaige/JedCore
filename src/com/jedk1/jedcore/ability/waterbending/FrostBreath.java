@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import com.jedk1.jedcore.JCMethods;
 import com.jedk1.jedcore.configuration.JedCoreConfig;
 import com.projectkorra.projectkorra.command.Commands;
 import com.projectkorra.projectkorra.region.RegionProtection;
@@ -15,8 +16,6 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 
 import com.jedk1.jedcore.JedCore;
@@ -261,7 +260,7 @@ public class FrostBreath extends IceAbility implements AddonAbility {
 						}
 
 						if (config.slowEnabled) {
-							((LivingEntity) entity).addPotionEffect(new PotionEffect(PotionEffectType.SLOW, (int) config.slowDuration / 50, 5));
+							((LivingEntity) entity).addPotionEffect(JedCore.plugin.getPotionEffectAdapter().getSlownessEffect((int) config.slowDuration, 5));
 						}
 
 						if (config.damageEnabled) {
@@ -279,8 +278,9 @@ public class FrostBreath extends IceAbility implements AddonAbility {
 				}
 
 				ParticleEffect.SNOW_SHOVEL.display(loc, config.particles, Math.random(), Math.random(), Math.random(), size);
-				ParticleEffect.SPELL_MOB.display(getOffsetLocation(loc, offset), 0, 220, 220, 220, 0.003/*, new Particle.DustOptions(Color.fromRGB(220, 220, 220), 1)*/);
-				ParticleEffect.SPELL_MOB.display(getOffsetLocation(loc, offset), 0, 150, 150, 255, 0.0035/*, new Particle.DustOptions(Color.fromRGB(150, 150, 255), 1)*/);
+
+				JCMethods.displayColoredParticles("#DCDCDC", loc, 1, Math.random(), Math.random(), Math.random(), 0.003f);
+				JCMethods.displayColoredParticles("#9696FF", loc, 1, Math.random(), Math.random(), Math.random(), 0.0035f);
 			}
 		}
 

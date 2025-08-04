@@ -10,7 +10,6 @@ import com.projectkorra.projectkorra.attribute.Attribute;
 import com.projectkorra.projectkorra.command.Commands;
 import com.projectkorra.projectkorra.region.RegionProtection;
 import com.projectkorra.projectkorra.util.DamageHandler;
-
 import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.ArmorStand;
@@ -36,22 +35,30 @@ public class ESAir extends AvatarAbility implements AddonAbility {
 
 	public ESAir(Player player) {
 		super(player);
+
 		if (!hasAbility(player, ElementSphere.class)) {
 			return;
 		}
+
 		ElementSphere currES = getAbility(player, ElementSphere.class);
 		if (currES.getAirUses() == 0) {
 			return;
 		}
+
 		if (bPlayer.isOnCooldown("ESAir")) {
 			return;
 		}
+
 		setFields();
+
 		if (RegionProtection.isRegionProtected(this, player.getTargetBlock(getTransparentMaterialSet(), (int) range).getLocation())) {
 			return;
 		}
+
 		location = player.getEyeLocation().clone().add(player.getEyeLocation().getDirection().multiply(1));
+
 		start();
+
 		if (!isRemoved()) {
 			bPlayer.addCooldown("ESAir", getCooldown());
 			currES.setAirUses(currES.getAirUses() - 1);
@@ -74,23 +81,27 @@ public class ESAir extends AvatarAbility implements AddonAbility {
 			remove();
 			return;
 		}
+
 		if (travelled >= range) {
 			remove();
 			return;
 		}
+
 		advanceAttack();
 	}
 
 	private void advanceAttack() {
 		for (int i = 0; i < speed; i++) {
 			travelled++;
-			if (travelled >= range)
-				return;
+			if (travelled >= range) return;
+
 			location = location.add(location.getDirection().clone().multiply(1));
+
 			if (RegionProtection.isRegionProtected(this, location)) {
 				travelled = range;
 				return;
 			}
+
 			if (GeneralMethods.isSolid(location.getBlock()) || isWater(location.getBlock())) {
 				travelled = range;
 				return;
@@ -100,7 +111,11 @@ public class ESAir extends AvatarAbility implements AddonAbility {
 			AirAbility.playAirbendingSound(location);
 
 			for (Entity entity : GeneralMethods.getEntitiesAroundPoint(location, 2.5)) {
-				if (entity instanceof LivingEntity && entity.getEntityId() != player.getEntityId() && !(entity instanceof ArmorStand) && !RegionProtection.isRegionProtected(this, entity.getLocation()) && !((entity instanceof Player) && Commands.invincible.contains(((Player) entity).getName()))) {
+				if (entity instanceof LivingEntity && entity.getEntityId() != player.getEntityId()
+						&& !(entity instanceof ArmorStand)
+						&& !RegionProtection.isRegionProtected(this, entity.getLocation())
+						&& !((entity instanceof Player targetPlayer)
+						&& Commands.invincible.contains((targetPlayer).getName()))) {
 					DamageHandler.damageEntity(entity, damage, this);
 					GeneralMethods.setVelocity(this, entity, location.getDirection().multiply(knockback));
 					travelled = range;

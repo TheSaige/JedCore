@@ -1,9 +1,42 @@
+[![GitHub Pre-Release](https://img.shields.io/github/release-pre/CozmycDev/JedCore.svg)](https://github.com/CozmycDev/JedCore/releases)
+[![Github All Releases](https://img.shields.io/github/downloads/CozmycDev/JedCore/total.svg)](https://github.com/CozmycDev/JedCore/releases)
+![Size](https://img.shields.io/github/repo-size/CozmycDev/JedCore.svg)
+
 # JedCore
 This is my fork of plushmonkey's fork of jedk1's JedCore addon for ProjectKorra.  
-Download releases [here](https://github.com/Aztlon/JedCore/releases).
+Download releases [here](https://github.com/CozmycDev/JedCore/releases).
 Join our [Discord](https://discord.gg/gh9MfDmwZm) to discuss the plugin, suggest changes, report bugs, etc.
 
 ## Changelog
+
+### 2.14.4
+- Adds light to all fire abilities, SpiritBeam, ElementSphere, and HealingWaters.
+  - `Properties.Fire.DynamicLight.Enabled`: Whether to display light for Fire, SpiritBeam, or ElementSphere.
+  - `Properties.Fire.DynamicLight.Brightness`: A number 1-15 where higher is brighter.
+  - `Properties.Fire.DynamicLight.KeepAlive`: Time in ms lights persist until they fade out.
+  - `Abilities.Water.HealingWaters.DynamicLight.Enabled`
+  - `Abilities.Water.HealingWaters.DynamicLight.Brightness`
+  - `Abilities.Water.HealingWaters.DynamicLight.KeepAlive`
+- Adds a travel speed option to Combustion, so range no longer affects the speed of the ability. Thank you for your report @BlackXLight!
+  - `Abilities.Fire.Combustion.Speed`: The travel speed in blocks per tick.
+- EarthLine sourcing is now spot-on, making it much more enjoyable.
+
+### 2.14.3
+- Fixes a critical issue with EarthLine. Please update to this version!
+- EarthLine sourcing is now about as accurate as Core EarthBlast.
+- Adds Cozmyc to the JedCore dev list and as the current maintainer.
+
+### 2.14.2
+- Reintroduces backwards support for MC <1.20.2+ and PK 1.11.1+
+- Still works on 1.20.5+ too!
+
+### 2.14.1
+- For the one ProjectKorra server running 1.20.5!
+- Still works on 1.20.6+, nothing else changed since 2.14.0 released less than an hour ago.
+
+### 2.14.0
+- Only works on MC 1.20.6+ and PK 1.11.3+
+- Fixes particle effects causing errors on 1.20.6+
 
 ### 2.13.2
 - Fixed Drain not activating and messily leaving water blocks behind

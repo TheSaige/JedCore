@@ -12,7 +12,6 @@ import com.projectkorra.projectkorra.attribute.Attribute;
 import com.projectkorra.projectkorra.command.Commands;
 import com.projectkorra.projectkorra.region.RegionProtection;
 import com.projectkorra.projectkorra.util.DamageHandler;
-
 import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.configuration.ConfigurationSection;
@@ -44,6 +43,9 @@ public class Discharge extends LightningAbility implements AddonAbility {
 	@Attribute("CollisionRadius")
 	private double entityCollisionRadius;
 
+	private float soundVolume;
+	private int soundInterval;
+
 	public Discharge(Player player) {
 		super(player);
 
@@ -74,6 +76,9 @@ public class Discharge extends LightningAbility implements AddonAbility {
 		duration = config.getLong("Abilities.Fire.Discharge.Duration");
 		slotSwapping = config.getBoolean("Abilities.Fire.Discharge.SlotSwapping");
 		entityCollisionRadius = config.getDouble("Abilities.Fire.Discharge.EntityCollisionRadius");
+
+		soundVolume = (float) config.getDouble("Abilities.Fire.Discharge.Sound.Volume");
+		soundInterval = config.getInt("Abilities.Fire.Discharge.Sound.Interval");
 		
 		branchSpace = 0.2;
 	}
@@ -136,9 +141,10 @@ public class Discharge extends LightningAbility implements AddonAbility {
 
 				for (int j = 0; j < 5; j++) {
 					playLightningbendingParticle(l.clone(), 0f, 0f, 0f);
+					JCMethods.emitLight(l.clone());
 
-					if (rand.nextInt(3) == 0) {
-						player.getWorld().playSound(l, Sound.ENTITY_CREEPER_PRIMED, 1, 0);
+					if (rand.nextInt(soundInterval) == 0) {
+						player.getWorld().playSound(l, Sound.ENTITY_BEE_HURT, soundVolume, 0.2f);
 					}
 
 					Vector vec = l.toVector();
@@ -154,10 +160,11 @@ public class Discharge extends LightningAbility implements AddonAbility {
 
 						for (int k = 0; k < 5; k++) {
 							playLightningbendingParticle(entity.getLocation(), (float) Math.random(), (float) Math.random(), (float) Math.random());
+							JCMethods.emitLight(entity.getLocation());
 						}
 
-						entity.getWorld().playSound(entity.getLocation(), Sound.ENTITY_CREEPER_PRIMED, 1, 0);
-						player.getWorld().playSound(player.getLocation(), Sound.ENTITY_CREEPER_PRIMED, 1, 0);
+						entity.getWorld().playSound(entity.getLocation(), Sound.ENTITY_BEE_HURT, soundVolume, 0.2f);
+						player.getWorld().playSound(player.getLocation(), Sound.ENTITY_BEE_HURT, soundVolume, 0.2f);
 
 						return true;
 					});

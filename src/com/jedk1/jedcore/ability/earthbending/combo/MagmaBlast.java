@@ -1,24 +1,21 @@
 package com.jedk1.jedcore.ability.earthbending.combo;
 
-import com.jedk1.jedcore.collision.AABB;
+import com.jedk1.jedcore.JedCore;
 import com.jedk1.jedcore.configuration.JedCoreConfig;
 import com.jedk1.jedcore.util.MaterialUtil;
-import com.projectkorra.projectkorra.ability.ElementalAbility;
-import com.projectkorra.projectkorra.ability.util.ComboUtil;
-import com.projectkorra.projectkorra.attribute.Attribute;
-import com.projectkorra.projectkorra.earthbending.lava.LavaFlow;
-
-import com.jedk1.jedcore.JedCore;
 import com.projectkorra.projectkorra.GeneralMethods;
 import com.projectkorra.projectkorra.ability.AddonAbility;
 import com.projectkorra.projectkorra.ability.ComboAbility;
+import com.projectkorra.projectkorra.ability.EarthAbility;
+import com.projectkorra.projectkorra.ability.ElementalAbility;
 import com.projectkorra.projectkorra.ability.LavaAbility;
 import com.projectkorra.projectkorra.ability.util.ComboManager.AbilityInformation;
-import com.projectkorra.projectkorra.util.ClickType;
+import com.projectkorra.projectkorra.ability.util.ComboUtil;
+import com.projectkorra.projectkorra.attribute.Attribute;
+import com.projectkorra.projectkorra.earthbending.lava.LavaFlow;
 import com.projectkorra.projectkorra.util.DamageHandler;
 import com.projectkorra.projectkorra.util.ParticleEffect;
 import com.projectkorra.projectkorra.util.TempBlock;
-
 import com.projectkorra.projectkorra.util.TempFallingBlock;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -27,35 +24,29 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.FallingBlock;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.util.Vector;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
 public class MagmaBlast extends LavaAbility implements AddonAbility, ComboAbility {
 	private static final int PARTICLE_COUNT = 20;
 	private static final int RAISE_HEIGHT = 3;
-	private static final Random rand = new Random();
 
 	private final Set<TempFallingBlock> sources = new HashSet<>();
 	private final List<TempBlock> blocks = new ArrayList<>();
 	private final List<TempFallingBlock> firedBlocks = new ArrayList<>();
 
-	@Attribute(Attribute.COOLDOWN)
-	private long cooldown;
-	@Attribute(Attribute.DURATION)
-	private long maxDuration;
-	private long shotCooldown;
-	@Attribute("MaxSources")
-	private int maxSources;
-	@Attribute(Attribute.SELECT_RANGE)
-	private int sourceRange;
-	@Attribute(Attribute.SELECT_RANGE)
-	private double selectRange;
-	@Attribute(Attribute.DAMAGE)
-	private double damage;
 	private double fireSpeed;
 	// How far away the player is allowed to be from the sources before the ability is destroyed.
 	private double maxDistanceFromSources;
@@ -64,12 +55,25 @@ public class MagmaBlast extends LavaAbility implements AddonAbility, ComboAbilit
 	private boolean requireLavaFlow;
 	private boolean playerCollisions;
 	private boolean entitySelection;
-
 	private Location origin;
 	private int counter;
 	private long canLavaFlowTime;
 	private long lastShot;
 	private boolean stopFiring;
+	private long shotCooldown;
+
+	@Attribute(Attribute.COOLDOWN)
+	private long cooldown;
+	@Attribute(Attribute.DURATION)
+	private long maxDuration;
+	@Attribute("MaxSources")
+	private int maxSources;
+	@Attribute(Attribute.SELECT_RANGE)
+	private int sourceRange;
+	@Attribute(Attribute.SELECT_RANGE)
+	private double selectRange;
+	@Attribute(Attribute.DAMAGE)
+	private double damage;
 
 	public MagmaBlast(Player player) {
 		super(player);
@@ -113,7 +117,8 @@ public class MagmaBlast extends LavaAbility implements AddonAbility, ComboAbilit
 		for (Block newSource : potentialBlocks) {
 			if (!isValidSource(newSource)) continue;
 
-			sources.add(new TempFallingBlock(newSource.getLocation().add(0, 1, 0), Material.NETHERRACK.createBlockData(), new Vector(0, 0.9, 0), this));
+			newSource.getWorld().playSound(newSource.getLocation(), Sound.ENTITY_GHAST_SHOOT, 0.8f, 0.3f);
+			sources.add(new TempFallingBlock(newSource.getLocation().add(0, 1, 0), Material.MAGMA_BLOCK.createBlockData(), new Vector(0, 0.9, 0), this));
 
 			if (sources.size() >= maxSources) {
 				break;
@@ -204,7 +209,7 @@ public class MagmaBlast extends LavaAbility implements AddonAbility, ComboAbilit
 			TempFallingBlock tfb = iter.next();
 
 			if (tfb.getLocation().getBlockY() >= (origin.getBlockY() + RAISE_HEIGHT)) {
-				blocks.add(new TempBlock(tfb.getLocation().getBlock(), Material.NETHERRACK.createBlockData()));
+				blocks.add(new TempBlock(tfb.getLocation().getBlock(), Material.MAGMA_BLOCK.createBlockData()));
 				iter.remove();
 				tfb.remove();
 			}
@@ -229,14 +234,14 @@ public class MagmaBlast extends LavaAbility implements AddonAbility, ComboAbilit
 			}
 		}
 
-		for (TempBlock tb : blocks) {
-			playParticles(tb.getLocation());
-		}
+		for (TempBlock tb : blocks) playParticles(tb.getLocation());
 	}
 
 	private void doPlayerCollisions() {
-		for (Iterator<TempFallingBlock> iterator = firedBlocks.iterator(); iterator.hasNext();) {
-			TempFallingBlock tfb = iterator.next();
+		List<TempFallingBlock> blocksCopy = new ArrayList<>(firedBlocks);
+
+		for (TempFallingBlock tfb : blocksCopy) {
+			if (!firedBlocks.contains(tfb)) continue;
 
 			boolean didExplode = false;
 
@@ -250,16 +255,17 @@ public class MagmaBlast extends LavaAbility implements AddonAbility, ComboAbilit
 			}
 
 			if (didExplode) {
-				tfb.remove();
-				iterator.remove();
+				firedBlocks.remove(tfb);
 			}
 		}
 	}
 
 	private void playParticles(Location location) {
 		location.add(.5,.5,.5);
+
 		ParticleEffect.LAVA.display(location, 2, Math.random(), Math.random(), Math.random(), 0f);
 		ParticleEffect.SMOKE_NORMAL.display(location, 2, Math.random(), Math.random(), Math.random(), 0f);
+
 		for (int i = 0; i < 10; i++) {
 			GeneralMethods.displayColoredParticle("FFA400", getOffsetLocation(location, 2));
 			GeneralMethods.displayColoredParticle("FF8C00", getOffsetLocation(location, 2));
@@ -299,7 +305,7 @@ public class MagmaBlast extends LavaAbility implements AddonAbility, ComboAbilit
 		}
 
 		if (target == null) {
-			target = GeneralMethods.getTargetedLocation(player, selectRange, Material.NETHERRACK);
+			target = GeneralMethods.getTargetedLocation(player, selectRange, Material.MAGMA_BLOCK);
 		}
 
 		TempBlock tb = getClosestSource(target);
@@ -314,7 +320,19 @@ public class MagmaBlast extends LavaAbility implements AddonAbility, ComboAbilit
 
 		tb.revertBlock();
 
-		firedBlocks.add(new TempFallingBlock(tb.getLocation(), Material.NETHERRACK.createBlockData(), direction.multiply(fireSpeed), this, true));
+		FallingBlock fallingBlock = tb.getLocation().getWorld().spawnFallingBlock(
+				tb.getLocation().clone().add(0.5, 0.5, 0.5),
+				Material.MAGMA_BLOCK.createBlockData()
+		);
+
+		fallingBlock.setTicksLived(Integer.MAX_VALUE);
+		fallingBlock.setMetadata("magmablast", new FixedMetadataValue(JedCore.plugin, "1"));
+		fallingBlock.setDropItem(false);
+		fallingBlock.setCancelDrop(true);
+
+		TempFallingBlock tfb = new TempFallingBlock(tb.getLocation(), Material.MAGMA_BLOCK.createBlockData(), direction.multiply(fireSpeed), this, true);
+		firedBlocks.add(tfb);
+
 		lastShot = time;
 	}
 
@@ -324,6 +342,10 @@ public class MagmaBlast extends LavaAbility implements AddonAbility, ComboAbilit
 		TempBlock closest = null;
 
 		for (TempBlock tempBlock : blocks) {
+			Block block = tempBlock.getLocation().getBlock();
+			if (EarthAbility.getMovedEarth().containsKey(block)) {
+				continue;
+			}
 			double currentDistSq = tempBlock.getLocation().distanceSquared(target);
 
 			if (currentDistSq < distanceSq) {
@@ -343,49 +365,57 @@ public class MagmaBlast extends LavaAbility implements AddonAbility, ComboAbilit
 		MagmaBlast mb = (MagmaBlast) tfb.getAbility();
 		Location location = tfb.getLocation().clone().add(0.5, 0.5, 0.5);
 
-		float radius = mb.explosionRadius;
+		Block hitBlock = location.getBlock();
+		if (hitBlock.getType().isSolid()) {
+			blastEffects(location, mb);
+			tfb.remove();
+			mb.firedBlocks.remove(tfb);
+			return true;
+		}
 
+		float radius = mb.explosionRadius;
 		boolean didHit = false;
 
 		for (Entity entity : GeneralMethods.getEntitiesAroundPoint(location, radius)) {
 			if (!(entity instanceof LivingEntity)) continue;
+			if (entity == mb.player) continue;
 
-			if (entity instanceof Player) {
-				AABB entityBounds = AABB.PlayerBounds.at(entity.getLocation().toVector());
-				AABB blockBounds = AABB.BlockBounds.at(tfb.getLocation().toVector());
-
-				if (entityBounds.intersects(blockBounds)) {
-					DamageHandler.damageEntity(entity, mb.getDamage(), mb);
-					didHit = true;
-				}
-			} else {
-				DamageHandler.damageEntity(entity, mb.getDamage(), mb);
-				didHit = true;
-			}
+			DamageHandler.damageEntity(entity, mb.getDamage(), mb);
+			((LivingEntity) entity).setNoDamageTicks(0);
+			didHit = true;
 		}
 
-		if (entityCollision && !didHit) {
-			return false;
+		if (didHit || entityCollision) {
+			blastEffects(location, mb);
+			tfb.remove();
+			mb.firedBlocks.remove(tfb);
+			return true;
 		}
 
+		return false;
+	}
+
+	private static void blastEffects(Location location, MagmaBlast mb) {
+		float radius = mb.explosionRadius;
 		float speed = 0.1f;
+
 		ParticleEffect.FLAME.display(location, PARTICLE_COUNT, randomBinomial(radius), randomBinomial(radius), randomBinomial(radius), speed);
 		ParticleEffect.SMOKE_LARGE.display(location, PARTICLE_COUNT, randomBinomial(radius), randomBinomial(radius), randomBinomial(radius), speed);
 		ParticleEffect.FIREWORKS_SPARK.display(location, PARTICLE_COUNT, randomBinomial(radius), randomBinomial(radius), randomBinomial(radius), speed);
-		ParticleEffect.SMOKE_LARGE.display(location, PARTICLE_COUNT, randomBinomial(radius), randomBinomial(radius), randomBinomial(radius), speed);
 
-		location.getWorld().playSound(location, (rand.nextBoolean()) ? Sound.ENTITY_FIREWORK_ROCKET_BLAST : Sound.ENTITY_FIREWORK_ROCKET_BLAST_FAR, 1f, 1f);
-		location.getWorld().playSound(location, (rand.nextBoolean()) ? Sound.ENTITY_FIREWORK_ROCKET_TWINKLE : Sound.ENTITY_FIREWORK_ROCKET_TWINKLE_FAR, 1f, 1f);
+		ThreadLocalRandom rand = ThreadLocalRandom.current();
 
-		if (!entityCollision) {
-			mb.firedBlocks.remove(tfb);
-		}
-
-		return true;
+		location.getWorld().playSound(location,
+				(rand.nextBoolean()) ? Sound.ENTITY_FIREWORK_ROCKET_BLAST : Sound.ENTITY_FIREWORK_ROCKET_BLAST_FAR,
+				1f, 1f);
+		location.getWorld().playSound(location,
+				(rand.nextBoolean()) ? Sound.ENTITY_FIREWORK_ROCKET_TWINKLE : Sound.ENTITY_FIREWORK_ROCKET_TWINKLE_FAR,
+				1f, 1f);
 	}
 
 	// Generates a random number between -max and max.
 	private static float randomBinomial(float max) {
+		ThreadLocalRandom rand = ThreadLocalRandom.current();
 		return (rand.nextFloat() * max) - (rand.nextFloat() * max);
 	}
 	

@@ -5,6 +5,10 @@ import java.util.logging.*;
 
 import com.google.common.reflect.ClassPath;
 import com.jedk1.jedcore.util.*;
+import com.jedk1.jedcore.util.versionadapter.ParticleAdapter;
+import com.jedk1.jedcore.util.versionadapter.ParticleAdapterFactory;
+import com.jedk1.jedcore.util.versionadapter.PotionEffectAdapter;
+import com.jedk1.jedcore.util.versionadapter.PotionEffectAdapterFactory;
 import org.bukkit.World;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -13,7 +17,6 @@ import com.jedk1.jedcore.configuration.JedCoreConfig;
 import com.jedk1.jedcore.listener.AbilityListener;
 import com.jedk1.jedcore.listener.CommandListener;
 import com.jedk1.jedcore.listener.JCListener;
-import com.jedk1.jedcore.scoreboard.BendingBoard;
 import com.projectkorra.projectkorra.ability.CoreAbility;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -24,6 +27,9 @@ public class JedCore extends JavaPlugin {
 	public static String dev;
 	public static String version;
 	public static boolean logDebug;
+
+    private ParticleAdapter particleAdapter;
+	private PotionEffectAdapter potionEffectAdapter;
 
 	@Override
 	public void onEnable() {
@@ -43,17 +49,23 @@ public class JedCore extends JavaPlugin {
 		getServer().getPluginManager().registerEvents(new JCListener(this), this);
 		getServer().getPluginManager().registerEvents(new ChiRestrictor(), this);
 		getServer().getScheduler().scheduleSyncRepeatingTask(this, new JCManager(this), 0, 1);
-		
-		BendingBoard.updateOnline();
+
 		new Commands();
 
 		FireTick.loadMethod();
+
+        ParticleAdapterFactory particleAdapterFactory = new ParticleAdapterFactory();
+		particleAdapter = particleAdapterFactory.getAdapter();
+
+		PotionEffectAdapterFactory potionEffectAdapterFactory = new PotionEffectAdapterFactory();
+		potionEffectAdapter = potionEffectAdapterFactory.getAdapter();
+
+		checkMaintainer();
 
 		new BukkitRunnable() {
 			@Override
 			public void run() {
 				JCMethods.registerCombos();
-				BendingBoard.loadOtherCooldowns();
 				initializeCollisions();
 			}
 		}.runTaskLater(this, 1);
@@ -65,6 +77,12 @@ public class JedCore extends JavaPlugin {
 	    } catch (IOException e) {
 	        log.info("Failed to submit statistics for MetricsLite.");
 	    }
+	}
+
+	public static void checkMaintainer() {
+		if (!dev.contains("Cozmyc (Maintainer)")) {
+			dev = dev  + ", Cozmyc (Maintainer)";
+		}
 	}
 
 	public void initializeCollisions() {
@@ -104,5 +122,13 @@ public class JedCore extends JavaPlugin {
 		if (logDebug) {
 			plugin.getLogger().info(message);
 		}
+	}
+
+	public ParticleAdapter getParticleAdapter() {
+		return this.particleAdapter;
+	}
+
+	public PotionEffectAdapter getPotionEffectAdapter() {
+		return this.potionEffectAdapter;
 	}
 }

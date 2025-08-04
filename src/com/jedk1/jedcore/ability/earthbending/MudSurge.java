@@ -3,7 +3,12 @@ package com.jedk1.jedcore.ability.earthbending;
 import com.jedk1.jedcore.JedCore;
 import com.jedk1.jedcore.collision.CollisionUtil;
 import com.jedk1.jedcore.configuration.JedCoreConfig;
-import com.jedk1.jedcore.policies.removal.*;
+import com.jedk1.jedcore.policies.removal.CannotBendRemovalPolicy;
+import com.jedk1.jedcore.policies.removal.CompositeRemovalPolicy;
+import com.jedk1.jedcore.policies.removal.IsDeadRemovalPolicy;
+import com.jedk1.jedcore.policies.removal.IsOfflineRemovalPolicy;
+import com.jedk1.jedcore.policies.removal.OutOfRangeRemovalPolicy;
+import com.jedk1.jedcore.policies.removal.SwappedSlotsRemovalPolicy;
 import com.projectkorra.projectkorra.BendingPlayer;
 import com.projectkorra.projectkorra.Element;
 import com.projectkorra.projectkorra.GeneralMethods;
@@ -17,7 +22,6 @@ import com.projectkorra.projectkorra.command.Commands;
 import com.projectkorra.projectkorra.region.RegionProtection;
 import com.projectkorra.projectkorra.util.DamageHandler;
 import com.projectkorra.projectkorra.util.TempBlock;
-
 import com.projectkorra.projectkorra.util.TempFallingBlock;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -32,7 +36,14 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.ListIterator;
+import java.util.Random;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class MudSurge extends EarthAbility implements AddonAbility {
@@ -53,8 +64,10 @@ public class MudSurge extends EarthAbility implements AddonAbility {
 	public static int surgeInterval = 300;
 	public static int mudPoolRadius = 2;
 	public static Set<Material> mudTypes = new HashSet<>();
+	private static Material mudType;
 
 	static {
+		mudType = Material.valueOf("BROWN_TERRACOTTA");
 		mudTypes.addAll(Arrays.asList(Material.SAND, Material.RED_SAND, Material.CLAY, Material.TERRACOTTA, Material.BLACK_TERRACOTTA, Material.BLUE_TERRACOTTA,
 				Material.BROWN_TERRACOTTA, Material.CYAN_TERRACOTTA, Material.GRAY_TERRACOTTA, Material.GREEN_TERRACOTTA,
 				Material.LIGHT_BLUE_TERRACOTTA, Material.LIGHT_GRAY_TERRACOTTA, Material.LIME_TERRACOTTA,
@@ -71,6 +84,7 @@ public class MudSurge extends EarthAbility implements AddonAbility {
 			mudTypes.add(Material.getMaterial("MUD"));
 			mudTypes.add(Material.getMaterial("MUDDY_MANGROVE_ROOTS"));
 			mudTypes.add(Material.getMaterial("PACKED_MUD"));
+		    mudType = Material.valueOf("MUD");
 		}
 	}
 
@@ -171,7 +185,7 @@ public class MudSurge extends EarthAbility implements AddonAbility {
 		Block block = getMudSourceBlock(prepareRange);
 
 		if (block != null) {
-			if (isMud(block)) {
+			if (isMudBlock(block)) {
 				boolean water = true;
 
 				if (wetSource) {
@@ -196,6 +210,10 @@ public class MudSurge extends EarthAbility implements AddonAbility {
 		return false;
 	}
 
+	private boolean isValidMudSource(Block block) {
+		return block != null && !EarthAbility.getMovedEarth().containsKey(block);
+	}
+
 	private void startSurge() {
 		started = true;
 		this.bPlayer.addCooldown(this);
@@ -211,7 +229,7 @@ public class MudSurge extends EarthAbility implements AddonAbility {
 	}
 
 	public static boolean isSurgeBlock(Block block) {
-		if (block.getType() != Material.BROWN_TERRACOTTA) {
+		if (block.getType() != Material.MUD) {
 			return false;
 		}
 
@@ -251,7 +269,7 @@ public class MudSurge extends EarthAbility implements AddonAbility {
 
 	private Block getMudSourceBlock(int range) {
 		Block testBlock = GeneralMethods.getTargetedLocation(player, range, ElementalAbility.getTransparentMaterials()).getBlock();
-		if (isMud(testBlock))
+		if (isMudBlock(testBlock))
 			return testBlock;
 
 		Location loc = player.getEyeLocation();
@@ -262,14 +280,14 @@ public class MudSurge extends EarthAbility implements AddonAbility {
 			if (RegionProtection.isRegionProtected(player, block.getLocation(), this))
 				continue;
 
-			if (isMud(block))
+			if (isMudBlock(block))
 				return block;
 		}
 
 		return null;
 	}
 
-	private boolean isMud(Block block) {
+	private boolean isMudBlock(Block block) {
 		for (Material mat : mudTypes) {
 			if (mat.name().equalsIgnoreCase(block.getType().name()))
 				return true;
@@ -279,7 +297,7 @@ public class MudSurge extends EarthAbility implements AddonAbility {
 	}
 
 	private void createMud(Block block) {
-		mudBlocks.add(new TempBlock(block, Material.BROWN_TERRACOTTA.createBlockData()));
+		mudBlocks.add(new TempBlock(block, mudType.createBlockData()));
 	}
 
 	private void loadMudPool() {
@@ -288,7 +306,7 @@ public class MudSurge extends EarthAbility implements AddonAbility {
 		for (Location l : area) {
 			Block b = l.getBlock();
 
-			if (isMud(b)) {
+			if (isMudBlock(b)) {
 				if (isTransparent(b.getRelative(BlockFace.UP))) {
 					boolean water = true;
 
@@ -353,7 +371,7 @@ public class MudSurge extends EarthAbility implements AddonAbility {
 			x = (rand.nextBoolean()) ? -x : x;
 			z = (rand.nextBoolean()) ? -z : z;
 
-			fallingBlocks.add(new TempFallingBlock(tb.getLocation().add(0.5, 1, 0.5), Material.BROWN_TERRACOTTA.createBlockData(), direction.clone().add(new Vector(x, 0.2, z)), this));
+			fallingBlocks.add(new TempFallingBlock(tb.getLocation().add(0.5, 1, 0.5), mudType.createBlockData(), direction.clone().add(new Vector(x, 0.2, z)), this));
 			
 			playEarthbendingSound(tb.getLocation());
 		}

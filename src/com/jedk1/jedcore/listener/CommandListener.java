@@ -4,12 +4,9 @@ import com.jedk1.jedcore.JedCore;
 import com.jedk1.jedcore.command.JedCoreCommand;
 import com.jedk1.jedcore.event.PKCommandEvent;
 import com.jedk1.jedcore.event.PKCommandEvent.CommandType;
-import com.jedk1.jedcore.scoreboard.BendingBoard;
 import com.projectkorra.projectkorra.command.PKCommand;
-
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -26,7 +23,8 @@ public class CommandListener implements Listener {
 	public static String[] developers = {
 			"4eb6315e-9dd1-49f7-b582-c1170e497ab0", //jedk1
 			"d57565a5-e6b0-44e3-a026-979d5de10c4d", //s3xi
-			"e98a2f7d-d571-4900-a625-483cbe6774fe" //Aztl
+			"e98a2f7d-d571-4900-a625-483cbe6774fe", //Aztl
+			"b6bd2ceb-4922-4707-9173-8a02044e9069" //Cozmyc
 	};
 
 	public CommandListener(JedCore plugin) {
@@ -55,11 +53,6 @@ public class CommandListener implements Listener {
 		new BukkitRunnable() {
 			public void run() {
 				if (event.getType() != null) {
-					if (Arrays.asList(types).contains(event.getType())) {
-						Player player = event.getSender();
-						if (BendingBoard.isDisabled(player)) return;
-						BendingBoard.get(player).update();
-					}
 					if (event.getType().equals(CommandType.WHO) && event.getSender().hasPermission("bending.command.who")) {
 						if (event.getArgs().length == 3) {
 							if (Bukkit.getPlayer(event.getArgs()[2]) != null) {

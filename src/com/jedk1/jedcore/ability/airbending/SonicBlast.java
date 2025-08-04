@@ -10,7 +10,6 @@ import com.projectkorra.projectkorra.ability.AirAbility;
 import com.projectkorra.projectkorra.ability.CoreAbility;
 import com.projectkorra.projectkorra.attribute.Attribute;
 import com.projectkorra.projectkorra.util.DamageHandler;
-
 import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.configuration.ConfigurationSection;
@@ -26,6 +25,9 @@ public class SonicBlast extends AirAbility implements AddonAbility {
 	private Vector direction;
 	private boolean isCharged;
 	private int travelled;
+	private int nauseaDur;
+	private int blindDur;
+	private boolean chargeSwapping;
 
 	@Attribute(Attribute.DAMAGE)
 	private double damage;
@@ -37,9 +39,6 @@ public class SonicBlast extends AirAbility implements AddonAbility {
 	private long cooldown;
 	@Attribute("WarmUp")
 	private long warmup;
-	private int nauseaDur;
-	private int blindDur;
-	private boolean chargeSwapping;
 
 	public SonicBlast(Player player) {
 		super(player);
@@ -67,40 +66,52 @@ public class SonicBlast extends AirAbility implements AddonAbility {
 
 	@Override
 	public void progress() {
-		if (player.isDead() || !player.isOnline()) {
-			remove();
+		if (!checkPlayerState()) {
 			return;
 		}
 
-		CoreAbility boundAbility = bPlayer.getBoundAbility();
-
-		if (!this.chargeSwapping && this.travelled == 0 && !(boundAbility instanceof SonicBlast)) {
+		if (!canStartAbility()) {
 			remove();
 			return;
 		}
 
 		if (player.isSneaking() && travelled == 0) {
-			direction = player.getEyeLocation().getDirection().normalize();
-
-			if (isCharged) {
-				playAirbendingParticles(player.getLocation().add(0, 1, 0), 5, (float) Math.random(), (float) Math.random(), (float) Math.random());
-			} else if (System.currentTimeMillis() > getStartTime() + warmup) {
-				isCharged = true;
-			}
+			handleCharging();
 		} else {
-			if (isCharged) {
-				if (!bPlayer.isOnCooldown(this)) {
-					bPlayer.addCooldown(this);
-				}
+			handleProgression();
+		}
+	}
 
-				if (travelled < range && isLocationSafe()) {
-					advanceLocation();
-				} else {
-					remove();
-				}
+	private boolean checkPlayerState() {
+		return !player.isDead() && player.isOnline();
+	}
+
+	private boolean canStartAbility() {
+		CoreAbility boundAbility = bPlayer.getBoundAbility();
+		return chargeSwapping || travelled > 0 || boundAbility instanceof SonicBlast;
+	}
+
+	private void handleCharging() {
+		direction = player.getEyeLocation().getDirection().normalize();
+		if (isCharged) {
+			playAirbendingParticles(player.getLocation().add(0, 1, 0), 5, (float) Math.random(), (float) Math.random(), (float) Math.random());
+		} else if (System.currentTimeMillis() > getStartTime() + warmup) {
+			isCharged = true;
+		}
+	}
+
+	private void handleProgression() {
+		if (isCharged) {
+			if (!bPlayer.isOnCooldown(this)) {
+				bPlayer.addCooldown(this);
+			}
+			if (travelled < range && isLocationSafe()) {
+				advanceLocation();
 			} else {
 				remove();
 			}
+		} else {
+			remove();
 		}
 	}
 
@@ -129,10 +140,11 @@ public class SonicBlast extends AirAbility implements AddonAbility {
 				playAirbendingParticles(temp, 1, 0, 0, 0);
 			}
 
-			boolean hit = CollisionDetector.checkEntityCollisions(player, new Sphere(location.toVector(), entityCollisionRadius), (entity) -> {
+			boolean hit = CollisionDetector.checkEntityCollisions(player, new Sphere(location.toVector(), entityCollisionRadius), entity -> {
 				DamageHandler.damageEntity(entity, damage, this);
 				LivingEntity lE = (LivingEntity) entity;
-				lE.addPotionEffect(new PotionEffect(PotionEffectType.CONFUSION, nauseaDur/50, 1));
+
+				lE.addPotionEffect(JedCore.plugin.getPotionEffectAdapter().getNauseaEffect(nauseaDur));
 				lE.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, blindDur/50, 1));
 				return true;
 			});

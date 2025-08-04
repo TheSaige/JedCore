@@ -1,15 +1,20 @@
 package com.jedk1.jedcore.ability.firebending;
 
+import com.jedk1.jedcore.JCMethods;
 import com.jedk1.jedcore.JedCore;
 import com.jedk1.jedcore.collision.CollisionDetector;
 import com.jedk1.jedcore.collision.Sphere;
 import com.jedk1.jedcore.configuration.JedCoreConfig;
-import com.jedk1.jedcore.policies.removal.*;
+import com.jedk1.jedcore.policies.removal.CannotBendRemovalPolicy;
+import com.jedk1.jedcore.policies.removal.CompositeRemovalPolicy;
+import com.jedk1.jedcore.policies.removal.IsDeadRemovalPolicy;
+import com.jedk1.jedcore.policies.removal.IsOfflineRemovalPolicy;
+import com.jedk1.jedcore.policies.removal.SwappedSlotsRemovalPolicy;
 import com.jedk1.jedcore.util.FireTick;
 import com.jedk1.jedcore.util.MaterialUtil;
 import com.jedk1.jedcore.util.RegenTempBlock;
-import com.projectkorra.projectkorra.GeneralMethods;
 import com.projectkorra.projectkorra.Element.SubElement;
+import com.projectkorra.projectkorra.GeneralMethods;
 import com.projectkorra.projectkorra.ability.AddonAbility;
 import com.projectkorra.projectkorra.ability.AirAbility;
 import com.projectkorra.projectkorra.ability.CombustionAbility;
@@ -20,10 +25,12 @@ import com.projectkorra.projectkorra.region.RegionProtection;
 import com.projectkorra.projectkorra.util.DamageHandler;
 import com.projectkorra.projectkorra.util.ParticleEffect;
 import com.projectkorra.projectkorra.util.TempBlock;
-
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.Sound;
+import org.bukkit.Tag;
 import org.bukkit.block.Block;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Entity;
@@ -31,9 +38,11 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 public class Combustion extends CombustionAbility implements AddonAbility {
 
@@ -42,6 +51,8 @@ public class Combustion extends CombustionAbility implements AddonAbility {
 	@Attribute(Attribute.COOLDOWN)
 	private long cooldown;
 	private CompositeRemovalPolicy removalPolicy;
+
+	private ArrayList<String> skipMaterials; // use a configured list of blocks to skip through
 
 	public Combustion(Player player) {
 		super(player);
@@ -79,6 +90,8 @@ public class Combustion extends CombustionAbility implements AddonAbility {
 		);
 
 		this.removalPolicy.load(config, "Abilities.Fire.Combustion");
+
+		this.skipMaterials = loadSkipMaterials();
 	}
 
 	@Override
@@ -169,6 +182,35 @@ public class Combustion extends CombustionAbility implements AddonAbility {
 		return config.getBoolean("Abilities.Fire.Combustion.Enabled");
 	}
 
+	private ArrayList<String> loadSkipMaterials() {
+		ConfigurationSection config = JedCoreConfig.getConfig(this.player);
+
+		ArrayList<String> skipList = new ArrayList<>();
+
+		if (config.contains("Abilities.Fire.Combustion.SkipMaterials")) {
+			List<String> configuredSkipList = config.getStringList("Abilities.Fire.Combustion.SkipMaterials");
+
+			for (String entry : configuredSkipList) {
+				if (entry.startsWith("#")) {
+					String tagName = entry.substring(1).toLowerCase();
+
+					NamespacedKey tagKey = NamespacedKey.minecraft(tagName);
+					Tag<Material> materialTag = Bukkit.getTag(Tag.REGISTRY_BLOCKS, tagKey, Material.class);
+
+					if (materialTag != null) {
+						skipList.addAll(materialTag.getValues().stream()
+								.map(material -> material.name().toLowerCase())
+								.collect(Collectors.toList()));
+					}
+				} else {
+					skipList.add(entry.toLowerCase());
+				}
+			}
+		}
+
+		return skipList;
+	}
+
 	private interface State {
 		void update();
 	}
@@ -243,19 +285,21 @@ public class Combustion extends CombustionAbility implements AddonAbility {
 				Location loc = player.getLocation().add(x, 1.0D, z);
 				playFirebendingParticles(loc, 3, 0.0, 0.0, 0.0);
 				ParticleEffect.SMOKE_NORMAL.display(loc, 4, 0.0, 0.0, 0.0, 0.01);
+				JCMethods.emitLight(loc);
 			}
 		}
 	}
 
 	// This state is used after the player releases a charged Combustion.
-	// It's used for moving and rendering the projectile.
-	// This state transitions to CombustState when it collides with terrain or an entity.
+    // It's used for moving and rendering the projectile.
+    // This state transitions to CombustState when it collides with terrain or an entity.
 	private class TravelState implements State {
 		private Vector direction;
-		private int ticks;
 		private final int range;
+		private final double speed;
 		private final boolean explodeOnDeath;
 		private final double entityCollisionRadius;
+		private double distanceTraveled;
 
 		public TravelState() {
 			removalPolicy.removePolicyType(SwappedSlotsRemovalPolicy.class);
@@ -267,6 +311,7 @@ public class Combustion extends CombustionAbility implements AddonAbility {
 			ConfigurationSection config = JedCoreConfig.getConfig(player);
 
 			range = config.getInt("Abilities.Fire.Combustion.Range");
+			speed = config.getDouble("Abilities.Fire.Combustion.Speed");
 			explodeOnDeath = config.getBoolean("Abilities.Fire.Combustion.ExplodeOnDeath");
 			entityCollisionRadius = config.getDouble("Abilities.Fire.Combustion.EntityCollisionRadius");
 
@@ -274,6 +319,9 @@ public class Combustion extends CombustionAbility implements AddonAbility {
 				removalPolicy.removePolicyType(CannotBendRemovalPolicy.class);
 				removalPolicy.removePolicyType(IsDeadRemovalPolicy.class);
 			}
+
+			direction = player.getEyeLocation().getDirection().normalize();
+			distanceTraveled = 0;
 		}
 
 		@Override
@@ -293,22 +341,18 @@ public class Combustion extends CombustionAbility implements AddonAbility {
 				}
 			}
 
-			direction = player.getEyeLocation().getDirection().normalize();
-			++ticks;
-
-			if (ticks <= range) {
-				travel();
-			}
-
-			if (ticks >= range) {
+			if (distanceTraveled >= range) {
 				remove();
+				return;
 			}
+
+			travel();
 		}
 
 		private void travel() {
-			int r = (int) Math.sqrt(range);
+			double stepDistance = speed;
 
-			for (int i = 0; i < r; ++i) {
+			for (int i = 0; i < (int) (speed * 5); ++i) {
 				render();
 
 				Sphere collider = new Sphere(location.toVector(), entityCollisionRadius);
@@ -324,16 +368,26 @@ public class Combustion extends CombustionAbility implements AddonAbility {
 				}
 
 				if (!MaterialUtil.isTransparent(location.getBlock()) || isWater(location.getBlock())) {
-					state = new CombustState(location);
-					return;
+					Material blockMaterial = location.getBlock().getType();
+					String blockMaterialName = blockMaterial.name().toLowerCase();
+
+					boolean shouldSkip = skipMaterials.contains(blockMaterialName);
+
+					if (!shouldSkip) {
+						state = new CombustState(location);
+						return;
+					}
 				}
 
-				/*if (AirAbility.isWithinAirShield(location) || FireAbility.isWithinFireShield(location)) {
-					state = new CombustState(location);
-					return;
-				}*/
+				direction = player.getEyeLocation().getDirection().normalize();
+				location = location.add(direction.clone().multiply(stepDistance));
 
-				location = location.add(direction.clone().multiply(0.2D));
+				distanceTraveled += stepDistance;
+
+				if (distanceTraveled >= range) {
+					remove();
+					return;
+				}
 			}
 		}
 
@@ -347,6 +401,8 @@ public class Combustion extends CombustionAbility implements AddonAbility {
 			ParticleEffect.FIREWORKS_SPARK.display(location, 1, 0.0, 0.0, 0.0F, 0.06);
 
 			location.getWorld().playSound(location, Sound.ENTITY_FIREWORK_ROCKET_BLAST, 1.0F, 0.01F);
+
+			JCMethods.emitLight(location);
 		}
 	}
 

@@ -1,7 +1,9 @@
 package com.jedk1.jedcore.ability.waterbending;
 
+import com.jedk1.jedcore.JCMethods;
 import com.jedk1.jedcore.JedCore;
 import com.jedk1.jedcore.configuration.JedCoreConfig;
+import com.jedk1.jedcore.util.LightManager;
 import com.projectkorra.projectkorra.BendingPlayer;
 import com.projectkorra.projectkorra.GeneralMethods;
 import com.projectkorra.projectkorra.ability.AddonAbility;
@@ -11,7 +13,6 @@ import com.projectkorra.projectkorra.chiblocking.Smokescreen;
 import com.projectkorra.projectkorra.region.RegionProtection;
 import com.projectkorra.projectkorra.util.ParticleEffect;
 import com.projectkorra.projectkorra.util.TempBlock;
-
 import com.projectkorra.projectkorra.waterbending.util.WaterReturn;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -61,17 +62,21 @@ public class HealingWaters extends HealingAbility implements AddonAbility {
 				if (entity instanceof LivingEntity && inWater(entity)) {
 					Location playerLoc = entity.getLocation();
 					playerLoc.add(0, 1, 0);
-					ParticleEffect.SPELL_MOB_AMBIENT.display(playerLoc, 3, Math.random(), Math.random(), Math.random(), 0.0);
+					JCMethods.displayColoredParticles("#9696E1", playerLoc, 3, Math.random(), Math.random(), Math.random(), 0f, 50);
 					ParticleEffect.WATER_WAKE.display(playerLoc, 25, 0, 0, 0, 0.05F);
 					giveHPToEntity((LivingEntity) entity);
+					emitLight(playerLoc);
+					emitLight(entity.getLocation());
 				}
 			} else {
 				Location playerLoc = player.getLocation();
 				playerLoc.add(0, 1, 0);
-				ParticleEffect.SPELL_MOB_AMBIENT.display(playerLoc, 3, Math.random(), Math.random(), Math.random(), 0.0);
+				JCMethods.displayColoredParticles("#9696E1", playerLoc, 3, Math.random(), Math.random(), Math.random(), 0f, 50);
 				ParticleEffect.WATER_WAKE.display(playerLoc, 25, 0, 0, 0, 0.05F);
 				giveHP(player);
+				emitLight(playerLoc);
 			}
+
 		} else if(hasWaterSupply(player) && player.isSneaking()) {
 			Entity entity = GeneralMethods.getTargetedEntity(player, getRange(player), new ArrayList<>());
 			if (entity != null) {
@@ -80,25 +85,29 @@ public class HealingWaters extends HealingAbility implements AddonAbility {
 					if (dLe.getHealth() < dLe.getMaxHealth()) {
 						Location playerLoc = entity.getLocation();
 						playerLoc.add(0, 1, 0);
-						ParticleEffect.SPELL_MOB_AMBIENT.display(playerLoc, 3, Math.random(), Math.random(), Math.random(), 0.0);
+						JCMethods.displayColoredParticles("#9696E1", playerLoc, 3, Math.random(), Math.random(), Math.random(), 0f, 50);
 						ParticleEffect.WATER_WAKE.display(playerLoc, 25, 0, 0, 0, 0.05F);
 						giveHPToEntity((LivingEntity) entity);
 						entity.setFireTicks(0);
 						Random rand = new Random();
-						if (rand.nextInt(getDrainChance(player)) == 0)
-							drainWaterSupply(player);
+						if (rand.nextInt(getDrainChance(player)) == 0) drainWaterSupply(player);
+						emitLight(playerLoc);
+						emitLight(entity.getLocation());
 					}
 				}
 			} else {
 				Location playerLoc = player.getLocation();
 				playerLoc.add(0, 1, 0);
-				ParticleEffect.SPELL_MOB_AMBIENT.display(playerLoc, 3, Math.random(), Math.random(), Math.random(), 0.0);
+
+				JCMethods.displayColoredParticles("#FFFFFF", playerLoc, 3, Math.random(), Math.random(), Math.random(), 0f, 50);
+				JCMethods.displayColoredParticles("#FFFFFF", playerLoc, 3, Math.random(), Math.random(), Math.random(), 0f);
+
 				ParticleEffect.WATER_WAKE.display(playerLoc, 25, 0, 0, 0, 0.05F);
 				giveHP(player);
 				player.setFireTicks(0);
 				Random rand = new Random();
-				if (rand.nextInt(getDrainChance(player)) == 0)
-					drainWaterSupply(player);
+				if (rand.nextInt(getDrainChance(player)) == 0) drainWaterSupply(player);
+				emitLight(playerLoc);
 			}
 		}
 	}
@@ -188,6 +197,16 @@ public class HealingWaters extends HealingAbility implements AddonAbility {
 	public static int getDrainChance(Player player) {
 		ConfigurationSection config = JedCoreConfig.getConfig(player);
 		return config.getInt("Abilities.Water.HealingWaters.DrainChance");
+	}
+
+	public static void emitLight(Location loc) {
+		ConfigurationSection config = JedCoreConfig.getConfig((Player)null);
+		if (config.getBoolean("Abilities.Water.HealingWaters.DynamicLight.Enabled")) {
+			int brightness = config.getInt("Abilities.Water.HealingWaters.DynamicLight.Brightness");
+			long keepAlive = config.getLong("Abilities.Water.HealingWaters.DynamicLight.KeepAlive");
+
+			LightManager.createLight(loc).brightness(brightness).timeUntilFadeout(keepAlive).emit();
+		}
 	}
 
 	@Override

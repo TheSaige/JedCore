@@ -1,26 +1,5 @@
 package com.jedk1.jedcore.listener;
 
-import java.util.Set;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
-
-import com.projectkorra.projectkorra.earthbending.EarthArmor;
-import com.projectkorra.projectkorra.earthbending.lava.LavaFlow;
-import com.projectkorra.projectkorra.firebending.FireJet;
-import com.projectkorra.projectkorra.util.MovementHandler;
-import org.bukkit.Material;
-import org.bukkit.Sound;
-import org.bukkit.entity.Arrow;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
-import org.bukkit.event.Listener;
-import org.bukkit.event.block.Action;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerToggleSneakEvent;
-
 import com.jedk1.jedcore.JedCore;
 import com.jedk1.jedcore.ability.airbending.AirBlade;
 import com.jedk1.jedcore.ability.airbending.AirBreath;
@@ -80,8 +59,37 @@ import com.projectkorra.projectkorra.ability.FireAbility;
 import com.projectkorra.projectkorra.ability.WaterAbility;
 import com.projectkorra.projectkorra.ability.util.MultiAbilityManager;
 import com.projectkorra.projectkorra.airbending.Suffocate;
+import com.projectkorra.projectkorra.earthbending.EarthArmor;
+import com.projectkorra.projectkorra.earthbending.lava.LavaFlow;
+import com.projectkorra.projectkorra.firebending.FireJet;
+import com.projectkorra.projectkorra.util.MovementHandler;
+import com.projectkorra.projectkorra.util.ParticleEffect;
 import com.projectkorra.projectkorra.waterbending.blood.Bloodbending;
+import org.bukkit.Bukkit;
+import org.bukkit.Material;
+import org.bukkit.Sound;
+import org.bukkit.entity.Arrow;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.FallingBlock;
+import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
+import org.bukkit.event.block.Action;
+import org.bukkit.event.entity.EntityChangeBlockEvent;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.inventory.InventoryAction;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.player.PlayerDropItemEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerToggleSneakEvent;
 import org.bukkit.inventory.EquipmentSlot;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class AbilityListener implements Listener {
 
@@ -90,6 +98,8 @@ public class AbilityListener implements Listener {
 	public AbilityListener(JedCore plugin) {
 		this.plugin = plugin;
 	}
+
+	private final List<UUID> recentlyDropped = new ArrayList<>();
 
 	@EventHandler(priority = EventPriority.LOWEST)
 	// Abilities that should bypass punch cancels should be handled here.
@@ -144,9 +154,50 @@ public class AbilityListener implements Listener {
 		}
 	}
 
+	@EventHandler(priority = EventPriority.LOWEST)
+	public void onPlayerDropItemEvent(PlayerDropItemEvent event) {
+		recentlyDropped.add(event.getPlayer().getUniqueId());
+
+		// FirePunch item burn effect
+		Player player = event.getPlayer();
+		FirePunch fp = FirePunch.getAbility(player, FirePunch.class);
+		boolean burnEnabled = com.jedk1.jedcore.configuration.JedCoreConfig.getConfig((Player)null).getBoolean("Abilities.Fire.FirePunch.BurnsDroppedItems", true);
+		if (fp != null && burnEnabled) {
+			var item = event.getItemDrop();
+			var loc = fp.getRightHandPos();
+			ParticleEffect.LAVA.display(loc, 5, 0.1, 0.1, 0.1, 0.05);
+			ParticleEffect.FLAME.display(loc, 3, 0.1, 0.1, 0.1, 0.01);
+			ParticleEffect.SMOKE_NORMAL.display(loc, 2, 0.05, 0.05, 0.05, 0.01);
+			loc.getWorld().playSound(loc, Sound.BLOCK_FIRE_EXTINGUISH, 0.3f, 1.4f);
+			item.remove();
+		}
+
+		Bukkit.getScheduler().runTaskLater(ProjectKorra.plugin, () -> recentlyDropped.remove(event.getPlayer().getUniqueId()), 2L);
+	}
+
+	@EventHandler(priority = EventPriority.LOWEST)
+	public void onPlayerInventoryInteract(InventoryClickEvent event) {
+		InventoryAction action = event.getAction();
+		if (action == InventoryAction.DROP_ALL_CURSOR ||
+				action == InventoryAction.DROP_ALL_SLOT ||
+				action == InventoryAction.DROP_ONE_CURSOR ||
+				action == InventoryAction.DROP_ONE_SLOT ||
+				action == InventoryAction.UNKNOWN) {
+
+			recentlyDropped.add(event.getWhoClicked().getUniqueId());
+
+			Bukkit.getScheduler().runTaskLater(ProjectKorra.plugin, () -> {
+				recentlyDropped.remove(event.getWhoClicked().getUniqueId());
+			}, 2L);
+		}
+	}
+
 	@EventHandler(priority = EventPriority.NORMAL)
 	public void onPlayerSwing(PlayerInteractEvent event) {
 		Player player = event.getPlayer();
+
+		if (recentlyDropped.contains(player.getUniqueId())) return;
+
 		if (event.getHand() != EquipmentSlot.HAND) {
 			return;
 		}
@@ -229,7 +280,10 @@ public class AbilityListener implements Listener {
 					new LavaFlux(player);
 				}
 				if (abilClass.equals(LavaThrow.class)) {
-					new LavaThrow(player);
+					LavaThrow lt = CoreAbility.getAbility(player, LavaThrow.class);
+					if (lt != null) {
+						lt.createBlast();
+					}
 				}
 				if (abilClass.equals(MetalFragments.class)) {
 					MetalFragments.shootFragment(player);
@@ -248,6 +302,9 @@ public class AbilityListener implements Listener {
 				}
 				if (abilClass.equals(LavaFlow.class)) {
 					MagmaBlast.performAction(player);
+				}
+				if (abilClass.equals(MagnetShield.class)) {
+					new MagnetShield(player, true);
 				}
 			}
 
@@ -357,6 +414,10 @@ public class AbilityListener implements Listener {
 				if (abilClass.equals(FireShots.class)) {
 					FireShots.swapHands(player);
 				}
+
+				if (abilClass.equals(FirePunch.class)) {
+					FirePunch.swapHands(player);
+				}
 			}
 		}
 
@@ -402,7 +463,7 @@ public class AbilityListener implements Listener {
 					new LavaDisc(player);
 				}
 				if (abilClass.equals(MagnetShield.class)) {
-					new MagnetShield(player);
+					new MagnetShield(player, false);
 				}
 				if (abilClass.equals(MetalFragments.class)) {
 					new MetalFragments(player);
@@ -418,6 +479,12 @@ public class AbilityListener implements Listener {
 				}
 				if (abilClass.equals(Crevice.class)) {
 					Crevice.closeCrevice(player);
+				}
+				if (abilClass.equals(LavaThrow.class)) {
+					LavaThrow lt = CoreAbility.getAbility(player, LavaThrow.class);
+					if (lt == null) {
+						new LavaThrow(player);
+					}
 				}
 			}
 
@@ -468,6 +535,7 @@ public class AbilityListener implements Listener {
 				}
 				if (abilClass.equals(IceClaws.class)) {
 					new IceClaws(player);
+					IceClaws.swapHands(player);
 				}
 				if (abilClass.equals(IceWall.class)) {
 					new IceWall(player);
@@ -492,9 +560,10 @@ public class AbilityListener implements Listener {
 	public void onArrowHit(EntityDamageByEntityEvent event) {
 		if (event.getDamager().getType() == EntityType.ARROW) {
 			Arrow arrow = (Arrow) event.getDamager();
-			if (arrow.getShooter() instanceof Player && arrow.hasMetadata("daggerthrow")){
+			if (arrow.getShooter() instanceof Player && arrow.hasMetadata("daggerthrow")) {
 				Player player = (Player) arrow.getShooter();
-				player.playSound(player.getLocation(), Sound.ENTITY_ARROW_HIT_PLAYER, 1f, 1);
+				event.setDamage(0.0D);
+				player.playSound(player.getLocation(), Sound.ENTITY_ARROW_HIT_PLAYER, 1.0f, 1.0f);
 			}
 		}
 	}
@@ -503,6 +572,13 @@ public class AbilityListener implements Listener {
 	public void onPlayerInteraction(PlayerInteractEvent event) {
 		if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
 			MetalFragments.shootFragment(event.getPlayer());
+		}
+	}
+
+	@EventHandler
+	public void onChange(EntityChangeBlockEvent event) {
+		if (event.getEntity() instanceof FallingBlock) {
+			if (event.getEntity().hasMetadata("magmablast")) event.setCancelled(true);
 		}
 	}
 }

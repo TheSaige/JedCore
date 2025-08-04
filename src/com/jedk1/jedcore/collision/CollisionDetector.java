@@ -12,7 +12,9 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.Optional;
+import java.util.Set;
 
 public class CollisionDetector {
     public static boolean checkEntityCollisions(Player player, Collider collider, CollisionCallback function) {
