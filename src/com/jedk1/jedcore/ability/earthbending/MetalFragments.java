@@ -4,6 +4,7 @@ import com.jedk1.jedcore.JedCore;
 import com.jedk1.jedcore.configuration.JedCoreConfig;
 import com.projectkorra.projectkorra.GeneralMethods;
 import com.projectkorra.projectkorra.ability.AddonAbility;
+import com.projectkorra.projectkorra.ability.EarthAbility;
 import com.projectkorra.projectkorra.ability.MetalAbility;
 import com.projectkorra.projectkorra.attribute.Attribute;
 import com.projectkorra.projectkorra.region.RegionProtection;
@@ -185,11 +186,16 @@ public class MetalFragments extends MetalAbility implements AddonAbility {
 		if (block == null)
 			return false;
 
+		if (EarthAbility.getMovedEarth().containsKey(block))
+			return false;
+
 		return isMetal(block);
 	}
 
 	public Block selectSource() {
 		Block block = BlockSource.getEarthSourceBlock(player, selectRange, ClickType.SHIFT_DOWN);
+		if (EarthAbility.getMovedEarth().containsKey(block))
+			return null;
 		if (isMetal(block))
 			return block;
 		return null;

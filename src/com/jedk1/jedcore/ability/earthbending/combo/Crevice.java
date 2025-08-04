@@ -72,7 +72,7 @@ public class Crevice extends EarthAbility implements AddonAbility, ComboAbility 
 	private void createInstance() {
 		origin = player.getTargetBlock(null, 6).getLocation();
 
-		if (isEarthbendable(origin.getBlock())) {
+		if (isEarthbendable(origin.getBlock()) && !EarthAbility.getMovedEarth().containsKey(origin.getBlock())) {
 			Location tempLoc = player.getLocation().clone();
 			tempLoc.setPitch(0);
 
@@ -208,7 +208,7 @@ public class Crevice extends EarthAbility implements AddonAbility, ComboAbility 
 			if (i == 0 && !isTransparent(tempLoc.getBlock())) {
 				continue;
 			}
-			if (i > 0 && !isEarthbendable(tempLoc.getBlock())) {
+			if (i > 0 && (!isEarthbendable(tempLoc.getBlock()) || EarthAbility.getMovedEarth().containsKey(tempLoc.getBlock()))) {
 				continue;
 			}
 

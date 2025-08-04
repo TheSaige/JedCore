@@ -102,6 +102,10 @@ public class EarthKick extends EarthAbility implements AddonAbility {
 	private boolean prepare() {
 		block = player.getTargetBlock(getTransparentMaterialSet(), sourceRange);
 
+		if (EarthAbility.getMovedEarth().containsKey(block)) {
+			return false;
+		}
+
 		if (!isEarthbendable(player, block)) {
 			return false;
 		}

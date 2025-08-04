@@ -207,6 +207,10 @@ public class MudSurge extends EarthAbility implements AddonAbility {
 		return false;
 	}
 
+	private boolean isValidMudSource(Block block) {
+		return block != null && !EarthAbility.getMovedEarth().containsKey(block);
+	}
+
 	private void startSurge() {
 		started = true;
 		this.bPlayer.addCooldown(this);

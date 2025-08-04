@@ -1,5 +1,6 @@
 package com.jedk1.jedcore;
 
+import com.jedk1.jedcore.ability.earthbending.EarthPillar;
 import com.jedk1.jedcore.ability.waterbending.IceWall;
 import com.jedk1.jedcore.ability.firebending.LightningBurst;
 import com.jedk1.jedcore.ability.waterbending.HealingWaters;
@@ -21,6 +22,7 @@ public class JCManager implements Runnable {
 		HealingWaters.heal(Bukkit.getServer());
 		IcePassive.handleSkating();
 		IceWall.progressAll();
+		EarthPillar.progressAll();
 		
 		RegenTempBlock.manage();
 	}
