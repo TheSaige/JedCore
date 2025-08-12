@@ -19,6 +19,7 @@ import com.projectkorra.projectkorra.util.DamageHandler;
 
 import com.projectkorra.projectkorra.util.TempFallingBlock;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Effect;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -49,6 +50,7 @@ public class EarthLine extends EarthAbility implements AddonAbility {
 	private double range;
 	@Attribute(Attribute.SELECT_RANGE)
 	private double prepareRange;
+	private double xhitboxRadius;
 	private double sourceKeepRange;
 	@Attribute(Attribute.RADIUS)
 	private int affectingRadius;
@@ -97,6 +99,7 @@ public class EarthLine extends EarthAbility implements AddonAbility {
 		damage = config.getDouble("Abilities.Earth.EarthLine.Damage");
 		allowChangeDirection = config.getBoolean("Abilities.Earth.EarthLine.AllowChangeDirection");
 		maxDuration = config.getLong("Abilities.Earth.EarthLine.MaxDuration");
+		xhitboxRadius = config.getDouble("Abilities.Earth.EarthLine.xHitboxRadius");
 	}
 
     public boolean prepare() {
@@ -273,14 +276,18 @@ public class EarthLine extends EarthAbility implements AddonAbility {
 				}
 			} else {
 				for (Entity entity : GeneralMethods.getEntitiesAroundPoint(location, affectingRadius)) {
-					if (RegionProtection.isRegionProtected(this, entity.getLocation()) || ((entity instanceof Player) && Commands.invincible.contains(entity.getName()))){
-						return;
+					double distanceX = Math.abs(entity.getLocation().getX() - location.getX());
+					if (distanceX <= xhitboxRadius) {
+						if (RegionProtection.isRegionProtected(this, entity.getLocation()) || ((entity instanceof Player) && Commands.invincible.contains(entity.getName()))){
+							return;
+						}
+						if ((entity instanceof LivingEntity) && entity.getEntityId() != player.getEntityId()) {
+							GeneralMethods.setVelocity(this, entity, push.normalize().multiply(2));
+							DamageHandler.damageEntity(entity, damage, this);
+							hitted = true;
+						}
 					}
-					if ((entity instanceof LivingEntity) && entity.getEntityId() != player.getEntityId()) {
-						GeneralMethods.setVelocity(this, entity, push.normalize().multiply(2));
-						DamageHandler.damageEntity(entity, damage, this);
-						hitted = true;
-					}
+
 				}
 			}
 		} else {
