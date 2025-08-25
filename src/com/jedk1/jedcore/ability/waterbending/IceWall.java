@@ -267,7 +267,7 @@ public class IceWall extends IceAbility implements AddonAbility {
 
 		for (TempBlock tb : tempBlocks) {
 			tb.revertBlock();
-			tb.getLocation().getWorld().spawnParticle(Particle.BLOCK_CRACK, tb.getLocation(), 5, 0, 0, 0, 0, Material.PACKED_ICE.createBlockData());
+			tb.getLocation().getWorld().spawnParticle(Particle.EGG_CRACK, tb.getLocation(), 5, 0, 0, 0, 0, Material.PACKED_ICE.createBlockData());
 			tb.getLocation().getWorld().playSound(tb.getLocation(), Sound.BLOCK_GLASS_BREAK, 5f, 5f);
 
 			for (Entity e : GeneralMethods.getEntitiesAroundPoint(tb.getLocation(), 2.5)) {

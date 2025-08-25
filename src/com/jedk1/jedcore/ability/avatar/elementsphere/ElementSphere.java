@@ -370,7 +370,7 @@ public class ElementSphere extends AvatarAbility implements AddonAbility, MultiA
 			rotateAroundAxisX(v1, -xRotation);
 			rotateAroundAxisY(v1, yawRadians);
 			if (waterUses != 0) {
-				centerLoc.getWorld().spawnParticle(Particle.WATER_WAKE, centerLoc.clone().add(v), 3, 0.0, 0.0, 0.0, 0.005F);
+				centerLoc.getWorld().spawnParticle(Particle.DRIPPING_WATER, centerLoc.clone().add(v), 3, 0.0, 0.0, 0.0, 0.005F);
 				GeneralMethods.displayColoredParticle("06C1FF", centerLoc.clone().add(v));
 			}
 			if (earthUses != 0) {

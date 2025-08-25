@@ -54,7 +54,6 @@ public class EarthLine extends EarthAbility implements AddonAbility {
 	@Attribute(Attribute.SELECT_RANGE)
 	private double prepareRange;
 	private double xhitboxRadius;
-	private double sourceKeepRange;
 	@Attribute(Attribute.RADIUS)
 	private int affectingRadius;
 	@Attribute(Attribute.DAMAGE)

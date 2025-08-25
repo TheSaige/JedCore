@@ -43,8 +43,6 @@ public class DaggerThrow extends ChiAbility implements AddonAbility {
 	private double damage;
 	@Attribute(Attribute.COOLDOWN)
 	private long cooldown;
-	private boolean limitEnabled;
-	private boolean requireArrows;
 	@Attribute("MaxShots")
 	private int maxShots;
 
@@ -123,8 +121,9 @@ public class DaggerThrow extends ChiAbility implements AddonAbility {
 	private void shootArrow() {
 		if (!requireArrows || JCMethods.removeItemFromInventory(player, Material.ARROW, 1)) {
 			shots++;
-			Location location = player.getEyeLocation();
+        }
 
+		Location location = player.getEyeLocation();
 		Vector vector = location.toVector().
 				add(location.getDirection().multiply(2.5)).
 				toLocation(location.getWorld()).toVector().

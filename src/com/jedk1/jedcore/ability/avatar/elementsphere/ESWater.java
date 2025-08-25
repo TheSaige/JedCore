@@ -133,7 +133,7 @@ public class ESWater extends AvatarAbility implements AddonAbility {
         WaterAbility.playWaterbendingSound(location);
         if (isWater(location.getBlock())) {
             ParticleEffect.WATER_BUBBLE.display(location, 3, 0.5, 0.5, 0.5);
-			location.getWorld().spawnParticle(Particle.WATER_WAKE, location, 3, 0.0, 0.0, 0.0, 0.005F);
+			location.getWorld().spawnParticle(Particle.DRIPPING_WATER, location, 3, 0.0, 0.0, 0.0, 0.005F);
 			GeneralMethods.displayColoredParticle("06C1FF", location);
         }
     }
