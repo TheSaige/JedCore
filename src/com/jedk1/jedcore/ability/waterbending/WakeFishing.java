@@ -8,7 +8,6 @@ import com.projectkorra.projectkorra.attribute.Attribute;
 import com.projectkorra.projectkorra.util.BlockSource;
 import com.projectkorra.projectkorra.util.ClickType;
 import com.projectkorra.projectkorra.util.ParticleEffect;
-
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -70,10 +69,9 @@ public class WakeFishing extends WaterAbility implements AddonAbility {
 		}
 	}
 
-	@SuppressWarnings("deprecation")
 	private boolean prepare() {
 		Block block = BlockSource.getWaterSourceBlock(player, range, ClickType.SHIFT_DOWN, true, false, false);
-		if (isWater(block) && block.getData() == 0) {
+		if (isWater(block)) {
 			focusedBlock = block;
 			location = focusedBlock.getLocation();
 			return true;

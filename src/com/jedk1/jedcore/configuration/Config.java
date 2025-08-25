@@ -1,7 +1,6 @@
 package com.jedk1.jedcore.configuration;
 
 import com.jedk1.jedcore.JedCore;
-
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 
@@ -11,7 +10,7 @@ public class Config {
 
 	JedCore plugin;
 
-	private File file;
+	private final File file;
 	public FileConfiguration config;
 
 	public Config(File file) {

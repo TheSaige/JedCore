@@ -38,6 +38,9 @@ public class LightningBurst extends LightningAbility implements AddonAbility {
 	private boolean charged;
 	private static int ID = Integer.MIN_VALUE;
 
+	private float soundVolume;
+	private int soundInterval;
+
 	public LightningBurst(Player player) {
 		super(player);
 		if (!bPlayer.canBend(this) || hasAbility(player, LightningBurst.class)) {
@@ -62,6 +65,9 @@ public class LightningBurst extends LightningAbility implements AddonAbility {
 		avatarChargeup = config.getLong("Abilities.Fire.LightningBurst.AvatarChargeUp");
 		damage = config.getDouble("Abilities.Fire.LightningBurst.Damage");
 		radius = config.getDouble("Abilities.Fire.LightningBurst.Radius");
+
+		soundVolume = (float) config.getDouble("Abilities.Fire.LightningBurst.Sound.Volume");
+		soundInterval = config.getInt("Abilities.Fire.LightningBurst.Sound.Interval");
 	}
 
 	@Override
@@ -310,8 +316,8 @@ public class LightningBurst extends LightningAbility implements AddonAbility {
 				break;
 			}
 
-			if (rand.nextInt(3) == 0) {
-				location.getWorld().playSound(location, Sound.ENTITY_CREEPER_PRIMED, 1, 0);
+			if (rand.nextInt(soundInterval) == 0) {
+				location.getWorld().playSound(location, Sound.ENTITY_BEE_HURT, soundVolume, 0.2f);
 			}
 
 			for (Entity entity : GeneralMethods.getEntitiesAroundPoint(location, 2)) {

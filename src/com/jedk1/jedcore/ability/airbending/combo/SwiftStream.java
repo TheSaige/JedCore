@@ -10,8 +10,6 @@ import com.projectkorra.projectkorra.ability.util.ComboManager.AbilityInformatio
 import com.projectkorra.projectkorra.ability.util.ComboUtil;
 import com.projectkorra.projectkorra.attribute.Attribute;
 import com.projectkorra.projectkorra.object.HorizontalVelocityTracker;
-import com.projectkorra.projectkorra.util.ClickType;
-
 import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Entity;
@@ -24,22 +22,25 @@ import java.util.List;
 
 public class SwiftStream extends FlightAbility implements AddonAbility, ComboAbility {
 
+	private final List<LivingEntity> affectedEntities = new ArrayList<>();
+
 	@Attribute(Attribute.COOLDOWN)
 	public long cooldown;
+	@Attribute("DragFactor")
 	public double dragFactor;
 	@Attribute(Attribute.DURATION)
 	public long duration;
 
-	private final List<LivingEntity> affectedEntities = new ArrayList<>();
-
 	public SwiftStream(Player player) {
 		super(player);
+
 		if (!bPlayer.canBendIgnoreBinds(this) || !bPlayer.canUseFlight()) {
 			return;
 		}
 
 		setFields();
 		start();
+
 		if (!isRemoved()) {
 			launch();
 			bPlayer.addCooldown(this);
@@ -65,17 +66,16 @@ public class SwiftStream extends FlightAbility implements AddonAbility, ComboAbi
 
 	public void affectNearby() {
 		for (Entity e : GeneralMethods.getEntitiesAroundPoint(player.getLocation(), 2.5)) {
-			if (e instanceof LivingEntity && !affectedEntities.contains(e) && e.getEntityId() != player.getEntityId()) {
+			if (e instanceof LivingEntity livingEntity && !affectedEntities.contains(e) && e.getEntityId() != player.getEntityId()) {
 				Vector v = player.getVelocity().clone();
-
 				v = v.multiply(dragFactor);
-
 				v = v.setY(player.getVelocity().getY());
-
 				v = v.add(new Vector(0, 0.15, 0));
 
 				GeneralMethods.setVelocity(this, e, v);
-				affectedEntities.add((LivingEntity) e);
+
+				affectedEntities.add(livingEntity);
+
 				new HorizontalVelocityTracker(e, player, 200, this);
 			}
 		}

@@ -8,7 +8,6 @@ import com.projectkorra.projectkorra.ability.EarthAbility;
 import com.projectkorra.projectkorra.earthbending.EarthArmor;
 import com.projectkorra.projectkorra.util.TempArmor;
 import com.projectkorra.projectkorra.util.TempPotionEffect;
-
 import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Material;

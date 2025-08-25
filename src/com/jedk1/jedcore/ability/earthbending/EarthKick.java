@@ -8,13 +8,14 @@ import com.jedk1.jedcore.configuration.JedCoreConfig;
 import com.jedk1.jedcore.util.BlockUtil;
 import com.projectkorra.projectkorra.ability.AddonAbility;
 import com.projectkorra.projectkorra.ability.EarthAbility;
-import com.projectkorra.projectkorra.ability.ElementalAbility;
 import com.projectkorra.projectkorra.ability.util.Collision;
 import com.projectkorra.projectkorra.attribute.Attribute;
+import com.projectkorra.projectkorra.earthbending.passive.DensityShift;
 import com.projectkorra.projectkorra.region.RegionProtection;
-import com.projectkorra.projectkorra.util.*;
-
-import org.bukkit.Bukkit;
+import com.projectkorra.projectkorra.util.DamageHandler;
+import com.projectkorra.projectkorra.util.ParticleEffect;
+import com.projectkorra.projectkorra.util.TempBlock;
+import com.projectkorra.projectkorra.util.TempFallingBlock;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -27,18 +28,25 @@ import org.bukkit.util.Vector;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ThreadLocalRandom;
 
 import static java.util.stream.Collectors.toList;
 
 public class EarthKick extends EarthAbility implements AddonAbility {
 	private final List<TempFallingBlock> temps = new ArrayList<>();
+	private final Set<UUID> hitEntities = new HashSet<>();
 
 	private BlockData materialData;
 	private Location location;
-	private final Random rand = new Random();
+	private Block block;
+	private boolean multipleHits;
+	private int sourceRange;
+	private int spread;
+	private double velocity;
+	private boolean allowMetal;
+	private boolean replaceSource;
 
 	@Attribute(Attribute.COOLDOWN)
 	private long cooldown;
@@ -46,16 +54,10 @@ public class EarthKick extends EarthAbility implements AddonAbility {
 	private int earthBlocks;
 	@Attribute(Attribute.DAMAGE)
 	private double damage;
+	@Attribute(Attribute.DAMAGE)
+	private double metalDmg;
 	@Attribute("CollisionRadius")
 	private double entityCollisionRadius;
-	private Block block;
-
-	private boolean multipleHits;
-	private int sourceRange;
-	private int spread;
-	private double velocity;
-
-	private Set<UUID> hitEntities = new HashSet<>();
 
 	public EarthKick(Player player) {
 		super(player);
@@ -65,7 +67,9 @@ public class EarthKick extends EarthAbility implements AddonAbility {
 		}
 
 		setFields();
+
 		location = player.getLocation();
+
 		if ((player.getLocation().getPitch() > -5) && prepare()) {
 			if (RegionProtection.isRegionProtected(this, block.getLocation())) {
 				return;
@@ -80,13 +84,15 @@ public class EarthKick extends EarthAbility implements AddonAbility {
 		
 		cooldown = config.getLong("Abilities.Earth.EarthKick.Cooldown");
 		earthBlocks = config.getInt("Abilities.Earth.EarthKick.EarthBlocks");
-		damage = config.getDouble("Abilities.Earth.EarthKick.Damage");
+		damage = config.getDouble("Abilities.Earth.EarthKick.Damage.Normal");
+		metalDmg = config.getDouble("Abilities.Earth.EarthKick.Damage.Metal");
 		entityCollisionRadius = config.getDouble("Abilities.Earth.EarthKick.EntityCollisionRadius");
-
 		multipleHits = config.getBoolean("Abilities.Earth.EarthKick.MultipleHits");
 		sourceRange = config.getInt("Abilities.Earth.EarthKick.SourceRange");
 		spread = config.getInt("Abilities.Earth.EarthKick.Spread");
 		velocity = config.getDouble("Abilities.Earth.EarthKick.Velocity");
+		allowMetal = config.getBoolean("Abilities.Earth.EarthKick.AllowMetal");
+		replaceSource = config.getBoolean("Abilities.Earth.EarthKick.ReplaceSource");
 
 		if (entityCollisionRadius < 1.0) {
 			entityCollisionRadius = 1.0;
@@ -95,11 +101,24 @@ public class EarthKick extends EarthAbility implements AddonAbility {
 
 	private boolean prepare() {
 		block = player.getTargetBlock(getTransparentMaterialSet(), sourceRange);
-		if (!isEarthbendable(player, block)){
+
+		if (EarthAbility.getMovedEarth().containsKey(block)) {
 			return false;
 		}
 
-		if (block != null && !isMetal(block)) {
+		if (!isEarthbendable(player, block)) {
+			return false;
+		}
+
+		if (TempBlock.isTempBlock(block)) {
+			TempBlock.get(block).revertBlock();
+		}
+
+		if (DensityShift.isPassiveSand(block)) {
+			DensityShift.revertSand(block);
+		}
+
+		if (block != null && (allowMetal || !isMetal(block))) {
 			materialData = block.getBlockData().clone();
 			location.setX(block.getX() + 0.5);
 			location.setY(block.getY());
@@ -124,6 +143,7 @@ public class EarthKick extends EarthAbility implements AddonAbility {
 		}
 
 		bPlayer.addCooldown(this);
+
 		track();
 
 		if (temps.isEmpty()) {
@@ -132,12 +152,15 @@ public class EarthKick extends EarthAbility implements AddonAbility {
 	}
 
 	private void launchBlocks() {
-		if (getMovedEarth().containsKey(block)) {
-			block.setType(Material.AIR);
-		}
-		if (block.getType() != Material.AIR) {
-			TempBlock air = new TempBlock(block, Material.AIR);
-			air.setRevertTime(5000L);
+		if (replaceSource) {
+			if (getMovedEarth().containsKey(block)) {
+				block.setType(Material.AIR);
+			}
+
+			if (block.getType() != Material.AIR) {
+				TempBlock air = new TempBlock(block, Material.AIR);
+				air.setRevertTime(5000L);
+			}
 		}
 
 		location.setPitch(0);
@@ -152,6 +175,8 @@ public class EarthKick extends EarthAbility implements AddonAbility {
 		int yaw = Math.round(location.getYaw());
 
 		playEarthbendingSound(location);
+
+		ThreadLocalRandom rand = ThreadLocalRandom.current();
 
 		for (int i = 0; i < earthBlocks; i++) {
 			location.setYaw(yaw + rand.nextInt((spread * 2) + 1) - spread);
@@ -186,7 +211,7 @@ public class EarthKick extends EarthAbility implements AddonAbility {
 			CollisionDetector.checkEntityCollisions(player, collider, (entity) -> {
 				UUID uuid = entity.getUniqueId();
 				if (this.multipleHits || hitEntities.add(uuid)) {
-					DamageHandler.damageEntity(entity, damage, this);
+					DamageHandler.damageEntity(entity, isMetal(fb.getBlockData().getMaterial()) ? metalDmg : damage, this);
 				}
 				return false;
 			});
@@ -282,6 +307,14 @@ public class EarthKick extends EarthAbility implements AddonAbility {
 
 	public void setDamage(double damage) {
 		this.damage = damage;
+	}
+
+	public double getMetalDmg() {
+		return metalDmg;
+	}
+
+	public void setMetalDmg(double metalDmg) {
+		this.metalDmg = metalDmg;
 	}
 
 	public double getEntityCollisionRadius() {

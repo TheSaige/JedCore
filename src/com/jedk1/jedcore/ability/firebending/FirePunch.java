@@ -1,11 +1,6 @@
 package com.jedk1.jedcore.ability.firebending;
 
 import com.jedk1.jedcore.JCMethods;
-import org.bukkit.Location;
-import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
-
 import com.jedk1.jedcore.JedCore;
 import com.jedk1.jedcore.configuration.JedCoreConfig;
 import com.jedk1.jedcore.util.FireTick;
@@ -18,6 +13,11 @@ import com.projectkorra.projectkorra.attribute.Attribute;
 import com.projectkorra.projectkorra.firebending.util.FireDamageTimer;
 import com.projectkorra.projectkorra.util.DamageHandler;
 import com.projectkorra.projectkorra.util.ParticleEffect;
+import org.bukkit.Location;
+import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.MainHand;
 
 public class FirePunch extends FireAbility implements AddonAbility {
 
@@ -27,6 +27,8 @@ public class FirePunch extends FireAbility implements AddonAbility {
 	private double damage;
 	@Attribute(Attribute.FIRE_TICK)
 	private int fireTicks;
+
+	private Boolean flameInMainHand = null;
 
 	private Location location;
 	
@@ -70,12 +72,26 @@ public class FirePunch extends FireAbility implements AddonAbility {
 			return;
 		}
 
-		location = GeneralMethods.getRightSide(player.getLocation(), 0.55)
-				.add(0, 1.2, 0)
-				.add(player.getLocation().getDirection().multiply(0.8));
-		playFirebendingParticles(location, 3, 0, 0, 0);
-		ParticleEffect.SMOKE_NORMAL.display(location, 1);
-		JCMethods.emitLight(location);
+		Location hand = getRightHandPos().toVector().add(player.getEyeLocation().getDirection().clone().multiply(.75D)).toLocation(player.getWorld());
+
+		playFirebendingParticles(hand, 3, 0, 0, 0);
+		ParticleEffect.SMOKE_NORMAL.display(hand, 1);
+		JCMethods.emitLight(hand);
+	}
+
+	public static void swapHands(Player player) {
+		FirePunch fp = getAbility(player, FirePunch.class);
+		if (fp == null)
+			return;
+		if (fp.flameInMainHand == null)
+			fp.flameInMainHand = true;
+		else fp.flameInMainHand = !fp.flameInMainHand;
+	}
+
+	public Location getRightHandPos() {
+		return (player.getMainHand() == MainHand.RIGHT == ((flameInMainHand == null) || flameInMainHand) ?
+				GeneralMethods.getRightSide(player.getLocation(), .55) :
+				GeneralMethods.getLeftSide(player.getLocation(), .55)).add(0, 1.2, 0);
 	}
 
 	public void punch(LivingEntity target) {

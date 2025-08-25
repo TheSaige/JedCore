@@ -31,7 +31,6 @@ permissions:
     description: Access to player commands.
     children:
       bending.command.jedcore: true
-      bending.command.board: true
   jedcore.passive:
     default: true
     description: Access to passive abilities.
@@ -54,6 +53,7 @@ permissions:
     children:
       bending.ability.FrostBreath: true
       bending.ability.IceClaws: true
+      bending.ability.IceSkate: true
       bending.ability.IceWall: true
       bending.ability.Drain: true
       bending.ability.WakeFishing: true

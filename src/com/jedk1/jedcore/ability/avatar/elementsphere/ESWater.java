@@ -12,9 +12,9 @@ import com.projectkorra.projectkorra.command.Commands;
 import com.projectkorra.projectkorra.region.RegionProtection;
 import com.projectkorra.projectkorra.util.DamageHandler;
 import com.projectkorra.projectkorra.util.ParticleEffect;
-
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Particle;
 import org.bukkit.block.data.Levelled;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.ArmorStand;
@@ -40,19 +40,26 @@ public class ESWater extends AvatarAbility implements AddonAbility {
 
 	public ESWater(Player player) {
 		super(player);
+
 		if (!hasAbility(player, ElementSphere.class)) {
 			return;
 		}
+
 		ElementSphere currES = getAbility(player, ElementSphere.class);
 		if (currES.getWaterUses() == 0) {
 			return;
 		}
+
 		if (bPlayer.isOnCooldown("ESWater")) {
 			return;
 		}
+
 		setFields();
+
 		location = player.getEyeLocation().clone().add(player.getEyeLocation().getDirection().multiply(1));
+
 		start();
+
 		if (!isRemoved()) {
 			bPlayer.addCooldown("ESWater", getCooldown());
 			currES.setWaterUses(currES.getWaterUses() - 1);
@@ -74,44 +81,84 @@ public class ESWater extends AvatarAbility implements AddonAbility {
 			remove();
 			return;
 		}
+
 		if (travelled >= range) {
 			remove();
 			return;
 		}
+
 		advanceAttack();
 	}
 
-	private void advanceAttack() {
-		for (int i = 0; i < speed; i++) {
-			travelled++;
-			if (travelled >= range)
-				return;
+    private void advanceAttack() {
+        for (int i = 0; i < speed; i++) {
+            if (!incrementTravelledAndCheckRange()) {
+                return;
+            }
 
-			if (!player.isDead())
-				direction = GeneralMethods.getDirection(player.getLocation(), GeneralMethods.getTargetedLocation(player, range, Material.WATER)).normalize();
-			location = location.add(direction.clone().multiply(1));
-			if (RegionProtection.isRegionProtected(this, location)){
-				travelled = range;
-				return;
-			}
-			if (GeneralMethods.isSolid(location.getBlock()) || !isTransparent(location.getBlock())) {
-				travelled = range;
-				return;
-			}
+            updateDirection();
 
-			WaterAbility.playWaterbendingSound(location);
-			if (isWater(location.getBlock()))
-				ParticleEffect.WATER_BUBBLE.display(location, 3, 0.5, 0.5, 0.5);
-			new RegenTempBlock(location.getBlock(), Material.WATER, Material.WATER.createBlockData(bd -> ((Levelled) bd).setLevel(0)), 100L);
+            location.add(direction.clone().multiply(1));
 
-			for (Entity entity : GeneralMethods.getEntitiesAroundPoint(location, 2.5)) {
-				if (entity instanceof LivingEntity && entity.getEntityId() != player.getEntityId() && !(entity instanceof ArmorStand) && !RegionProtection.isRegionProtected(this, entity.getLocation()) && !((entity instanceof Player) && Commands.invincible.contains(((Player) entity).getName()))) {
-					DamageHandler.damageEntity(entity, damage, this);
-					travelled = range;
-				}
-			}
-		}
-	}
+            if (checkCollision()) {
+                return;
+            }
+
+            playAttackEffects();
+            handleBlockTransformation();
+            handleEntityCollisions();
+        }
+    }
+
+    private boolean incrementTravelledAndCheckRange() {
+        travelled++;
+        return travelled < range;
+    }
+
+    private void updateDirection() {
+        if (!player.isDead()) {
+            direction = GeneralMethods.getDirection(player.getLocation(), GeneralMethods.getTargetedLocation(player, range, Material.WATER)).normalize();
+        }
+    }
+
+    private boolean checkCollision() {
+        if (RegionProtection.isRegionProtected(this, location) || GeneralMethods.isSolid(location.getBlock()) || !isTransparent(location.getBlock())) {
+            travelled = range;
+            return true;
+        }
+        return false;
+    }
+
+    private void playAttackEffects() {
+        WaterAbility.playWaterbendingSound(location);
+        if (isWater(location.getBlock())) {
+            ParticleEffect.WATER_BUBBLE.display(location, 3, 0.5, 0.5, 0.5);
+			location.getWorld().spawnParticle(Particle.WATER_WAKE, location, 3, 0.0, 0.0, 0.0, 0.005F);
+			GeneralMethods.displayColoredParticle("06C1FF", location);
+        }
+    }
+
+    private void handleBlockTransformation() {
+        new RegenTempBlock(location.getBlock(), Material.WATER, Material.WATER.createBlockData(bd -> ((Levelled) bd).setLevel(0)), 100L);
+    }
+
+    private void handleEntityCollisions() {
+        for (Entity entity : GeneralMethods.getEntitiesAroundPoint(location, 2.5)) {
+            if (isAttackableEntity(entity)) {
+                DamageHandler.damageEntity(entity, damage, this);
+                travelled = range;
+                return;
+            }
+        }
+    }
+
+    private boolean isAttackableEntity(Entity entity) {
+        return entity instanceof LivingEntity &&
+                entity.getEntityId() != player.getEntityId() &&
+                !(entity instanceof ArmorStand) &&
+                !RegionProtection.isRegionProtected(this, entity.getLocation()) &&
+                !((entity instanceof Player targetPlayer) && Commands.invincible.contains((targetPlayer).getName()));
+    }
 	
 	@Override
 	public long getCooldown() {

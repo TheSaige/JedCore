@@ -1,8 +1,6 @@
 package com.jedk1.jedcore.configuration;
 
 import com.jedk1.jedcore.JedCore;
-
-import com.projectkorra.projectkorra.attribute.Attribute;
 import com.projectkorra.projectkorra.configuration.ConfigManager;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -16,8 +14,8 @@ import java.util.Arrays;
 
 public class JedCoreConfig {
 
-	public static Config board;
 	static JedCore plugin;
+    public static Config board;
 	
 	public JedCoreConfig(JedCore plugin) {
 		JedCoreConfig.plugin = plugin;
@@ -27,33 +25,11 @@ public class JedCoreConfig {
 		addDeathMessages();
 		setupElementSphereNames();
 	}
-	
+
 	private void loadConfigBoard() {
 		FileConfiguration config;
 		config = board.getConfig();
-		
-		config.addDefault("Settings.Enabled", true);
-		config.addDefault("Settings.Title", "&lSlots");
-		config.addDefault("Settings.Pointer", "> ");
-		config.addDefault("Settings.EmptySlot", "&8&o-- Slot % --");
-		config.addDefault("Settings.Combos", "&fCombos:");
-		config.addDefault("Settings.Toggle.Off", "&7You have hidden the bending board.");
-		config.addDefault("Settings.Toggle.On", "&7You have toggled the bending board on.");
-		config.addDefault("Settings.Display.DisabledWorlds", true);
-
-		config.addDefault("Settings.OtherCooldowns.WallRun.Color", "GOLD");
-		config.addDefault("Settings.OtherCooldowns.WallRun.Enabled", true);
-		config.addDefault("Settings.OtherCooldowns.TorrentWave.Color", "AQUA");
-		config.addDefault("Settings.OtherCooldowns.TorrentWave.Enabled", true);
-		config.addDefault("Settings.OtherCooldowns.SurgeWave.Color", "AQUA");
-		config.addDefault("Settings.OtherCooldowns.SurgeWave.Enabled", true);
-		config.addDefault("Settings.OtherCooldowns.SurgeWall.Color", "AQUA");
-		config.addDefault("Settings.OtherCooldowns.SurgeWall.Enabled", true);
-		config.addDefault("Settings.OtherCooldowns.RaiseEarthPillar.Color", "GREEN");
-		config.addDefault("Settings.OtherCooldowns.RaiseEarthPillar.Enabled", true);
-		config.addDefault("Settings.OtherCooldowns.RaiseEarthWall.Color", "GREEN");
-		config.addDefault("Settings.OtherCooldowns.RaiseEarthWall.Enabled", true);
-		
+		config.addDefault("Settings.Enabled", false);
 		config.options().copyDefaults(true);
 		board.saveConfig();
 	}
@@ -82,7 +58,7 @@ public class JedCoreConfig {
 		config.addDefault("Abilities.Avatar.ElementSphere.Enabled", true);
 		config.addDefault("Abilities.Avatar.ElementSphere.Description", "ElementSphere is a very all round ability, being "
 				+ "able to shoot attacks of each element, each with a "
-				+ "different affect. To use, simply Left-Click. Once active, "
+				+ "different effect. To use, simply Left-Click. Once active, "
 				+ "Sneak (Default: Shift) to fly around. Sneak and double "
 				+ "Left-Click to disable the ability! "
 				+ "To use each element, simply select hotbar slots 1-4 and Left-Click. "
@@ -137,25 +113,51 @@ public class JedCoreConfig {
 		config.addDefault("Abilities.Avatar.SpiritBeam.BlockDamage.Enabled", true);
 		config.addDefault("Abilities.Avatar.SpiritBeam.BlockDamage.Radius", 3);
 		config.addDefault("Abilities.Avatar.SpiritBeam.BlockDamage.Regen", 20000);
-		
+
 		config.addDefault("Abilities.Air.AirBlade.Enabled", true);
 		config.addDefault("Abilities.Air.AirBlade.Description", "With this ability bound, Left-Click to shoot "
-				+ "a strong blade of air at your targets doing some damage!");
+				+ "a strong blade of air at your targets to deal some damage!");
 		config.addDefault("Abilities.Air.AirBlade.Cooldown", 3000);
 		config.addDefault("Abilities.Air.AirBlade.Range", 30.0);
 		config.addDefault("Abilities.Air.AirBlade.Damage", 4.0);
+		config.addDefault("Abilities.Air.AirBlade.Speed", 1.0);
+		config.addDefault("Abilities.Air.AirBlade.Knockback", 0.0);
 		config.addDefault("Abilities.Air.AirBlade.EntityCollisionRadius", 1.0);
 		config.addDefault("Abilities.Air.AirBlade.AbilityCollisionRadius", 1.0);
-		config.addDefault("Abilities.Air.AirBlade.Collisions.FireBlast.Enabled",true);
-		config.addDefault("Abilities.Air.AirBlade.Collisions.FireBlast.RemoveFirst",true);
-		config.addDefault("Abilities.Air.AirBlade.Collisions.FireBlast.RemoveSecond",true);
-		config.addDefault("Abilities.Air.AirBlade.Collisions.FireBlastCharged.Enabled",true);
-		config.addDefault("Abilities.Air.AirBlade.Collisions.FireBlastCharged.RemoveFirst",true);
-		config.addDefault("Abilities.Air.AirBlade.Collisions.FireBlastCharged.RemoveSecond",false);
+		config.addDefault("Abilities.Air.AirBlade.Collisions.FireBlast.Enabled", true);
+		config.addDefault("Abilities.Air.AirBlade.Collisions.FireBlast.RemoveFirst", true);
+		config.addDefault("Abilities.Air.AirBlade.Collisions.FireBlast.RemoveSecond", true);
+		config.addDefault("Abilities.Air.AirBlade.Collisions.FireBlastCharged.Enabled", true);
+		config.addDefault("Abilities.Air.AirBlade.Collisions.FireBlastCharged.RemoveFirst", true);
+		config.addDefault("Abilities.Air.AirBlade.Collisions.FireBlastCharged.RemoveSecond", false);
+		config.addDefault("Abilities.Air.AirBlade.BlockCutting.Enabled", true);
+		config.addDefault("Abilities.Air.AirBlade.BlockCutting.Revert", true);
+		config.addDefault("Abilities.Air.AirBlade.BlockCutting.RevertTime", 5000);
+		config.addDefault("Abilities.Air.AirBlade.BlockCutting.Materials", Arrays.asList(
+				"#small_flowers",
+				"#flowers",
+				"#crops",
+				"#saplings",
+				"BIG_DRIPLEAF_STEM",
+				"BIG_DRIPLEAF",
+				"CAVE_VINES",
+				"CAVE_VINES_PLANT",
+				"VINE",
+				"FERN",
+				"LARGE_FERN",
+				"SHORT_GRASS",
+				"TALL_GRASS",
+				"DEAD_BUSH",
+				"SEA_PICKLE",
+				"CACTUS_FLOWER",
+				"BERRY_BUSH",
+				"RED_MUSHROOM",
+				"BROWN_MUSHROOM"
+		));
 		
 		config.addDefault("Abilities.Air.AirBreath.Enabled", true);
 		config.addDefault("Abilities.Air.AirBreath.Description", "To use, hold Sneak (Default: Shift) to release "
-				+ "a strong breath of wind knocking your opponents "
+				+ "a strong breath of wind, knocking your opponents "
 				+ "back. This ability also has a longer range and "
 				+ "stronger knockback while in AvatarState!");
 		config.addDefault("Abilities.Air.AirBreath.Cooldown", 3000);
@@ -177,7 +179,7 @@ public class JedCoreConfig {
 		
 		config.addDefault("Abilities.Air.AirGlide.Enabled", true);
 		config.addDefault("Abilities.Air.AirGlide.Description", "While falling, tap Sneak for a "
-				+ "slow and steady descent, tap Sneak again to stop gliding.");
+				+ "slow and steady descent. Tap Sneak again to stop gliding.");
 		config.addDefault("Abilities.Air.AirGlide.Speed", 0.5);
 		config.addDefault("Abilities.Air.AirGlide.FallSpeed", 0.1);
 		config.addDefault("Abilities.Air.AirGlide.Particles", 4);
@@ -188,12 +190,13 @@ public class JedCoreConfig {
 		
 		config.addDefault("Abilities.Air.AirPunch.Enabled", true);
 		config.addDefault("Abilities.Air.AirPunch.Description", "Left-Click in rapid succession to punch high desnity packets of air "
-				+ "at enemies to do slight damage to them. A few punches can be thrown before the ability has a cooldown.");
+				+ "at enemies to do slight damage. A few punches can be thrown before the ability goes on cooldown.");
 		config.addDefault("Abilities.Air.AirPunch.Cooldown", 5000);
 		config.addDefault("Abilities.Air.AirPunch.Threshold", 500);
 		config.addDefault("Abilities.Air.AirPunch.Shots", 4);
 		config.addDefault("Abilities.Air.AirPunch.Range", 30);
 		config.addDefault("Abilities.Air.AirPunch.Damage", 1.0);
+		config.addDefault("Abilities.Air.AirPunch.Speed", 1.0);
 		config.addDefault("Abilities.Air.AirPunch.EntityCollisionRadius", 1.0);
 		config.addDefault("Abilities.Air.AirPunch.AbilityCollisionRadius", 1.0);
 		config.addDefault("Abilities.Air.AirPunch.Collisions.FireBlast.Enabled", true);
@@ -209,7 +212,7 @@ public class JedCoreConfig {
 		config.addDefault("Abilities.Air.Meditate.Enabled", true);
 		config.addDefault("Abilities.Air.Meditate.Description", "Hold Sneak (Default: Shift) to start meditating. "
 				+ "After you have focused your energy, you will obtain several buffs.");
-		config.addDefault("Abilities.Air.Meditate.UnfocusMessage", "You have become unfocused from taking damage!");
+		config.addDefault("Abilities.Air.Meditate.UnfocusMessage", "You have become unfocused due to taking damage!");
 		config.addDefault("Abilities.Air.Meditate.LossFocusMessage", true);
 		config.addDefault("Abilities.Air.Meditate.ChargeTime", 5000);
 		config.addDefault("Abilities.Air.Meditate.Cooldown", 60000);
@@ -221,9 +224,9 @@ public class JedCoreConfig {
 		
 		config.addDefault("Abilities.Air.SonicBlast.Enabled", true);
 		config.addDefault("Abilities.Air.SonicBlast.Description", "SonicBlast is a soundbending ability, known by very few airbenders. "
-			+ "It allows the airbender to stun and deafen an opponent by creating a sonic blast, "
-			+ "this is achieved by creating two regions of high and low pressure and bringing them together. "
-			+ "To use, hold Sneak (Default: Shift) in the direction of the target. Once particles start appearing "
+			+ "It allows the airbender to stun and deafen an opponent by creating a sonic blast. "
+			+ "This is achieved by creating two regions of high and low pressure and bringing them together. "
+			+ "To use, hold Sneak (Default: Shift) in the direction of the target. Once particles appear "
 			+ "around you, let go of Sneak to shoot a SonicBlast at your target! The technique is very powerful, "
 			+ "even if it doesn't seem it, and comes with a short cooldown.");
 		config.addDefault("Abilities.Air.SonicBlast.ChargeTime", 2000);
@@ -267,13 +270,23 @@ public class JedCoreConfig {
 				+ "your foe!");
 		config.addDefault("Abilities.Earth.EarthKick.Cooldown", 2000);
 		config.addDefault("Abilities.Earth.EarthKick.EarthBlocks", 10);
-		config.addDefault("Abilities.Earth.EarthKick.Damage", 2.0);
+
+		double oldDamage = 0.0;
+		if (config.contains("Abilities.Earth.EarthKick.Damage")) {
+			oldDamage = config.getDouble("Abilities.Earth.EarthKick.Damage");
+			config.set("Abilities.Earth.EarthKick.Damage", null);
+		}
+
+		config.addDefault("Abilities.Earth.EarthKick.Damage.Normal", oldDamage > 0.0 ? oldDamage : 2.0);
+		config.addDefault("Abilities.Earth.EarthKick.Damage.Metal", 3.0);
 		config.addDefault("Abilities.Earth.EarthKick.EntityCollisionRadius", 1.5);
 		config.addDefault("Abilities.Earth.EarthKick.AbilityCollisionRadius", 1.5);
 		config.addDefault("Abilities.Earth.EarthKick.MultipleHits", true);
 		config.addDefault("Abilities.Earth.EarthKick.SourceRange", 2.0);
 		config.addDefault("Abilities.Earth.EarthKick.Spread", 20);
 		config.addDefault("Abilities.Earth.EarthKick.Velocity", 0.7);
+		config.addDefault("Abilities.Earth.EarthKick.AllowMetal", true);
+		config.addDefault("Abilities.Earth.EarthKick.ReplaceSource", false);
 		config.addDefault("Abilities.Earth.EarthKick.Collisions.FireBlast.Enabled", true);
 		config.addDefault("Abilities.Earth.EarthKick.Collisions.FireBlast.RemoveFirst", false);
 		config.addDefault("Abilities.Earth.EarthKick.Collisions.FireBlast.RemoveSecond", true);
@@ -306,8 +319,8 @@ public class JedCoreConfig {
 			+ "If you then Left-Click at an object or player, a small piece of earth will come up "
 			+ "from the ground and move towards your target to deal damage and knock them back. "
 			+ "Additionally, hold Sneak to control the flow of the line!");
-		config.addDefault("Abilities.Earth.EarthLine.Cooldown", 0);
-		config.addDefault("Abilities.Earth.EarthLine.PrepareCooldown", 3000);
+		config.addDefault("Abilities.Earth.EarthLine.Cooldown", 3000);
+		config.addDefault("Abilities.Earth.EarthLine.PrepareCooldown", 0);
 		config.addDefault("Abilities.Earth.EarthLine.Range", 30);
 		config.addDefault("Abilities.Earth.EarthLine.PrepareRange", 3);
 		config.addDefault("Abilities.Earth.EarthLine.SourceKeepRange", 7);
@@ -337,6 +350,14 @@ public class JedCoreConfig {
 		config.addDefault("Abilities.Earth.EarthShard.PrepareRange", 5);
 		config.addDefault("Abilities.Earth.EarthShard.AbilityRange", 30);
 		config.addDefault("Abilities.Earth.EarthShard.MaxShards", 3);
+		config.addDefault("Abilities.Earth.EarthShard.KnockUp.Others.Allow", true);
+		config.addDefault("Abilities.Earth.EarthShard.KnockUp.Others.Velocity", 1.0);
+		config.addDefault("Abilities.Earth.EarthShard.KnockUp.Others.Range", 1.5);
+		config.addDefault("Abilities.Earth.EarthShard.KnockUp.Self.Allow", true);
+		config.addDefault("Abilities.Earth.EarthShard.KnockUp.Self.Velocity", 1.0);
+		config.addDefault("Abilities.Earth.EarthShard.KnockUp.Self.Range", 1.5);
+//		config.addDefault("Abilities.Earth.EarthShard.KnockUp.Allow", true);
+//		config.addDefault("Abilities.Earth.EarthShard.KnockUp.Velocity", 1.0);
 		config.addDefault("Abilities.Earth.EarthShard.AbilityCollisionRadius", 2.0);
 		config.addDefault("Abilities.Earth.EarthShard.EntityCollisionRadius", 1.4);
 		
@@ -425,6 +446,7 @@ public class JedCoreConfig {
 		config.addDefault("Abilities.Earth.LavaThrow.SourceGrabRange", 4);
 		config.addDefault("Abilities.Earth.LavaThrow.SourceRegenDelay", 10000);
 		config.addDefault("Abilities.Earth.LavaThrow.FireTicks", 80);
+		config.addDefault("Abilities.Earth.LavaThrow.CurveFactor", 0.5);
 
 		config.addDefault("Abilities.Earth.MagnetShield.Enabled", true);
 		config.addDefault("Abilities.Earth.MagnetShield.Description", "Repel any metal projectiles using a strong magnetic shield. "
@@ -588,7 +610,15 @@ public class JedCoreConfig {
 		config.addDefault("Abilities.Earth.EarthCombo.MagmaBlast.MaxDistanceFromSources", 15);
 		config.addDefault("Abilities.Earth.EarthCombo.MagmaBlast.Combination", Arrays.asList("EarthBlast:SHIFT_DOWN", "LavaFlow:SHIFT_UP", "LavaFlow:SHIFT_DOWN", "LavaFlow:RIGHT_CLICK_BLOCK"));
 		config.addDefault("Abilities.Earth.EarthCombo.MagmaBlast.Instructions", "EarthBlast (Hold sneak) > LavaFlow (Release sneak) > LavaFlow (Hold sneak) > LavaFlow (Right-click a block) > LavaFlow (Left-click multiple times)");
-		
+
+		ArrayList<String> combustionSkipMaterials = new ArrayList<>();
+		combustionSkipMaterials.add("#bee_growables");
+		combustionSkipMaterials.add("#cave_vines");
+		combustionSkipMaterials.add("#crops");
+		combustionSkipMaterials.add("#flowers");
+		combustionSkipMaterials.add("vine");
+		combustionSkipMaterials.add("pale_hanging_moss");
+
 		config.addDefault("Abilities.Fire.Combustion.Enabled", true);
 		config.addDefault("Abilities.Fire.Combustion.Description", "Hold Shift to focus large amounts of energy into your body, "
 				+ "Release Shift to fire Combustion. Move your mouse to "
@@ -611,7 +641,8 @@ public class JedCoreConfig {
 		config.addDefault("Abilities.Fire.Combustion.InstantExplodeIfHit", true);
 		config.addDefault("Abilities.Fire.Combustion.ExplodeOnDeath", true);
 		config.addDefault("Abilities.Fire.Combustion.RemovalPolicy.SwappedSlots.Enabled", false);
-		
+		config.addDefault("Abilities.Fire.Combustion.SkipMaterials", combustionSkipMaterials);
+
 		config.addDefault("Abilities.Fire.Discharge.Enabled", true);
 		config.addDefault("Abilities.Fire.Discharge.Description", "Left-Click to shoot bolts of electricity out "
 				+ "of your fingertips zapping what ever it hits!");
@@ -622,6 +653,8 @@ public class JedCoreConfig {
 		config.addDefault("Abilities.Fire.Discharge.SlotSwapping", false);
 		config.addDefault("Abilities.Fire.Discharge.EntityCollisionRadius", 1.0);
 		config.addDefault("Abilities.Fire.Discharge.AbilityCollisionRadius", 1.0);
+		config.addDefault("Abilities.Fire.Discharge.Sound.Volume", 0.6);
+		config.addDefault("Abilities.Fire.Discharge.Sound.Interval", 6);
 		
 		config.addDefault("Abilities.Fire.FireBall.Enabled", true);
 		config.addDefault("Abilities.Fire.FireBall.Description", "To use, simply Left-Click to shoot a fireball at your target!");
@@ -686,7 +719,8 @@ public class JedCoreConfig {
 		config.addDefault("Abilities.Fire.FirePunch.Cooldown", 4000);
 		config.addDefault("Abilities.Fire.FirePunch.FireTicks", 2000);
 		config.addDefault("Abilities.Fire.FirePunch.Damage", 2.0);
-		
+		config.addDefault("Abilities.Fire.FirePunch.BurnsDroppedItems", true);
+
 		config.addDefault("Abilities.Fire.FireShots.Enabled", true);
 		config.addDefault("Abilities.Fire.FireShots.Description", "To use, tap Sneak (Default: Shift) to summon a "
 				+ "FireBalls at your hand, then Left Click to shoot off each ball! "
@@ -725,6 +759,8 @@ public class JedCoreConfig {
 		config.addDefault("Abilities.Fire.LightningBurst.AvatarChargeUp", 1000);
 		config.addDefault("Abilities.Fire.LightningBurst.Radius", 12);
 		config.addDefault("Abilities.Fire.LightningBurst.Damage", 9.0);
+		config.addDefault("Abilities.Fire.LightningBurst.Sound.Volume", 0.6);
+		config.addDefault("Abilities.Fire.LightningBurst.Sound.Interval", 6);
 		
 		config.addDefault("Abilities.Water.Bloodbending.Enabled", true);
 		config.addDefault("Abilities.Water.Bloodbending.Description", "This ability allows a skilled waterbender "
@@ -830,10 +866,18 @@ public class JedCoreConfig {
 				+ "tips, then attack an enemy to slow them down and do a bit of damage!");
 		config.addDefault("Abilities.Water.IceClaws.Cooldown", 6000);
 		config.addDefault("Abilities.Water.IceClaws.ChargeTime", 1000);
-		config.addDefault("Abilities.Water.IceClaws.SlowDuration", 5000);
-		config.addDefault("Abilities.Water.IceClaws.Damage", 3.0);
 		config.addDefault("Abilities.Water.IceClaws.Range", 10);
 		config.addDefault("Abilities.Water.IceClaws.Throwable", true);
+		config.addDefault("Abilities.Water.IceClaws.Punch.Cooldown", 4000);
+		config.addDefault("Abilities.Water.IceClaws.Punch.Damage", 2.0);
+		config.addDefault("Abilities.Water.IceClaws.Punch.Slowness", 3);
+		config.addDefault("Abilities.Water.IceClaws.Punch.SlowDuration", 5000);
+		config.addDefault("Abilities.Water.IceClaws.Throw.Cooldown", 4000);
+		config.addDefault("Abilities.Water.IceClaws.Throw.Damage", 2.0);
+		config.addDefault("Abilities.Water.IceClaws.Throw.Slowness", 3);
+		config.addDefault("Abilities.Water.IceClaws.Throw.SlowDuration", 5000);
+		config.addDefault("Abilities.Water.IceClaws.Throw.Speed", 1.0);
+		config.addDefault("Abilities.Water.IceClaws.AllowHandSwap", true);
 		
 		config.addDefault("Abilities.Water.IceWall.Enabled", true);
 		config.addDefault("Abilities.Water.IceWall.Description", "IceWall allows an icebender to create a wall of ice, similar to "
@@ -952,6 +996,8 @@ public class JedCoreConfig {
 		config.addDefault("Abilities.Chi.DaggerThrow.Damage", 1.0);
 		config.addDefault("Abilities.Chi.DaggerThrow.RequireArrows", false);
 		config.addDefault("Abilities.Chi.DaggerThrow.ParticleTrail", true);
+		config.addDefault("Abilities.Chi.DaggerThrow.RequireArrows", false);
+		config.addDefault("Abilities.Chi.DaggerThrow.AllowPickup", false);
 		config.addDefault("Abilities.Chi.DaggerThrow.AbilityCollisionRadius", 0.5);
 		config.addDefault("Abilities.Chi.DaggerThrow.Interactions.WaterSpout.Enabled", true);
 		config.addDefault("Abilities.Chi.DaggerThrow.Interactions.WaterSpout.Cooldown", 1000);
@@ -1011,8 +1057,8 @@ public class JedCoreConfig {
 
 		//Air
 		lang.addDefault("Abilities.Air.AirBlade.DeathMessage", "{victim} was sliced in two by {attacker}'s {ability}");
-		lang.addDefault("Abilities.Air.AirPunch.DeathMessage", "{victim} was exploded from {attacker}'s {ability}");
-		lang.addDefault("Abilities.Air.SonicBlast.DeathMessage", "{victim}'s ears burst from {attacker}'s {ability}");
+		lang.addDefault("Abilities.Air.AirPunch.DeathMessage", "{victim} was exploded by {attacker}'s {ability}");
+		lang.addDefault("Abilities.Air.SonicBlast.DeathMessage", "{victim}'s ears burst after {attacker}'s {ability}");
 
 		//Chi
 		lang.addDefault("Abilities.Chi.DaggerThrow.DeathMessage", "{victim} got stabbed too many times from {attacker}'s {ability}");

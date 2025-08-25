@@ -2,7 +2,6 @@ package com.jedk1.jedcore.util;
 
 import com.projectkorra.projectkorra.earthbending.passive.DensityShift;
 import com.projectkorra.projectkorra.util.TempBlock;
-
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
@@ -38,7 +37,6 @@ public class RegenTempBlock {
 	 * @param delay Delay until block regens.
 	 * @param temp Use TempBlock or BlockState.
 	 */
-	@SuppressWarnings("deprecation")
 	public RegenTempBlock(Block block, Material material, BlockData data, long delay, boolean temp) {
 		this(block, material, data, delay, temp, null);
 	}
@@ -147,11 +145,8 @@ public class RegenTempBlock {
 	 * @return
 	 */
 	public static boolean hasBlock(Block block) {
-		if (blocks.containsKey(block)) {
-			return true;
-		}
-		return false;
-	}
+        return blocks.containsKey(block);
+    }
 	
 	/**
 	 * Returns true if the block is stored as a temp block.
@@ -159,11 +154,8 @@ public class RegenTempBlock {
 	 * @return
 	 */
 	public static boolean isTempBlock(Block block) {
-		if (temps.containsKey(block)) {
-			return true;
-		}
-		return false;
-	}
+        return temps.containsKey(block);
+    }
 	
 	/**
 	 * Returns true if the block is stored as a block state.
@@ -171,11 +163,8 @@ public class RegenTempBlock {
 	 * @return
 	 */
 	public static boolean isBlockState(Block block) {
-		if (states.containsKey(block)) {
-			return true;
-		}
-		return false;
-	}
+        return states.containsKey(block);
+    }
 	
 	private static class RegenBlockData {
 		long endTime;

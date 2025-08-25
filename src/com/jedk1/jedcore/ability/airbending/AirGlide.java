@@ -7,7 +7,6 @@ import com.projectkorra.projectkorra.GeneralMethods;
 import com.projectkorra.projectkorra.ability.AddonAbility;
 import com.projectkorra.projectkorra.ability.AirAbility;
 import com.projectkorra.projectkorra.airbending.AirSpout;
-
 import com.projectkorra.projectkorra.attribute.Attribute;
 import org.bukkit.Location;
 import org.bukkit.block.BlockFace;
@@ -17,19 +16,20 @@ import org.bukkit.util.Vector;
 
 public class AirGlide extends AirAbility implements AddonAbility {
 
-	// The player must touch the ground for the cooldown to start if this is true.
-	private boolean requireGround;
-	@Attribute(Attribute.SPEED)
-	private double speed;
 	private double fallSpeed;
 	private int particles;
 	private boolean airspout;
+	private long lastCooldown;
+	private boolean progressing;
+	// The player must touch the ground for the cooldown to start if this is true.
+	private boolean requireGround;
+
+	@Attribute(Attribute.SPEED)
+	private double speed;
 	@Attribute(Attribute.COOLDOWN)
 	private long cooldown;
 	@Attribute(Attribute.DURATION)
 	private long duration;
-	private long lastCooldown;
-	private boolean progressing;
 
 	public AirGlide(Player player) {
 		super(player);
@@ -76,13 +76,10 @@ public class AirGlide extends AirAbility implements AddonAbility {
 			}
 
 			if (CollisionDetector.isOnGround(this.player)) {
-				// Flip this so remove() actually removes the instance.
 				this.requireGround = false;
 				remove();
 			} else {
-				// Limit how frequently addCooldown is called so bending board isn't spammed with updates.
 				if (time > lastCooldown + cooldown / 2) {
-					// Keep resetting the cooldown until the player touches the ground.
 					bPlayer.addCooldown(this);
 					lastCooldown = time;
 				}
@@ -90,6 +87,7 @@ public class AirGlide extends AirAbility implements AddonAbility {
 		}
 	}
 
+	@SuppressWarnings("deprecation")
 	private void update(long time) {
 		if (this.duration > 0 && time >= this.getStartTime() + this.duration) {
 			remove();
@@ -113,12 +111,15 @@ public class AirGlide extends AirAbility implements AddonAbility {
 
 		if (!player.isOnGround()) {
 			Location firstLocation = player.getEyeLocation();
+
 			Vector directionVector = firstLocation.getDirection().normalize();
 			double distanceFromPlayer = speed;
+
 			Vector shootFromPlayer = new Vector(directionVector.getX() * distanceFromPlayer, -fallSpeed, directionVector.getZ() * distanceFromPlayer);
 			firstLocation.add(shootFromPlayer.getX(), shootFromPlayer.getY(), shootFromPlayer.getZ());
 
 			GeneralMethods.setVelocity(this, player, shootFromPlayer);
+
 			playAirbendingParticles(player.getLocation(), particles);
 		} else if (!isTransparent(player.getLocation().getBlock().getRelative(BlockFace.DOWN))) {
 			remove();
